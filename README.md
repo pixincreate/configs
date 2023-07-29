@@ -8,6 +8,8 @@ This repo contains all of my development configs. I never had a backup of these 
 - VSCode profile: Tokyo-Night theme with the extensions that I use
 - Unixified powershell profile
 - Extras: GPEdit and HyperV enabler (Run in admin mode)
+- Registry Edits
+- Theme
 
 ## Powershell for better life (Admin / sudo recommended)
 
