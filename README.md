@@ -7,6 +7,7 @@ This repo contains all of my development configs. I never had a backup of these 
 - starship.toml: Tokyo-Night theme
 - VSCode profile: Tokyo-Night theme with the extensions that I use
 - Unixified powershell profile
+- Extras: GPEdit and HyperV enabler (Run in admin mode)
 
 ## Powershell for better life (Admin / sudo recommended)
 
