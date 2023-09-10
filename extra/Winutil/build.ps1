@@ -1,0 +1,1 @@
+ps2exe "D:\Program Files\Utils\Winutil\winutil.ps1" "D:\Program Files\Utils\Winutil\winutil.exe" -iconFile "D:\Program Files\Utils\Winutil\windows.ico" -title 'Winutil' -description 'Windows Utility Tools suite' -version '1.0.0'

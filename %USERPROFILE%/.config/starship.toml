@@ -1,209 +1,144 @@
-# Get editor completions based on the config schema
-"$schema" = 'https://starship.rs/config-schema.json'
-
-# Tokyo-Night
 format = """
-[ ](bg:blurple_darkest)\
-[ ](bg:blurple_dark)\
-[ ](bg:blurple_darker)\
-[ ](bg:blurple)\
-$username\
+[](#9A348E)\
 $os\
-[](bg:blue fg:blurple)\
+$username\
+[](bg:#DA627D fg:#9A348E)\
 $directory\
-[](fg:blue bg:blurple_dark)\
+[](fg:#DA627D bg:#FCA17D)\
 $git_branch\
 $git_status\
-[](fg:blurple_dark bg:blurple_darkest)\
-$java\
-$nodejs\
-$python\
-$rust\
-$golang\
-$php\
+[](fg:#FCA17D bg:#86BBD8)\
 $c\
 $elixir\
 $elm\
+$golang\
 $gradle\
 $haskell\
+$java\
 $julia\
+$nodejs\
 $nim\
+$rust\
 $scala\
-[](fg:blurple_darkest bg:black)\
+[](fg:#86BBD8 bg:#06969A)\
+$docker_context\
+[](fg:#06969A bg:#33658A)\
 $time\
-[ ](fg:black)\
-\n$character"""
+[ ](fg:#33658A)\
+"""
 
-# Set Tokyo Night as custom color palette
-# You can also use the legacy version of the palette by setting the palette to 'tokyo_night_legacy'
-palette = 'tokyo_night'
-
-# Define custom colors
-# Tokyo Night palette (consistent with the VSCode theme)
-[palettes.tokyo_night]
-blurple = "#a9b1dc"
-blurple_darker = "#9aa5ce"
-blurple_dark = "#565f89"
-blurple_darkest = "#414868"
-white = "#c0caf5"
-black = "#24283b"
-night = "#1a1b26"
-blue = "#7aa2f7"
-
-# Tokyo Night Legacy palette (consistent with the old Starship preset)
-[palettes.tokyo_night_legacy]
-blurple = "#a3aed2"
-blurple_darker = "#7d8cad"
-blurple_dark = "#394260"
-blurple_darkest = "#212736"
-white = "#e3e5e5"
-black = "#1d2230"
-night = "#090c0c"
-blue = "#769ff0"
+# Disable the blank line at the start of the prompt
+# add_newline = false
 
 # You can also replace your username with a neat symbol like   or disable this
+# and use the os module below
 [username]
 show_always = true
-style_user = "bg:blurple fg:night"
-style_root = "bg:blurple fg:night"
+style_user = "bg:#9A348E"
+style_root = "bg:#9A348E"
 format = '[$user ]($style)'
-disabled = true # Disabled by default
+disabled = false
 
-# Represents the current operating system
+# An alternative to the username module which displays a symbol that
+# represents the current operating system
 [os]
-style = "bg:blurple fg:night"
-disabled = false # Enabled by default
+style = "bg:#9A348E"
+disabled = true      # Disabled by default
 
-# Define custom symbols for operating systems
-[os.symbols]
-Alpine = " "
-Amazon = " "
-Android = "󰀲 "
-Arch = " "
-CentOS = " "
-Debian = "󰣚 "
-EndeavourOS = " "
-Fedora = "󰣛 "
-FreeBSD = "󰣠 "
-Gentoo = "󰣨 "
-Illumos = " "
-Linux = "󰌽 "
-Macos = "󰀵 "
-Manjaro = "󱘊 "
-Mint = "󰣭 "
-NixOS = "󱄅 "
-OpenBSD = " "
-openSUSE = " "
-Pop = " "
-Raspbian = " "
-Redhat = "󱄛 "
-RedHatEnterprise = "󱄛 "
-Redox = "🧪 "
-Solus = " "
-SUSE = " "
-Ubuntu = "󰕈 "
-Unknown = " "
-Windows = "󰍲 "
-
-# Represents the current directory
 [directory]
-style = "fg:white bg:blue"
+style = "bg:#DA627D"
 format = "[ $path ]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
-# Define custom symbols for directories
+# Here is how you can shorten some long paths by text replacement
+# similar to mapped_locations in Oh My Posh:
 [directory.substitutions]
 "Documents" = "󰈙 "
 "Downloads" = " "
 "Music" = " "
 "Pictures" = " "
-
-# Represents the current git branch
-[git_branch]
-symbol = ""
-style = "bg:blurple_dark"
-format = '[[ $symbol $branch ](fg:blue bg:blurple_dark)]($style)'
-
-# Represents the current git status
-[git_status]
-style = "bg:blurple_dark"
-format = '[[($all_status$ahead_behind )](fg:blue bg:blurple_dark)]($style)'
-
-# Define custom symbols for languages
-[java]
-symbol = ""
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
-
-[nodejs]
-symbol = ""
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
-
-[python]
-symbol = ""
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
-
-[rust]
-symbol = ""
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
-
-[golang]
-symbol = ""
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
-
-[php]
-symbol = ""
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+# Keep in mind that the order matters. For example:
+# "Important Documents" = " 󰈙 "
+# will not be replaced, because "Documents" was already substituted before.
+# So either put "Important Documents" before "Documents" or use the substituted version:
+# "Important 󰈙 " = " 󰈙 "
 
 [c]
 symbol = " "
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
+
+[docker_context]
+symbol = " "
+style = "bg:#06969A"
+format = '[ $symbol $context ]($style) $path'
 
 [elixir]
 symbol = " "
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
 
 [elm]
 symbol = " "
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
+
+[git_branch]
+symbol = ""
+style = "bg:#FCA17D"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "bg:#FCA17D"
+format = '[$all_status$ahead_behind ]($style)'
+
+[golang]
+symbol = " "
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
 
 [gradle]
-symbol = " "
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
 
 [haskell]
 symbol = " "
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
+
+[java]
+symbol = " "
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
 
 [julia]
 symbol = " "
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
+
+[nodejs]
+symbol = ""
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
 
 [nim]
 symbol = "󰆥 "
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
+
+[rust]
+symbol = ""
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
 
 [scala]
 symbol = " "
-style = "bg:blurple_darkest"
-format = '[[ $symbol ($version) ](fg:blue bg:blurple_darkest)]($style)'
+style = "bg:#86BBD8"
+format = '[ $symbol ($version) ]($style)'
 
-# Represents the current time
 [time]
 disabled = false
-time_format = "%R" # Hour:Minute Format
-style = "bg:black"
-format = '[[  $time ](fg:#a0a9cb bg:black)]($style)'
+time_format = "%R"             # Hour:Minute Format
+style = "bg:#33658A"
+format = '[ ♥ $time ]($style)'
