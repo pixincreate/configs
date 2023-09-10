@@ -4,7 +4,6 @@ This repo contains all of my development configs. I never had a backup of these 
 
 ## Contents
 
-- starship.toml: Pastel-Powerline theme
 - VSCode profile: Pastel theme with the extensions that I use
 - Unixified powershell profile
 - Extras:
@@ -12,13 +11,13 @@ This repo contains all of my development configs. I never had a backup of these 
     - Winutil
 - Registry Edits
 - Theme
-- Powershell Profile
+- Powershell Profile and Setup with Starship
 
 ## Powershell for better life (Admin / sudo recommended)
 
+Make sure you install a [NerdFont](https://github.com/ryanoasis/nerd-fonts/releases/latest) (FiraCode Mono is preferred) and is selected in your terminal
 ### One line powershell profile installer
 
 ```pwsh
-irm "https://github.com/pixincreate/configs/raw/main/pwsh_profile.ps1" | iex
+irm "https://github.com/pixincreate/configs/raw/main/powershell/setup.ps1" | iex
 ```
-
