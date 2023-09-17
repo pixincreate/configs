@@ -1,5 +1,10 @@
 # Credits: ChrisTitusTech
 
+function print_line() {
+    Write-Output "--------------------------------------------------"
+    Write-Output "$args"
+}
+
 # Font Install
 # Get all installed font families
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
@@ -7,7 +12,7 @@ $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Familie
 
 # Check if FiraCode is installed
 if ($fontFamilies -notcontains "FiraCode Nerd Font") {
-    Write-Output "Installing FiraCode Nerd Font..."
+    print_line "Installing FiraCode Nerd Font..."
     # Download and install FiraCode NerdFont
     $webClient = New-Object System.Net.WebClient
     $webClient.DownloadFile("https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip", ".\FiraCode.zip")
@@ -27,36 +32,36 @@ if ($fontFamilies -notcontains "FiraCode Nerd Font") {
 }
 
 # Starship Install
-Write-Output "Installing Starship..."
+print_line "Installing Starship..."
 winget install starship
 
-Write-Output "Creating Configs..."
+print_line "Creating Configs..."
 if (-not (Test-Path -Path ".\ .config" -PathType Container)) {
     New-Item -ItemType Directory -Name ".config"
     Write-Host "Directory '.config' created!"
 }
 
-Write-Output "Writing Starship configs..."
+print_line "Writing Starship configs..."
 Start-Process -Wait powershell.exe -ArgumentList "starship preset pastel-powerline -o $env:userprofile\.config\starship.toml"
 
 # Install Walk, the terminal navigator
-Write-Output "Installing terminal navigator..."
+print_line "Installing terminal navigator..."
 irm -Uri "https://github.com/antonmedv/walk/releases/latest/download/walk_windows_amd64.exe" -OutFile "$env:userprofile\.config\walk.exe"
 
 # Install Winutil, the windows utility
-Write-Output "Installing winutil..."
+print_line "Installing winutil..."
 irm -Uri "https://github.com/pixincreate/configs/raw/main/extra/Winutil/winutil.exe" -OutFile "$env:userprofile\.config\winutil.exe"
 
 # Terminal Icons Install
-Write-Output "Installing PSGallery module..."
+print_line "Installing PSGallery module..."
 Install-Module -Name Terminal-Icons -Repository PSGallery -Force
 
 # Install GSudo
-Write-Output "Installing GSudo through winget..."
+print_line "Installing GSudo through winget..."
 winget install gsudo
 
 # If the file does not exist, create it.
-Write-Output "Writing powershell profile to the current terminal..."
+print_line "Writing powershell profile to the current terminal..."
 if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
     try {
         # Detect Version of Powershell & Create Profile directories if they do not exist.
@@ -79,9 +84,9 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
     }
 }
 # If the file already exists, show the message and do nothing.
- else {
-		 Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1 -Force
-		 Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
-		 Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
- }
+else {
+    Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1 -Force
+    Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+    Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
+}
 & $profile
