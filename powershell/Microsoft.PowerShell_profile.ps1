@@ -51,7 +51,8 @@ if (Test-Path "$env:USERPROFILE\Work Folders") {
 function prompt { 
     if ($isAdmin) {
         "[" + (Get-Location) + "] # " 
-    } else {
+    }
+    else {
         "[" + (Get-Location) + "] $ "
     }
 }
@@ -65,7 +66,8 @@ if ($isAdmin) {
 function dirs {
     if ($args.Count -gt 0) {
         Get-ChildItem -Recurse -Include "$args" | Foreach-Object FullName
-    } else {
+    }
+    else {
         Get-ChildItem -Recurse | Foreach-Object FullName
     }
 }
@@ -74,7 +76,8 @@ function dirs {
 function Edit-Profile {
     if ($host.Name -match "ise") {
         $psISE.CurrentPowerShellTab.Files.Add($profile.CurrentUserAllHosts)
-    } else {
+    }
+    else {
         notepad $profile.CurrentUserAllHosts
     }
 }
@@ -98,21 +101,28 @@ Function Test-CommandExists {
 # If your favorite editor is not here, add an elseif and ensure that the directory it is installed in exists in your $env:Path
 #
 if (Test-CommandExists nvim) {
-    $EDITOR='nvim'
-} elseif (Test-CommandExists pvim) {
-    $EDITOR='pvim'
-} elseif (Test-CommandExists vim) {
-    $EDITOR='vim'
-} elseif (Test-CommandExists vi) {
-    $EDITOR='vi'
-} elseif (Test-CommandExists code) {
-    $EDITOR='code'
-} elseif (Test-CommandExists notepad) {
-    $EDITOR='notepad'
-} elseif (Test-CommandExists notepad++) {
-    $EDITOR='notepad++'
-} elseif (Test-CommandExists sublime_text) {
-    $EDITOR='sublime_text'
+    $EDITOR = 'nvim'
+}
+elseif (Test-CommandExists pvim) {
+    $EDITOR = 'pvim'
+}
+elseif (Test-CommandExists vim) {
+    $EDITOR = 'vim'
+}
+elseif (Test-CommandExists vi) {
+    $EDITOR = 'vi'
+}
+elseif (Test-CommandExists code) {
+    $EDITOR = 'code'
+}
+elseif (Test-CommandExists notepad) {
+    $EDITOR = 'notepad'
+}
+elseif (Test-CommandExists notepad++) {
+    $EDITOR = 'notepad++'
+}
+elseif (Test-CommandExists sublime_text) {
+    $EDITOR = 'sublime_text'
 }
 Set-Alias -Name vim -Value $EDITOR
 
@@ -133,14 +143,15 @@ function Get-PubIP {
 }
 function uptime {
     #Windows Powershell only
-	If ($PSVersionTable.PSVersion.Major -eq 5 ) {
-		Get-WmiObject win32_operatingsystem |
-        Select-Object @{EXPRESSION={ $_.ConverttoDateTime($_.lastbootuptime)}} | Format-Table -HideTableHeaders
-	} Else {
-        net statistics workstation | Select-String "since" | foreach-object {$_.ToString().Replace('Statistics since ', '')}
+    If ($PSVersionTable.PSVersion.Major -eq 5 ) {
+        Get-WmiObject win32_operatingsystem |
+        Select-Object @{EXPRESSION = { $_.ConverttoDateTime($_.lastbootuptime) } } | Format-Table -HideTableHeaders
+    }
+    Else {
+        net statistics workstation | Select-String "since" | foreach-object { $_.ToString().Replace('Statistics since ', '') }
     }
 }
-function reload-profile {
+function Update-Profile {
     & $profile
 }
 function find-file($name) {
@@ -185,9 +196,10 @@ function pgrep($name) {
 
 # touch command in powershell
 function touch {
-    if((Test-Path -Path ($args[0])) -eq $false) {
+    if ((Test-Path -Path ($args[0])) -eq $false) {
         Set-Content -Path ($args[0]) -Value ($null)
-    } else {
+    }
+    else {
         (Get-Item ($args[0])).LastWriteTime = Get-Date 
     }
 }
@@ -199,7 +211,7 @@ function mkdir {
 # Walk -- a terminal navigator
 function lk() {
     $env:PATH += ";$env:userprofile\.config\"
-    cd $(walk $args)
+    Set-Location $(walk $args)
 }
 
 # Execute cmd commands within powershell by prefixing cmd
@@ -208,17 +220,15 @@ function cmd() {
 }
 
 function winutil() {
-    $env:PATH += ";$env:userprofile\.config\"
-    winutil.exe
+    Invoke-RestMethod https://christitus.com/win | Invoke-Expression
 }
 
-function reload-Console {
-    clear
-    Write-Host "Reload Console"
+function Update-Console {
+    Clear-Host
     Get-Process -Id $PID | Select-Object -ExpandProperty Path | ForEach-Object { Invoke-Command { & "$_" } -NoNewScope }
 }
 
-New-Alias reload reload-Console
+New-Alias reload Update-Console
 
 # Final Line to set prompt AKA invoke starship
 Invoke-Expression (&starship init powershell)

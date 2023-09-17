@@ -1,1 +1,1 @@
-irm https://christitus.com/win | iex
+Invoke-RestMethod https://christitus.com/win | Invoke-Expression

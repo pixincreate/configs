@@ -36,9 +36,8 @@ print_line "Installing Starship..."
 winget install starship
 
 print_line "Creating Configs..."
-if (-not (Test-Path -Path ".\ .config" -PathType Container)) {
-    New-Item -ItemType Directory -Name ".config"
-    Write-Host "Directory '.config' created!"
+if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
+    New-Item -Path "$env:userprofile\.config" -ItemType Directory
 }
 
 print_line "Writing Starship configs..."
@@ -46,11 +45,7 @@ Start-Process -Wait powershell.exe -ArgumentList "starship preset pastel-powerli
 
 # Install Walk, the terminal navigator
 print_line "Installing terminal navigator..."
-irm -Uri "https://github.com/antonmedv/walk/releases/latest/download/walk_windows_amd64.exe" -OutFile "$env:userprofile\.config\walk.exe"
-
-# Install Winutil, the windows utility
-print_line "Installing winutil..."
-irm -Uri "https://github.com/pixincreate/configs/raw/main/extra/Winutil/winutil.exe" -OutFile "$env:userprofile\.config\winutil.exe"
+Invoke-RestMethod -Uri "https://github.com/antonmedv/walk/releases/latest/download/walk_windows_amd64.exe" -OutFile "$env:userprofile\.config\walk.exe"
 
 # Terminal Icons Install
 print_line "Installing PSGallery module..."
