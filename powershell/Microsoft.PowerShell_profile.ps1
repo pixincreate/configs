@@ -212,5 +212,13 @@ function winutil() {
     winutil.exe
 }
 
+function reload-Console {
+    clear
+    Write-Host "Reload Console"
+    Get-Process -Id $PID | Select-Object -ExpandProperty Path | ForEach-Object { Invoke-Command { & "$_" } -NoNewScope }
+}
+
+New-Alias reload reload-Console
+
 # Final Line to set prompt AKA invoke starship
 Invoke-Expression (&starship init powershell)
