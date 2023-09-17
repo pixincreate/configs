@@ -1,48 +1,14 @@
 # Credits: ChrisTitusTech
 
-#If the file does not exist, create it.
-if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
-    try {
-        # Detect Version of Powershell & Create Profile directories if they do not exist.
-        if ($PSVersionTable.PSEdition -eq "Core" ) { 
-            if (!(Test-Path -Path ($env:userprofile + "\Documents\Powershell"))) {
-                New-Item -Path ($env:userprofile + "\Documents\Powershell") -ItemType "directory"
-            }
-        }
-        elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-            if (!(Test-Path -Path ($env:userprofile + "\Documents\WindowsPowerShell"))) {
-                New-Item -Path ($env:userprofile + "\Documents\WindowsPowerShell") -ItemType "directory"
-            }
-        }
-
-        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -o $PROFILE
-        Write-Host "The profile @ [$PROFILE] has been created."
-    }
-    catch {
-        throw $_.Exception.Message
-    }
-}
-# If the file already exists, show the message and do nothing.
- else {
-		 Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1
-		 Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
-		 Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
- }
-& $profile
-
-# OMP Install
-#
-winget install starship
-
 # Font Install
 # Get all installed font families
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
 $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families
 
 # Check if FiraCode is installed
-if ($fontFamilies -notcontains "FiraCode") {
+if ($fontFamilies -notcontains "FiraCode Nerd Font") {
     
-    # Download and install FiraCode
+    # Download and install FiraCode NerdFont
     $webClient = New-Object System.Net.WebClient
     $webClient.DownloadFile("https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip", ".\FiraCode.zip")
 
@@ -67,5 +33,41 @@ starship preset pastel-powerline -o $env:userprofile\.config\starship.toml
 # Install Walk, the terminal navigator
 irm -Uri "https://github.com/antonmedv/walk/releases/latest/download/walk_windows_amd64.exe" -OutFile "$env:userprofile\.config\walk.exe"
 
+# Install Winutil, the windows utility
+irm -Uri "https://github.com/pixincreate/configs/raw/main/extra/Winutil/winutil.exe" -OutFile "$env:userprofile\.config\winutil.exe"
+
 # Terminal Icons Install
-Install-Module -Name Terminal-Icons -Repository PSGallery
+Install-Module -Name Terminal-Icons -Repository PSGallery -Force
+
+# Install GSudo
+winget install gsudo
+
+# If the file does not exist, create it.
+if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
+    try {
+        # Detect Version of Powershell & Create Profile directories if they do not exist.
+        if ($PSVersionTable.PSEdition -eq "Core" ) { 
+            if (!(Test-Path -Path ($env:userprofile + "\Documents\Powershell"))) {
+                New-Item -Path ($env:userprofile + "\Documents\Powershell") -ItemType "directory"
+            }
+        }
+        elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+            if (!(Test-Path -Path ($env:userprofile + "\Documents\WindowsPowerShell"))) {
+                New-Item -Path ($env:userprofile + "\Documents\WindowsPowerShell") -ItemType "directory"
+            }
+        }
+
+        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -o $PROFILE
+        Write-Host "The profile @ [$PROFILE] has been created."
+    }
+    catch {
+        throw $_.Exception.Message
+    }
+}
+# If the file already exists, show the message and do nothing.
+ else {
+		 Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1 -Force
+		 Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+		 Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
+ }
+& $profile

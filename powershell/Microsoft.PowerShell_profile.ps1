@@ -207,5 +207,10 @@ function cmd() {
     cmd.exe /c "$args"
 }
 
+function winutil() {
+    $env:PATH += ";$env:userprofile\.config\"
+    winutil.exe
+}
+
 # Final Line to set prompt AKA invoke starship
 Invoke-Expression (&starship init powershell)
