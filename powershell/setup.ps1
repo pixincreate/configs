@@ -31,11 +31,15 @@ if ($fontFamilies -notcontains "FiraCode Nerd Font") {
     Remove-Item -Path ".\FiraCode.zip" -Force
 }
 
-# Starship Install
-print_line "Installing Starship..."
-winget install starship
+# Install packages
+print_line "Installing Packages..."
+& "$PSScriptRoot\modules\winget_install.ps1"
 
-print_line "Creating Configs..."
+# Setup the terminal
+print_line "Setting up Terminal ..."
+& "$PSScriptRoot\modules\file_copy.ps1" -sourceDirectory ".\.config\wt\LocalState\" -destinationBaseDirectory "C:\Users\PiXW\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
+
+print_line "Creating configs..."
 if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
     New-Item -Path "$env:userprofile\.config" -ItemType Directory
 }
@@ -50,10 +54,6 @@ Invoke-RestMethod -Uri "https://github.com/antonmedv/walk/releases/latest/downlo
 # Terminal Icons Install
 print_line "Installing PSGallery module..."
 Install-Module -Name Terminal-Icons -Repository PSGallery -Force
-
-# Install GSudo
-print_line "Installing GSudo through winget..."
-winget install gsudo
 
 # If the file does not exist, create it.
 print_line "Writing powershell profile to the current terminal..."
@@ -71,7 +71,7 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
             }
         }
 
-        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -o $PROFILE
+        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
         Write-Host "The profile @ [$PROFILE] has been created."
     }
     catch {

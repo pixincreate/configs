@@ -230,5 +230,6 @@ function Update-Console {
 
 New-Alias reload Update-Console
 
-# Final Line to set prompt AKA invoke starship
+# Invoke Expressions
 Invoke-Expression (&starship init powershell)
+Invoke-Expression (& { (zoxide init powershell | Out-String) })

@@ -4,13 +4,14 @@ This repo contains all of my development configs. I never had a backup of these 
 
 ## Contents
 
-- VSCode profile: Pastel theme with the extensions that I use
+- VSCode profile: `settings.json`
 - Extras:
   - GPEdit and HyperV enabler _(Run in admin mode)_
   - Winutil -- _This is not updated_
 - Registry Edits
 - Desktop Theme
-- Unixified Powershell Profile and Setup with Starship
+- Unixified Powershell Profile with Packages
+- Configs for Micro and Windows Terminal
 
 ## Powershell for better life (Admin / sudo recommended)
 
@@ -20,4 +21,4 @@ This repo contains all of my development configs. I never had a backup of these 
 irm "https://github.com/pixincreate/configs/raw/main/powershell/setup.ps1" | iex
 ```
 
-**Note:** Make sure that you select the FiraCode font in `terminal > Settings > Defaults > Apperance > Font Face`
+**Note:** Copy `settings.json` from `./wt/LocalState` dir to `C:\Users\<user>\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState`
