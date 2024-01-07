@@ -1,0 +1,60 @@
+[core]
+abbrev = 12
+autocrlf = input
+editor = micro
+pager = delta --diff-so-fancy
+
+[user]
+email = 69745008+pixincreate@users.noreply.github.com
+name = PiX
+signingkey = C:/Users/PiXW/.ssh/id_ed25519_sign.pub
+
+[color]
+ui = true
+
+[commit]
+gpgsign = true
+
+[diff]
+colorMoved = default
+
+[gpg]
+format = ssh
+
+[init]
+defaultBranch = main
+
+[merge]
+log = true
+
+[pull]
+rebase = true
+
+[push]
+default = simple
+
+[rerere]
+enabled = true
+
+[status]
+submodulesummary = true
+
+[alias]
+root = rev-parse --show-toplevel
+
+[delta]
+line-numbers = true
+side-by-side = true
+syntax-theme = Monokai Extended Bright
+
+[url "git@github.com:"]
+insteadOf = https://github.com/
+insteadOf = git://github.com/
+
+[url "git@gitlab.com:"]
+insteadOf = https://gitlab.com/
+insteadOf = git://gitlab.com/
+
+[url "git@bitbucket.org:"]
+insteadOf = https://bitbucket.org/
+insteadOf = git://bitbucket.org/
