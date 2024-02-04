@@ -12,6 +12,7 @@ This repo contains all of my development configs. I never had a backup of these 
 - Desktop Theme
 - Unixified Powershell Profile with Packages
 - Configs for Micro and Windows Terminal
+- Dotfiles for Unix based systems (targets WSL2, Mac and Linux)
 
 ## Powershell for better life (Admin / sudo recommended)
 
