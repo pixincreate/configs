@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mkdir -p ~/.zsh ~/.ssh ~/.config ~/.config/micro ~/.zsh/zgenom
+mkdir -p ~/.zsh ~/.ssh ~/.config ~/.config/micro ~/.zsh/zgenom ~/.rish
 echo export ZDOTDIR=$HOME/.zsh >> ~/.zshenv
 
 linux() {
@@ -15,6 +15,10 @@ android() {
   pkg upgrade && pkg update && apt-get update && apt-get upgrade
   pkg install android-tools croc direnv git-delta micro neovim openssh sqlite starship tar tsu termux-am walk zoxide zsh
   chsh -s zsh && termux-setup-storage
+  
+  cp /storage/emulated/0/Documents/Shizuku/* $HOME/.rish/*
+  ln -s $HOME/.rish/rish $PATH/rish
+  ln -s $HOME/.rish/rish_shizuku.dex $PATH/rish_shizuku.dex
 }
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
@@ -247,9 +251,6 @@ cat > ~/.zsh/.zshrc <<'EOF'
     cd "$(walk "$@")"
   }
 
-  # Expose Rish -- Android specific
-  export PATH=/storage/emulated/0/Documents/Shizuku/rish:$PATH
-  export PATH=/storage/emulated/0/Documents/Shizuku/rish.dex:$PATH
 EOF
 
 starship preset pastel-powerline -o ~/.config/starship.toml
