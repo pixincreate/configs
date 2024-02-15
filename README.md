@@ -4,15 +4,18 @@ This repo contains all of my development configs. I never had a backup of these 
 
 ## Contents
 
-- VSCode profile: `settings.json`
-- Extras:
-  - GPEdit and HyperV enabler _(Run in admin mode)_
-  - Winutil -- _This is not updated_
-- Registry Edits
-- Desktop Theme
-- Unixified Powershell Profile with Packages
-- Configs for Micro and Windows Terminal
-- Dotfiles for Unix based systems (targets WSL2, Mac and Linux)
+- Windows
+  - Extras:
+    - GPEdit and HyperV enabler _(Run in admin mode)_
+    - Winutil -- _This is not updated_
+  - Registry Edits
+  - Desktop Theme
+  - Unixified Powershell Profile with Packages
+  - Configs for Micro and Windows Terminal
+- Unix
+  - Dotfiles for Unix based systems (targets WSL2, Mac and Linux)
+- Commons
+  - VSCode profile: `settings.json`
 
 ## Powershell for better life (Admin / sudo recommended)
 

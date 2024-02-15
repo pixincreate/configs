@@ -23,8 +23,9 @@ $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
 # If so and the current host is a command line, then change to red color 
 # as warning to user that they are operating in an elevated context
 # Useful shortcuts for traversing directories
-function cd... { Set-Location ..\.. }
-function cd.... { Set-Location ..\..\.. }
+function ... { Set-Location ..\.. }
+function .... { Set-Location ..\..\.. }
+function ..... { Set-Location ..\..\..\.. }
 
 # Compute file hashes - useful for checking successful downloads 
 function md5 { Get-FileHash -Algorithm MD5 $args }
@@ -51,8 +52,7 @@ if (Test-Path "$env:USERPROFILE\Work Folders") {
 function prompt { 
     if ($isAdmin) {
         "[" + (Get-Location) + "] # " 
-    }
-    else {
+    } else {
         "[" + (Get-Location) + "] $ "
     }
 }
@@ -76,8 +76,7 @@ function dirs {
 function Edit-Profile {
     if ($host.Name -match "ise") {
         $psISE.CurrentPowerShellTab.Files.Add($profile.CurrentUserAllHosts)
-    }
-    else {
+    } else {
         notepad $profile.CurrentUserAllHosts
     }
 }
@@ -102,72 +101,74 @@ Function Test-CommandExists {
 #
 if (Test-CommandExists nvim) {
     $EDITOR = 'nvim'
-}
-elseif (Test-CommandExists pvim) {
+} elseif (Test-CommandExists pvim) {
     $EDITOR = 'pvim'
-}
-elseif (Test-CommandExists vim) {
+} elseif (Test-CommandExists vim) {
     $EDITOR = 'vim'
-}
-elseif (Test-CommandExists vi) {
+} elseif (Test-CommandExists vi) {
     $EDITOR = 'vi'
-}
-elseif (Test-CommandExists code) {
+} elseif (Test-CommandExists code) {
     $EDITOR = 'code'
-}
-elseif (Test-CommandExists notepad) {
+} elseif (Test-CommandExists notepad) {
     $EDITOR = 'notepad'
-}
-elseif (Test-CommandExists notepad++) {
+} elseif (Test-CommandExists notepad++) {
     $EDITOR = 'notepad++'
-}
-elseif (Test-CommandExists sublime_text) {
+} elseif (Test-CommandExists sublime_text) {
     $EDITOR = 'sublime_text'
 }
 Set-Alias -Name vim -Value $EDITOR
 
 
-function ll { Get-ChildItem -Path $pwd -File }
-function g { Set-Location $HOME\Documents\Github }
+function ll { 
+    Get-ChildItem -Path $pwd -File
+}
+
+function g { 
+    Set-Location $HOME\Documents\Github
+}
+
 function gcom {
     git add .
     git commit -m "$args"
 }
+
 function lazyg {
     git add .
     git commit -m "$args"
     git push
 }
+
 function Get-PubIP {
     (Invoke-WebRequest http://ifconfig.me/ip ).Content
 }
+
 function uptime {
     #Windows Powershell only
     If ($PSVersionTable.PSVersion.Major -eq 5 ) {
         Get-WmiObject win32_operatingsystem |
         Select-Object @{EXPRESSION = { $_.ConverttoDateTime($_.lastbootuptime) } } | Format-Table -HideTableHeaders
-    }
-    Else {
+    } Else {
         net statistics workstation | Select-String "since" | foreach-object { $_.ToString().Replace('Statistics since ', '') }
     }
 }
+
 function Update-Profile {
     & $profile
 }
+
 function find-file($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
         $place_path = $_.directory
         Write-Output "${place_path}\${_}"
     }
 }
+
 function unzip ($file) {
     Write-Output("Extracting", $file, "to", $pwd)
     $fullFile = Get-ChildItem -Path $pwd -Filter .\cove.zip | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
-function ix ($file) {
-    curl.exe -F "f:1=@$file" ix.io
-}
+
 function grep($regex, $dir) {
     if ( $dir ) {
         Get-ChildItem $dir | select-string $regex
@@ -175,23 +176,39 @@ function grep($regex, $dir) {
     }
     $input | select-string $regex
 }
+
 function df {
     get-volume
 }
+
 function sed($file, $find, $replace) {
     (Get-Content $file).replace("$find", $replace) | Set-Content $file
 }
+
 function which($name) {
     Get-Command $name | Select-Object -ExpandProperty Definition
 }
+
 function export($name, $value) {
     set-item -force -path "env:$name" -value $value;
 }
+
 function pkill($name) {
     Get-Process $name -ErrorAction SilentlyContinue | Stop-Process
 }
+
 function pgrep($name) {
     Get-Process $name
+}
+
+function head {
+  param($Path, $n = 10)
+  Get-Content $Path -Head $n
+}
+
+function tail {
+  param($Path, $n = 10)
+  Get-Content $Path -Tail $n
 }
 
 # touch command in powershell
@@ -203,6 +220,7 @@ function touch {
         (Get-Item ($args[0])).LastWriteTime = Get-Date 
     }
 }
+
 # mkdir command in powershell
 function mkdir {
     New-Item "$args" -ItemType Directory
@@ -233,3 +251,4 @@ New-Alias reload Update-Console
 # Invoke Expressions
 Invoke-Expression (&starship init powershell)
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
+Invoke-Expression "$(direnv hook pwsh)"

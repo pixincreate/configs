@@ -37,7 +37,7 @@ print_line "Installing Packages..."
 
 # Setup the terminal
 print_line "Setting up Terminal ..."
-& "$PSScriptRoot\modules\file_copy.ps1" -sourceDirectory ".\.config\wt\LocalState\" -destinationBaseDirectory "C:\Users\PiXW\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
+& "$PSScriptRoot\modules\file_copy.ps1" -sourceDirectory ".\commons\.config\wt\LocalState\" -destinationBaseDirectory "$env:userprofile\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
 
 print_line "Creating configs..."
 if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
@@ -45,7 +45,7 @@ if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
 }
 
 print_line "Writing Starship configs..."
-Start-Process -Wait powershell.exe -ArgumentList "starship preset pastel-powerline -o $env:userprofile\.config\starship.toml"
+Start-Process -Wait powershell.exe -ArgumentList "starship preset pastel-powerline -OutFile $env:userprofile\.config\starship.toml"
 
 # Install Walk, the terminal navigator
 print_line "Installing terminal navigator..."
@@ -71,17 +71,17 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
             }
         }
 
-        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
         Write-Host "The profile @ [$PROFILE] has been created."
     }
     catch {
         throw $_.Exception.Message
     }
 }
-# If the file already exists, show the message and do nothing.
+# If the file already exists, forcefully override the existing profile
 else {
     Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1 -Force
-    Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+    Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
     Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
 }
 & $profile
