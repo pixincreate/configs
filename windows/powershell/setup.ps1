@@ -32,12 +32,13 @@ if ($fontFamilies -notcontains "FiraCode Nerd Font") {
 }
 
 # Install packages
-print_line "Installing Packages..."
-& "$PSScriptRoot\modules\winget_install.ps1"
+print_line "Installing Packages:\nDelta\nGSudo\nStarship\nZoxide\nMicro\nDirenv"
+winget install dandavison.delta gsudo starship zoxide zyedidia.micro direnv
+
 
 # Setup the terminal
 print_line "Setting up Terminal ..."
-& "$PSScriptRoot\modules\file_copy.ps1" -sourceDirectory ".\commons\.config\wt\LocalState\" -destinationBaseDirectory "$env:userprofile\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
+& "$PSScriptRoot\modules\file_copy.ps1" -sourceDirectory ".\home\.config\wt\LocalState\" -destinationBaseDirectory "$env:userprofile\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
 
 print_line "Creating configs..."
 if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
@@ -85,3 +86,17 @@ else {
     Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
 }
 & $profile
+
+# Restore VSCode settings.json
+print_line "Restoring VSCode settings.json..."
+Copy-Item -Path ./home/Code/User/settings.json -Destination $env:APPDATA\Code\User\settings.json
+
+# Install Debian WSL
+print_line "Installing Debian WSL..." 
+wsl --install
+
+# Place the installer in startup directory just so that the installation starts at next start up
+Copy-Item -Path "./windows/powershell/modules/wsl_install.cmd" -Destination "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\wsl_install.cmd"
+
+print_line "Restarting PC..."
+Restart-Computer

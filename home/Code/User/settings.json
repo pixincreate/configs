@@ -1,6 +1,5 @@
 {
   /* **************** Workbench and Editor Settings **************** */
-
   // Window
   "window.commandCenter": true,
   "window.titleBarStyle": "custom",
@@ -8,7 +7,6 @@
   "workbench.iconTheme": "material-icon-theme",
   "workbench.productIconTheme": "Default",
   "workbench.settings.editor": "json", // comment this out to get UI in settings
-
   // Editor
   "editor.inlineSuggest.enabled": true,
   "editor.acceptSuggestionOnEnter": "off",
@@ -39,7 +37,8 @@
   "editor.stickyScroll.maxLineCount": 7,
   "editor.suggestSelection": "first",
   "editor.suggest.matchOnWordStartOnly": false,
-
+  // Explorer
+  "explorer.confirmDragAndDrop": false,
   // Terminal
   "terminal.external.linuxExec": "alacritty",
   "terminal.external.osxExec": "Kitty.app",
@@ -69,28 +68,40 @@
       "path": "zsh"
     }
   },
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    },
+    "Command Prompt": {
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
+      "args": [],
+      "icon": "terminal-cmd"
+    },
+    "Git Bash": {
+      "source": "Git Bash"
+    }
+  },
+  "terminal.integrated.useWslProfiles": true,
   "terminal.integrated.scrollback": 1000000,
-
   // Telemetry
   "telemetry.telemetryLevel": "off",
   "extensions.ignoreRecommendations": true,
   "npm.fetchOnlinePackageInfo": false,
   "code-runner.enableAppInsights": false,
-
   // Debugger
   "debug.allowBreakpointsEverywhere": true,
-
   // Search
   "search.showLineNumbers": true,
-
   // Zen Mode
   "zenMode.centerLayout": true,
   "zenMode.fullScreen": true,
   "zenMode.hideActivityBar": true,
   "zenMode.hideLineNumbers": false,
-
   /* **************** Extensions Settings **************** */
-
   // GitHub copilot
   "github.copilot.enable": {
     "*": true,
@@ -100,7 +111,6 @@
     "rust": false
   },
   "github.copilot.editor.enableCodeActions": false,
-
   // Better Comments
   "better-comments.tags": [
     /* 
@@ -178,26 +188,21 @@
     //   "italic": false
     // }
   ],
-
   // Code Spell Checker
-  "cSpell.enableFiletypes": ["toml"],
-
+  "cSpell.enableFiletypes": [
+    "toml"
+  ],
   // Even Better TOML
-  "evenBetterToml.formatter.alignComments": false,
-  // "evenBetterToml.formatter.alignEntries": true,
-  // "evenBetterToml.formatter.columnWidth": 99,
-  // "evenBetterToml.formatter.compactArrays": false,
+  "evenBetterToml.formatter.alignComments": true,
   "evenBetterToml.formatter.alignEntries": false,
-  "evenBetterToml.formatter.columnWidth": 600,
+  "evenBetterToml.formatter.columnWidth": 100,
   "evenBetterToml.formatter.compactArrays": true,
   "evenBetterToml.formatter.compactInlineTables": false,
   "evenBetterToml.formatter.indentTables": false,
   "evenBetterToml.formatter.reorderKeys": false,
   "evenBetterToml.semanticTokens": true,
-
   // Git
   "diffEditor.experimental.showMoves": true,
-  "diffEditor.ignoreTrimWhitespace": false,
   "git.autofetch": "all",
   "git.autofetchPeriod": 600,
   "git.branchSortOrder": "committerdate",
@@ -217,20 +222,18 @@
   "scm.defaultViewMode": "tree",
   "scm.diffDecorations": "all",
   "scm.diffDecorationsIgnoreTrimWhitespace": "false",
-
-  // Live Server
-  "liveServer.settings.donotShowInfoMsg": true,
-
+  // Live Previw
+  "livePreview.hostIP": "191.168.0.189",
+  "livePreview.httpHeaders": {
+    "Accept-Ranges": "bytes"
+  },
   // Material Icon Theme
   "material-icon-theme.folders.color": "#42a5f5",
   "material-icon-theme.folders.theme": "specific",
-
   // Material Theme
   "materialTheme.accent": "Blue",
-
   // Red Hat Telemetry
   "redhat.telemetry.enabled": false,
-
   // Rust Analyzer
   "rust-analyzer.cargo.features": "all",
   "rust-analyzer.check.allTargets": true,
@@ -246,24 +249,17 @@
   // "rust-analyzer.inlayHints.expressionAdjustmentHints.enable": "reborrow",
   // "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "always",
   // "rust-analyzer.inlayHints.reborrowHints.enable": "mutable",
-
   // shell-format
   "shellformat.flag": "--indent 2 --binary-next-line --case-indent --space-redirects",
-
   /* **************** Language Extension Settings **************** */
-
   // Go
   "go.useLanguageServer": true,
-
   // Java
   "java.debug.settings.console": "integratedTerminal",
   "java.debug.logLevel": "verbose",
   "java.configuration.checkProjectSettingsExclusions": false,
-
   /* **************** Language Settings **************** */
-
   "files.autoSave": "afterDelay",
-
   "[asciidoc]": {
     "editor.renderFinalNewline": "on",
     "editor.trimAutoWhitespace": true,
@@ -273,30 +269,26 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-
   "[c]": {
     "editor.defaultFormatter": "ms-vscode.cpptools"
   },
-
   "[cpp]": {
     "editor.defaultFormatter": "ms-vscode.cpptools",
     "editor.wordBasedSuggestions": "matchingDocuments",
     "editor.suggest.insertMode": "replace",
     "editor.semanticHighlighting.enabled": true,
     "C_Cpp.default.cppStandard": "c++20"
-},
-"window.zoomLevel": -1,
-
+  },
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.suggest.insertMode": "replace",
-    "gitlens.codeLens.scopes": ["document"]
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
   },
-
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker"
   },
-
   "[dockercompose]": {
     "editor.autoIndent": "advanced",
     "editor.defaultFormatter": "ms-azuretools.vscode-docker",
@@ -308,13 +300,13 @@
     },
     "editor.tabSize": 2
   },
-
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.suggest.insertMode": "replace",
-    "gitlens.codeLens.scopes": ["document"]
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
   },
-
   "[ignore]": {
     "editor.renderFinalNewline": "on",
     "editor.trimAutoWhitespace": true,
@@ -322,23 +314,21 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
   },
-
   // "[json]": {
   //   "editor.defaultFormatter": "esbenp.prettier-vscode"
   // },
-
   // "[jsonc]": {
   //   "editor.defaultFormatter": "esbenp.prettier-vscode"
   // },
-
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [80],
+    "editor.rulers": [
+      80
+    ],
     "editor.trimAutoWhitespace": true,
     // "editor.wordWrap": "bounded",
     "editor.wordWrap": "on",
@@ -346,16 +336,16 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-
   "[python]": {
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [88],
+    "editor.rulers": [
+      88
+    ],
     "editor.trimAutoWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-
   "[plaintext]": {
     "editor.renderFinalNewline": "on",
     "editor.trimAutoWhitespace": true,
@@ -363,17 +353,17 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer",
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [99],
+    "editor.rulers": [
+      99
+    ],
     "editor.trimAutoWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-
   "[shell]": {
     "editor.defaultFormatter": "foxundermoon.shell-format",
     "editor.renderFinalNewline": "on",
@@ -382,12 +372,10 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-
   "[shellscript]": {
     "editor.tabSize": 2,
     "files.eol": "\n"
   },
-
   "[sql]": {
     "editor.defaultFormatter": "mtxr.sqltools",
     "editor.renderFinalNewline": "on",
@@ -396,11 +384,9 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-
   "[terraform]": {
     "editor.tabSize": 2
   },
-
   "[toml]": {
     "editor.defaultFormatter": "tamasfe.even-better-toml",
     "editor.renderFinalNewline": "on",
@@ -410,7 +396,6 @@
     "files.insertFinalNewline": true
   },
   "C_Cpp.default.compilerPath": "cl.exe",
-
   "[yaml]": {
     "editor.autoIndent": "keep",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -421,11 +406,14 @@
       "strings": true
     },
     "editor.tabSize": 2,
-    "gitlens.codeLens.scopes": ["document"]
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
   },
-  "explorer.confirmDelete": false,
-  "explorer.confirmDragAndDrop": false,
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
 }

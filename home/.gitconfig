@@ -7,7 +7,7 @@ pager = delta --diff-so-fancy
 [user]
 email = 69745008+pixincreate@users.noreply.github.com
 name = PiX
-signingkey = C:/Users/PiXW/.ssh/id_ed25519_sign.pub
+signingkey = ~/.ssh/id_ed25519_sign.pub
 
 [color]
 ui = true
