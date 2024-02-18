@@ -37,14 +37,19 @@ This repo contains all of my development configs. I never had a backup of these 
         └── winutil.ps1                                   # winutil powershell script
 ```
 
-## Powershell for better life (Admin / sudo recommended)
-
-### One line installer
+## One line installer
 
 ```pwsh
 irm "https://github.com/pixincreate/configs/raw/main/windows/powershell/setup.ps1" | iex
 ```
 
 ```sh
-curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles.sh | bash
+sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
+    curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles.sh | bash
 ```
+
+## Credits
+
+- SanchithHegde for [dotfiles](https://github.com/SanchithHegde/dotfiles)
+- Chris Titus for [powershell-profile](https://gthub.com/ChrisTitusTech/powershell-profile) and [winutil](https://gthub.com/ChrisTitusTech/winutil)
+- Mike Battista for [Powershell - WSL Interop](https://github.com/mikebattista/PowerShell-WSL-Interop)

@@ -249,6 +249,6 @@ function Update-Console {
 New-Alias reload Update-Console
 
 # Invoke Expressions
+Invoke-Expression (&starship init powershell)
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
 Invoke-Expression "$(direnv hook pwsh)"
-Invoke-Expression (&starship init powershell)

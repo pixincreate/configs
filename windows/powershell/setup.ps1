@@ -32,13 +32,16 @@ if ($fontFamilies -notcontains "FiraCode Nerd Font") {
 }
 
 # Install packages
-print_line "Installing Packages:\nDelta\nGSudo\nStarship\nZoxide\nMicro\nDirenv"
-winget install dandavison.delta gsudo starship zoxide zyedidia.micro direnv
+print_line "Installing Packages:\nDelta\nGit\nGSudo\nStarship\nZoxide\nMicro\nDirenv"
+winget install dandavison.delta git.git gsudo starship zoxide zyedidia.micro direnv
 
+# Download the repository
+git clone "https://github.com/pixincreate/configs.git" "$env:userprofile\Desktop\configs"
+Set-Location "$env:userprofile\Desktop\configs"
 
 # Setup the terminal
 print_line "Setting up Terminal ..."
-& "$PSScriptRoot\modules\file_copy.ps1" -sourceDirectory ".\home\.config\wt\LocalState\" -destinationBaseDirectory "$env:userprofile\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
+& ".\windows\powershell\modules\file_copy.ps1" -sourceDirectory ".\home\.config\wt\LocalState\" -destinationBaseDirectory "$env:userprofile\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
 
 print_line "Creating configs..."
 if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
@@ -55,6 +58,10 @@ Invoke-RestMethod -Uri "https://github.com/antonmedv/walk/releases/latest/downlo
 # Terminal Icons Install
 print_line "Installing PSGallery module..."
 Install-Module -Name Terminal-Icons -Repository PSGallery -Force
+
+# Install WSL Interop
+print_line "Installing WSL Interop..."
+Install-Module -Name WslInterop -Repository PSGallery -Force
 
 # If the file does not exist, create it.
 print_line "Writing powershell profile to the current terminal..."
