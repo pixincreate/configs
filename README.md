@@ -30,7 +30,7 @@ This repo contains all of my development configs. I never had a backup of these 
     │       └── remove-folders-from-ThisPC.reg            # removes them
     ├── theme
     │   └── pix-dynamc-theme.deskthemepack                # my desktop theme with added wallpaper
-    └── winutil                                           # this folder is mostly redundant as it is already baked in powershell_profile
+    └── winutil                                           # this folder is mostly redundant as it is already added into the powershell_profile
         ├── build.ps1                                     # executable builder script
         ├── windows.ico                                   # windows icon
         ├── winutil.exe                                   # winutil
@@ -39,14 +39,78 @@ This repo contains all of my development configs. I never had a backup of these 
 
 ## One line installer
 
+#### If you're using a Windows PC, execute below command in [powershell](https://github.com/PowerShell/PowerShell)
+
 ```pwsh
 irm "https://github.com/pixincreate/configs/raw/main/windows/powershell/setup.ps1" | iex
 ```
+
+#### If you're using unix based OS, execute below in terminal (kitty, alacritty, iterm2 or any other terminal except the default one)
+
+By unix based OS I mean, WSL, Debian, Arch, or macOS
 
 ```sh
 sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
     curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles.sh | bash
 ```
+
+> [!NOTE]
+> Both the commands are completely different not only in nature but also in the job they do here. More info below.
+
+## Job done by commands
+
+### Shell command
+
+- Executes `unix/dotfiles.sh`
+- Depending on the OS type: (`Andoroid`, `Linux based OS`, `macOS`), below mentioned packages are installed:
+  - android-tools
+  - croc
+  - direnv
+  - git
+  - git-delta
+  - micro
+  - neofetch
+  - neovim
+  - openssh
+  - sqlite
+  - starship
+  - tar (Android only)
+  - tree
+  - tsu (Android only)
+  - termux-am (Android only)
+  - walk
+  - zoxide
+- `Rish` is setup for Android as well
+- Installs `starship` and `zgenom` plugin manager
+- Restores VSCode settings
+- Setup `zshell` where all `zsh` specific is kept in a single directory named as `.zsh`
+- Micro, SSH, Code settings are restored along with `.gitconfig`
+- In the end, after all the setup is done, the cloned repo is deleted
+
+### Powershell command
+
+- Executes `setup.ps1`
+- Installs `Fira Code` font
+- Installs below mentioned packages:
+  - delta
+  - git
+  - gsudo
+  - starship
+  - zoxide
+  - micro
+  - direnv
+  - walk
+ - Restores windows terminal settings
+ - Installs `starship`
+ - Installs WSL-Interop
+ - Restores `powershell_profile` where there exist many functions that help replicate linux commands and functionality
+ - Restores VSCode settings
+ - Disables powershell telemetry
+ - It also has some extras
+  - GPEdit enabler
+  - Hyper-V enabler
+  - Registry to add / remove default folders in `ThisPC` (downloads, documents, desktop, etc.,)
+ - Installs WSL
 
 ## Credits
 
