@@ -48,6 +48,10 @@ if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
     New-Item -Path "$env:userprofile\.config" -ItemType Directory
 }
 
+# Disable telemetry sent by powershell
+print_line "Disabling powershell telemetry..."
+[Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
+
 print_line "Writing Starship configs..."
 Start-Process -Wait powershell.exe -ArgumentList "starship preset pastel-powerline -OutFile $env:userprofile\.config\starship.toml"
 
