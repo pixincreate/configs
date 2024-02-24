@@ -115,5 +115,5 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
 ## Credits
 
 - SanchithHegde for [dotfiles](https://github.com/SanchithHegde/dotfiles)
-- Chris Titus for [powershell-profile](https://gthub.com/ChrisTitusTech/powershell-profile) and [winutil](https://gthub.com/ChrisTitusTech/winutil)
+- Chris Titus for [powershell-profile](https://github.com/ChrisTitusTech/powershell-profile) and [winutil](https://github.com/ChrisTitusTech/winutil)
 - Mike Battista for [Powershell - WSL Interop](https://github.com/mikebattista/PowerShell-WSL-Interop)
