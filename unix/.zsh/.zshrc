@@ -61,6 +61,8 @@
   alias .....='cd ../../../..'
   alias ......='cd ../../../../..'
 
+  alias vi=nvim
+
   # ZGenom
   if [[ ! -f $ZDOTDIR/zgenom/zgenom.zsh ]]; then
     command git clone https://github.com/jandamm/zgenom.git "$ZDOTDIR/zgenom"

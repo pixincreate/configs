@@ -101,6 +101,7 @@ android() {
     android-tools \
     croc \
     direnv \
+    fzf \
     git \
     git-delta \
     micro \
@@ -110,12 +111,19 @@ android() {
     sqlite \
     starship \
     tar \
+    topgrade \
     tree \
     tsu \
     termux-am \
     zoxide
 
   termux-setup-storage
+   
+  (
+      echo
+      echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
+      echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
+  ) >> ~/.zsh/.zshrc
 
   # Make sure that you've exported rish files from Shizuku app
   cp /storage/emulated/0/Documents/Shizuku/* $HOME/.rish/*

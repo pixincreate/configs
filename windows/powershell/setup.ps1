@@ -33,7 +33,7 @@ if ($fontFamilies -notcontains "FiraCode Nerd Font") {
 
 # Install packages
 print_line "Installing Packages:\nDelta\nGit\nGSudo\nStarship\nZoxide\nMicro\nDirenv"
-winget install dandavison.delta git.git gsudo starship zoxide zyedidia.micro direnv
+winget install dandavison.delta git.git gsudo starship zoxide zyedidia.micro direnv topgrade fzf
 
 # Download the repository
 git clone "https://github.com/pixincreate/configs.git" "$env:userprofile\Desktop\configs"
