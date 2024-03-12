@@ -6,15 +6,33 @@ This repo contains all of my development configs. I never had a backup of these 
 
 ```t
 .
+├── LICENSE                                               # LICENSE file for this repo
+├── README.md                                             # this file
 ├── home
+│   ├── .config
+│   │   ├── micro
+│   │   │   └── settings.json                             # configs for micro editor
+│   │   └── wt
+│   │       └── LocalState
+│   │           └── settings.json                         # windows terminal settings
+│   ├── .gitconfig                                        # my git config
+│   ├── .ssh
+│   │   └── config                                        # my ssh config
 │   └── Code
 │       └── User
 │           └── settings.json                             # my vs_code settings
-├── LICENSE
-├── README.md                                             # this file
 ├── unix
+│   ├── .zsh
+│   │   ├── .zshenv                                       # zsh environment file
+│   │   └── .zshrc                                        # zsh run commands file
+│   ├── .zshenv                                           # zsh environment file that exposes.zsh directory
 │   └── dotfiles.sh                                       # automated environment setup that targets linux, android and mac
 └── windows
+    ├── Winutil
+    │   ├── build.ps1                                     # executable builder script
+    │   ├── windows.ico                                   # windows icon
+    │   ├── winutil.exe                                   # winutil
+    │   └── winutil.ps1                                   # winutil powershell script
     ├── powershell
     │   ├── Microsoft.PowerShell_profile.ps1              # my powershell_profile configuration
     │   ├── modules
@@ -28,18 +46,13 @@ This repo contains all of my development configs. I never had a backup of these 
     │   └── folders-to-ThisPC
     │       ├── add-folders-to-ThisPC.reg                 # this registry adds the good old folders at the top of `ThisPC`
     │       └── remove-folders-from-ThisPC.reg            # removes them
-    ├── theme
-    │   └── pix-dynamc-theme.deskthemepack                # my desktop theme with added wallpaper
-    └── winutil                                           # this folder is mostly redundant as it is already added into the powershell_profile
-        ├── build.ps1                                     # executable builder script
-        ├── windows.ico                                   # windows icon
-        ├── winutil.exe                                   # winutil
-        └── winutil.ps1                                   # winutil powershell script
+    └── theme
+        └── pix-dynamc-theme.deskthemepack                # my desktop theme with added wallpaper
 ```
 
 ## One line installer
 
-#### If you're using a Windows PC, execute below command in [powershell](https://github.com/PowerShell/PowerShell)
+### If you're using a Windows PC, execute below command in [powershell](https://github.com/PowerShell/PowerShell)
 
 ```pwsh
 irm "https://github.com/pixincreate/configs/raw/main/windows/powershell/setup.ps1" | iex
@@ -100,17 +113,17 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
   - micro
   - direnv
   - walk
- - Restores windows terminal settings
- - Installs `starship`
- - Installs WSL-Interop
- - Restores `powershell_profile` where there exist many functions that help replicate linux commands and functionality
- - Restores VSCode settings
- - Disables powershell telemetry
- - It also has some extras
-  - GPEdit enabler
-  - Hyper-V enabler
-  - Registry to add / remove default folders in `ThisPC` (downloads, documents, desktop, etc.,)
- - Installs WSL
+  - Restores windows terminal settings
+  - Installs `starship`
+  - Installs WSL-Interop
+  - Restores `powershell_profile` where there exist many functions that help replicate linux commands and functionality
+  - Restores VSCode settings
+  - Disables powershell telemetry
+  - It also has some extras
+    - GPEdit enabler
+    - Hyper-V enabler
+    - Registry to add / remove default folders in `ThisPC` (downloads, documents, desktop, etc.,)
+  - Installs WSL
 
 ## Credits
 
