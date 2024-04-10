@@ -1,5 +1,20 @@
 #!/bin/sh
 
+additional_zshrc() {
+echo '
+  export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+  # Source init for Docker
+  source $HOME/.docker/init-zsh.sh || true # Added by Docker Desktop
+
+  # Disable NPM ads
+  export DISABLE_OPENCOLLECTIVE=1
+  export ADBLOCK=1
+
+  PQ_LIB_DIR="$(brew --prefix libpq)/lib"
+' >> ~/.zsh/.zshrc
+}
+
 brew_install() {
   echo -e "\nInstalling brew..."
 
@@ -65,6 +80,14 @@ brew_install() {
     tree \
     walk \
     zoxide
+
+  # Tools
+  brew install \
+    docker \
+    nextdns \
+    node \
+    rustup-init \
+    topgrade \
 }
 
 linux() {
@@ -87,6 +110,7 @@ linux() {
   chmod 0600 .ssh/*
 
   echo -e "WSL setup completed!"
+  additional_zshrc
 }
 
 android() {
@@ -137,6 +161,7 @@ mac() {
   echo -e "\nInstalling for Mac..."
   brew_install
   echo -e "Installation successful!"
+  additional_zshrc
 }
 
 main() {

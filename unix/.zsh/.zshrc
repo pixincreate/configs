@@ -122,3 +122,6 @@
   function lk {
     cd "$(walk "$@")"
   }
+
+# Set PATHs
+export PATH="/usr/local/bin:$PATH"
