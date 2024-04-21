@@ -70,21 +70,36 @@ Install-Module -Name WslInterop -Repository PSGallery -Force
 # If the file does not exist, create it.
 print_line "Writing powershell profile to the current terminal..."
 if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
+    $powershell = $false
     try {
         # Detect Version of Powershell & Create Profile directories if they do not exist.
         if ($PSVersionTable.PSEdition -eq "Core" ) { 
             if (!(Test-Path -Path ($env:userprofile + "\Documents\Powershell"))) {
+                $powershell = $false
                 New-Item -Path ($env:userprofile + "\Documents\Powershell") -ItemType "directory"
             }
         }
         elseif ($PSVersionTable.PSEdition -eq "Desktop") {
             if (!(Test-Path -Path ($env:userprofile + "\Documents\WindowsPowerShell"))) {
+                $$powershell = $true
                 New-Item -Path ($env:userprofile + "\Documents\WindowsPowerShell") -ItemType "directory"
             }
         }
 
         Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
         Write-Host "The profile @ [$PROFILE] has been created."
+
+        $usesValorant = Read-Host -Prompt "Do you use Valorant? (y/n) Default: y"
+        if (!$usesValorant -eq "n") {
+            if (!$powershell) {
+                $powershellPath = $env:userprofile\Documents\Powershell
+            } else {
+                $powershellPath = $env:userprofile\Documents\WindowsPowerShell
+            }
+            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1 -OutFile $powershellPath\vanguard.ps1
+        } else {
+            Write-Host "Rootkit (Vanguard) controller skipped."
+        }
     }
     catch {
         throw $_.Exception.Message

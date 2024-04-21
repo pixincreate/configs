@@ -52,7 +52,8 @@ if (Test-Path "$env:USERPROFILE\Work Folders") {
 function prompt { 
     if ($isAdmin) {
         "[" + (Get-Location) + "] # " 
-    } else {
+    }
+    else {
         "[" + (Get-Location) + "] $ "
     }
 }
@@ -76,7 +77,8 @@ function dirs {
 function Edit-Profile {
     if ($host.Name -match "ise") {
         $psISE.CurrentPowerShellTab.Files.Add($profile.CurrentUserAllHosts)
-    } else {
+    }
+    else {
         notepad $profile.CurrentUserAllHosts
     }
 }
@@ -101,19 +103,26 @@ Function Test-CommandExists {
 #
 if (Test-CommandExists nvim) {
     $EDITOR = 'nvim'
-} elseif (Test-CommandExists pvim) {
+}
+elseif (Test-CommandExists pvim) {
     $EDITOR = 'pvim'
-} elseif (Test-CommandExists vim) {
+}
+elseif (Test-CommandExists vim) {
     $EDITOR = 'vim'
-} elseif (Test-CommandExists vi) {
+}
+elseif (Test-CommandExists vi) {
     $EDITOR = 'vi'
-} elseif (Test-CommandExists code) {
+}
+elseif (Test-CommandExists code) {
     $EDITOR = 'code'
-} elseif (Test-CommandExists notepad) {
+}
+elseif (Test-CommandExists notepad) {
     $EDITOR = 'notepad'
-} elseif (Test-CommandExists notepad++) {
+}
+elseif (Test-CommandExists notepad++) {
     $EDITOR = 'notepad++'
-} elseif (Test-CommandExists sublime_text) {
+}
+elseif (Test-CommandExists sublime_text) {
     $EDITOR = 'sublime_text'
 }
 Set-Alias -Name vim -Value $EDITOR
@@ -147,7 +156,8 @@ function uptime {
     If ($PSVersionTable.PSVersion.Major -eq 5 ) {
         Get-WmiObject win32_operatingsystem |
         Select-Object @{EXPRESSION = { $_.ConverttoDateTime($_.lastbootuptime) } } | Format-Table -HideTableHeaders
-    } Else {
+    }
+    Else {
         net statistics workstation | Select-String "since" | foreach-object { $_.ToString().Replace('Statistics since ', '') }
     }
 }
@@ -202,13 +212,13 @@ function pgrep($name) {
 }
 
 function head {
-  param($Path, $n = 10)
-  Get-Content $Path -Head $n
+    param($Path, $n = 10)
+    Get-Content $Path -Head $n
 }
 
 function tail {
-  param($Path, $n = 10)
-  Get-Content $Path -Tail $n
+    param($Path, $n = 10)
+    Get-Content $Path -Tail $n
 }
 
 # touch command in powershell
@@ -248,7 +258,27 @@ function Update-Console {
 
 New-Alias reload Update-Console
 
+function vanguard {
+   $profilePath = "$env:userprofile\Documents"
+
+    if (Test-Path (Join-Path $profilePath "PowerShell")) {
+        $fullPath = "$profilePath\PowerShell\vanguard.ps1"
+    } elseif (Test-Path (Join-Path $profilePath "WindowsPowerShell")) {
+        $fullPath = "$profilePath\WindowsPowerShell\vanguard.ps1"
+    } else {
+        Write-Output "Unknown PowerShell version or profile path"
+    }
+
+    try {
+        . $fullPath
+    } catch {
+        $install_vanguard_controller = Read-Host -Prompt "Rootkit controller script not found. Install? (y/n) Default (y)"
+        if (!$install_vanguard_controller -eq "n") {
+        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1 -OutFile $profilePath/vanguard.ps1
+        }
+    }
+}
+
 # Invoke Expressions
 Invoke-Expression (&starship init powershell)
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
-Invoke-Expression "$(direnv hook pwsh)"
