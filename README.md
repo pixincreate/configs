@@ -68,7 +68,7 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
     curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles.sh | bash
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > Both the commands are completely different not only in nature but also in the job they do here. More info below.
 
 ## Job done by commands
@@ -125,6 +125,29 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
     - Hyper-V enabler
     - Registry to add / remove default folders in `ThisPC` (downloads, documents, desktop, etc.,)
   - Installs WSL
+
+#### Vanguard-Controller
+
+[vanguard.ps1](https://github.com/pixincreate/configs/blob/main/windows/powershell/modules/vanguard.ps1) is a special file called by powershell profile targeted at users who play Valorant.  
+It is a controller that allows you to either `enable` or `disable` `vgc` and `vgk` along with an option to check their status (`vgk_status`).   
+This is added as a measure to stop Vanguard from spying on its users all the time. Enable the rootkit before you wish to play, reboot and then start playing.
+
+Usage:
+- Enable Vanguard
+  ```shell
+  vanguard enable
+  ```
+- Disable Vanguard
+  ```shell
+  vanguard disable
+  ```
+- Check Status
+  ```shell
+  vanguard vgk_status
+  ```
+
+> [!NOTE]
+> `Auto disabler` to be added soon. This should prompt the user after the game is shutdown. If ignored, it should remind again after about an hour or so using a `scheduler`.
 
 ## Credits
 
