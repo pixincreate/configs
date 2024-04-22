@@ -41,6 +41,7 @@ submodulesummary = true
 
 [alias]
 root = rev-parse --show-toplevel
+fomo = !git fetch origin main && git rebase origin/main
 
 [delta]
 line-numbers = true

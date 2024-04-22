@@ -37,6 +37,7 @@
   "editor.stickyScroll.maxLineCount": 7,
   "editor.suggestSelection": "first",
   "editor.suggest.matchOnWordStartOnly": false,
+  "editor.accessibilitySupport": "off",
   // Explorer
   "explorer.confirmDragAndDrop": false,
   // Terminal
@@ -113,7 +114,7 @@
   "github.copilot.editor.enableCodeActions": false,
   // Better Comments
   "better-comments.tags": [
-    /* 
+    /*
       {
         "tag": "!",
         "color": "#FF2D00",
@@ -122,7 +123,7 @@
         "backgroundColor": "transparent",
         "bold": false,
         "italic": false
-      }, 
+      },
       */
     {
       "tag": "?",
@@ -189,9 +190,9 @@
     // }
   ],
   // Code Spell Checker
-  "cSpell.enableFiletypes": [
-    "toml"
-  ],
+  "cSpell.enableFiletypes": ["toml"],
+  // Cypress Helper
+  "cypressHelper.typeDefinitionOnSave": true,
   // Even Better TOML
   "evenBetterToml.formatter.alignComments": true,
   "evenBetterToml.formatter.alignEntries": false,
@@ -232,6 +233,11 @@
   "material-icon-theme.folders.theme": "specific",
   // Material Theme
   "materialTheme.accent": "Blue",
+  // Powershell
+  "powershell.codeFormatting.preset": "Allman",
+  "powershell.codeFormatting.autoCorrectAliases": true,
+  "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
+  "powershell.codeFormatting.whitespaceBetweenParameters": true,
   // Red Hat Telemetry
   "redhat.telemetry.enabled": false,
   // Rust Analyzer
@@ -282,9 +288,7 @@
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.suggest.insertMode": "replace",
-    "gitlens.codeLens.scopes": [
-      "document"
-    ]
+    "gitlens.codeLens.scopes": ["document"]
   },
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker"
@@ -303,9 +307,7 @@
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.suggest.insertMode": "replace",
-    "gitlens.codeLens.scopes": [
-      "document"
-    ]
+    "gitlens.codeLens.scopes": ["document"]
   },
   "[ignore]": {
     "editor.renderFinalNewline": "on",
@@ -317,18 +319,16 @@
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
   },
-  // "[json]": {
-  //   "editor.defaultFormatter": "esbenp.prettier-vscode"
-  // },
-  // "[jsonc]": {
-  //   "editor.defaultFormatter": "esbenp.prettier-vscode"
-  // },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [
-      80
-    ],
+    "editor.rulers": [80],
     "editor.trimAutoWhitespace": true,
     // "editor.wordWrap": "bounded",
     "editor.wordWrap": "on",
@@ -338,9 +338,7 @@
   },
   "[python]": {
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [
-      88
-    ],
+    "editor.rulers": [88],
     "editor.trimAutoWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
@@ -353,12 +351,20 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell",
+    "editor.renderFinalNewline": "on",
+    "editor.rulers": [120],
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true,
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [
-      99
-    ],
+    "editor.rulers": [99],
     "editor.trimAutoWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
@@ -395,7 +401,6 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true
   },
-  "C_Cpp.default.compilerPath": "cl.exe",
   "[yaml]": {
     "editor.autoIndent": "keep",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -406,14 +411,9 @@
       "strings": true
     },
     "editor.tabSize": 2,
-    "gitlens.codeLens.scopes": [
-      "document"
-    ]
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "gitlens.codeLens.scopes": ["document"]
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  }
 }

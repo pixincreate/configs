@@ -36,6 +36,7 @@ This repo contains all of my development configs. I never had a backup of these 
     ├── powershell
     │   ├── Microsoft.PowerShell_profile.ps1              # my powershell_profile configuration
     │   ├── modules
+    │   │   ├── vanguard.ps1                              # a function to control vanguard execution
     │   │   ├── file_copy.ps1                             # a function to copy contents, especially terminal configs
     │   │   └── wsl_install.cmd                           # This file is automatically run on restart to install Debian, deleted once installed
     │   └── setup.ps1                                     # automated environment setup that targets windows
