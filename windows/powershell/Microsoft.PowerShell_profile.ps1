@@ -3,7 +3,7 @@
 # Date: 29/07/2023
 # Description: This file contains the profile for PowerShell Core along with some useful functions and aliases to make working with powershell easier and
 # intutive with that of Unis based OSes.
-# Since working on Mac for office work has greatly increased my productivity, I wanted to have a similar experience on Windows as well and hence 
+# Since working on Mac for office work has greatly increased my productivity, I wanted to have a similar experience on Windows as well and hence
 # I wanted to have a similar unix based experience on Windows as well. Started with re-writing small commands such as `touch` and `ls` and then
 # found ChrisTitus Tech's powershell profile and decided to add his work on top of my customization.
 # This file also includes starship profile as well.
@@ -20,14 +20,14 @@ $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $principal = New-Object Security.Principal.WindowsPrincipal $identity
 $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
-# If so and the current host is a command line, then change to red color 
+# If so and the current host is a command line, then change to red color
 # as warning to user that they are operating in an elevated context
 # Useful shortcuts for traversing directories
 function ... { Set-Location ..\.. }
 function .... { Set-Location ..\..\.. }
 function ..... { Set-Location ..\..\..\.. }
 
-# Compute file hashes - useful for checking successful downloads 
+# Compute file hashes - useful for checking successful downloads
 function md5 { Get-FileHash -Algorithm MD5 $args }
 function sha1 { Get-FileHash -Algorithm SHA1 $args }
 function sha256 { Get-FileHash -Algorithm SHA256 $args }
@@ -46,12 +46,12 @@ if (Test-Path "$env:USERPROFILE\Work Folders") {
     function Work: { Set-Location Work: }
 }
 
-# Set up command prompt and window title. Use UNIX-style convention for identifying 
+# Set up command prompt and window title. Use UNIX-style convention for identifying
 # whether user is elevated (root) or not. Window title shows current version of PowerShell
 # and appends [ADMIN] if appropriate for easy taskbar identification
-function prompt { 
+function prompt {
     if ($isAdmin) {
-        "[" + (Get-Location) + "] # " 
+        "[" + (Get-Location) + "] # "
     }
     else {
         "[" + (Get-Location) + "] $ "
@@ -83,8 +83,8 @@ function Edit-Profile {
     }
 }
 
-# We don't need these any more; they were just temporary variables to get to $isAdmin. 
-# Delete them to prevent cluttering up the user profile. 
+# We don't need these any more; they were just temporary variables to get to $isAdmin.
+# Delete them to prevent cluttering up the user profile.
 Remove-Variable identity
 Remove-Variable principal
 
@@ -95,7 +95,7 @@ Function Test-CommandExists {
     try { if (Get-Command $command) { RETURN $true } }
     Catch { Write-Host "$command does not exist"; RETURN $false }
     Finally { $ErrorActionPreference = $oldPreference }
-} 
+}
 #
 # Aliases
 #
@@ -128,11 +128,11 @@ elseif (Test-CommandExists sublime_text) {
 Set-Alias -Name vim -Value $EDITOR
 
 
-function ll { 
+function ll {
     Get-ChildItem -Path $pwd -File
 }
 
-function g { 
+function g {
     Set-Location $HOME\Documents\Github
 }
 
@@ -227,7 +227,7 @@ function touch {
         Set-Content -Path ($args[0]) -Value ($null)
     }
     else {
-        (Get-Item ($args[0])).LastWriteTime = Get-Date 
+        (Get-Item ($args[0])).LastWriteTime = Get-Date
     }
 }
 
@@ -282,3 +282,4 @@ function vanguard {
 # Invoke Expressions
 Invoke-Expression (&starship init powershell)
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
+Invoke-Expression "$(direnv hook pwsh)"

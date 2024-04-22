@@ -20,7 +20,7 @@ if ($fontFamilies -notcontains "FiraCode Nerd Font") {
     Expand-Archive -Path ".\FiraCode.zip" -DestinationPath ".\FiraCode" -Force
     $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
     Get-ChildItem -Path ".\FiraCode" -Recurse -Filter "*.ttf" | ForEach-Object {
-        If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {        
+        If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {
             # Install font
             $destination.CopyHere($_.FullName, 0x10)
         }
@@ -50,7 +50,7 @@ if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
 
 # Disable telemetry sent by powershell
 print_line "Disabling powershell telemetry..."
-[Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')
+[Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 1, 'Machine')
 
 print_line "Writing Starship configs..."
 Start-Process -Wait powershell.exe -ArgumentList "starship preset pastel-powerline -OutFile $env:userprofile\.config\starship.toml"
@@ -73,7 +73,7 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
     $powershell = $false
     try {
         # Detect Version of Powershell & Create Profile directories if they do not exist.
-        if ($PSVersionTable.PSEdition -eq "Core" ) { 
+        if ($PSVersionTable.PSEdition -eq "Core" ) {
             if (!(Test-Path -Path ($env:userprofile + "\Documents\Powershell"))) {
                 $powershell = $false
                 New-Item -Path ($env:userprofile + "\Documents\Powershell") -ItemType "directory"
@@ -113,12 +113,17 @@ else {
 }
 & $profile
 
+# Configure direnv
+[Environment]::SetEnvironmentVariable('DIRENV_CONFIG', '%APPDATA%\direnv\conf', 'User')
+[Environment]::SetEnvironmentVariable('XDG_CACHE_HOME', '%APPDATA%\direnv\cache', 'User')
+[Environment]::SetEnvironmentVariable('XDG_DATA_HOME', '%APPDATA%\direnv\data', 'User')
+
 # Restore VSCode settings.json
 print_line "Restoring VSCode settings.json..."
 Copy-Item -Path ./home/Code/User/settings.json -Destination $env:APPDATA\Code\User\settings.json
 
 # Install Debian WSL
-print_line "Installing Debian WSL..." 
+print_line "Installing Debian WSL..."
 wsl --install
 
 # Place the installer in startup directory just so that the installation starts at next start up
