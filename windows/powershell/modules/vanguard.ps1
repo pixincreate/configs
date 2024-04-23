@@ -33,11 +33,13 @@ Write-Host "----------------"
 
 try {
     Write-Host "Operation: $operation"
+
+    $vgcService = Get-Service -Name "vgc"
+    $vgkService = Get-Service -Name "vgk"
+
     switch ($operation) {
         'enable' {
             Write-Host "Attempting to enable VGC & VGK..."
-            $vgcService = Get-Service -Name "vgc"
-            $vgkService = Get-Service -Name "vgk"
 
             if (($vgcService.StartType -eq "Manual") -and ( $vgkService.StartType -eq "System")) {
                 $alreadyEnabled = "VGC & VGK already enabled"
@@ -54,8 +56,6 @@ try {
         }
         'disable' {
             Write-Host "Attempting to disable VGC & VGK..."
-            $vgcService = Get-Service -Name "vgc"
-            $vgkService = Get-Service -Name "vgk"
 
             if (($vgcService.StartType -eq "Disabled") -and ($vgkService.StartType -eq "Disabled")) {
                 $alreadyDisabled = "VGC & VGK already disabled"
@@ -81,24 +81,24 @@ try {
                     }
                 }
             }
-            default {
-                $errored = "Error: Invalid operation '$operation'. Valid options are 'enable', 'disable' and 'vgk_status'."
-            }
         }
         'vgk_status' {
             Get-Service -Name "vgk" | Select-Object -Property *
         }
-        
-        $output = @($enabled, $alreadyEnabled, $disabled, $alreadyDisabled, $logs_deleted, $logs_errored, $errored) | Where-Object { $_ }
-        $output | Out-String
+        default {
+            $errored = "Error: Invalid operation '$operation'. Valid options are 'enable', 'disable' and 'vgk_status'."
+        }
     }
-    catch {
-        Write-Error "Error: $_"
-    }
+    $output = @($enabled, $alreadyEnabled, $disabled, $alreadyDisabled, $logs_deleted, $logs_errored, $errored) | Where-Object { $_ }
+    $output | Out-String
+}
+catch {
+    Write-Error "Error: $_"
+}
 
-    Get-Process -Name "vgtray" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process -Name "vgtray" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
-    if ($needsRestart) {
-        Write-Host "To load driver (initiate rootkit), restart is required."
-        Restart-Computer -Confirm
-    }
+if ($needsRestart) {
+    Write-Host "To load driver (initiate rootkit), restart is required."
+    Restart-Computer -Confirm
+}
