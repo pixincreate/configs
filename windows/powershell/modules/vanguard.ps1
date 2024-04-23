@@ -7,12 +7,19 @@ $currentScriptPath = $MyInvocation.MyCommand.Definition
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 $needsRestart = $false
 
+if (-not (Test-Path -Path "$env:PROGRAMFILES\Riot Vanguard")) {
+    Write-Error "Error: Vanguard not in default location or not installed."
+    Read-Host -Prompt "Press Enter to exit"
+    exit
+}
+
 if (-not $isAdmin) {
     Write-Host "Elevating script to admin..."
     if (Get-Command -Name "gsudo" -ErrorAction SilentlyContinue) {
         gsudo $currentScriptPath -operation $operation
         exit
-    } else {
+    }
+    else {
         Write-Host "'gsudo' not found, using native elevation..."
         $adminArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$currentScriptPath`" -operation $operation"
         $output = Start-Process -FilePath "powershell" -ArgumentList $adminArgs -Verb RunAs -Wait | Out-String
@@ -34,7 +41,8 @@ try {
 
             if (($vgcService.StartType -eq "Manual") -and ( $vgkService.StartType -eq "System")) {
                 $alreadyEnabled = "VGC & VGK already enabled"
-            } else {
+            }
+            else {
                 $vgcService | Set-Service -StartupType "Manual"
 
                 $command = { sc.exe config vgk start= system }
@@ -51,7 +59,8 @@ try {
 
             if (($vgcService.StartType -eq "Disabled") -and ($vgkService.StartType -eq "Disabled")) {
                 $alreadyDisabled = "VGC & VGK already disabled"
-            } else {
+            }
+            else {
 
                 if (($vgcService.StartType -eq "Manual") -and ($vgkService.StartType -eq "System")) {
                     $vgcService | Set-Service -StartupType "Disabled"
@@ -61,27 +70,35 @@ try {
                     Stop-Service $vgkService -ErrorAction SilentlyContinue
 
                     $disabled = "VGC & VGK disabled"
+
+                    Remove-Item -Path "$env:PROGRAMFILES\Riot Vanguard\Logs" -Force -Recurse -ErrorAction SilentlyContinue
+
+                    if (-not (Test-Path -Path "$env:PROGRAMFILES\Riot Vanguard\Logs")) {
+                        $logs_deleted = "Logs deleted!"
+                    }
+                    else {
+                        $logs_errored = "Error: Failed to delete logs."
+                    }
                 }
+            }
+            default {
+                $errored = "Error: Invalid operation '$operation'. Valid options are 'enable', 'disable' and 'vgk_status'."
             }
         }
         'vgk_status' {
             Get-Service -Name "vgk" | Select-Object -Property *
         }
-        default {
-            $errored = "Error: Invalid operation '$operation'. Valid options are 'enable', 'disable' and 'vgk_status'."
-        }
+        
+        $output = @($enabled, $alreadyEnabled, $disabled, $alreadyDisabled, $logs_deleted, $logs_errored, $errored) | Where-Object { $_ }
+        $output | Out-String
+    }
+    catch {
+        Write-Error "Error: $_"
     }
 
-    $output = @($enabled, $alreadyEnabled, $disabled, $alreadyDisabled, $errored) | Where-Object { $_ }
-    $output | Out-String
-}
-catch {
-    Write-Error "Error: $_"
-}
+    Get-Process -Name "vgtray" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
-Get-Process -Name "vgtray" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-
-if ($needsRestart) {
-    Write-Host "To load driver (initiate rootkit), restart is required."
-    Restart-Computer -Confirm
-}
+    if ($needsRestart) {
+        Write-Host "To load driver (initiate rootkit), restart is required."
+        Restart-Computer -Confirm
+    }
