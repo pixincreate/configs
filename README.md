@@ -154,3 +154,4 @@ Usage:
 - SanchithHegde for [dotfiles](https://github.com/SanchithHegde/dotfiles)
 - Chris Titus for [powershell-profile](https://github.com/ChrisTitusTech/powershell-profile) and [winutil](https://github.com/ChrisTitusTech/winutil)
 - Mike Battista for [Powershell - WSL Interop](https://github.com/mikebattista/PowerShell-WSL-Interop)
+- AndrewMast for [disable_vanguard.vbs](https://gist.github.com/AndrewMast/742ac7e07c37096017e907b0fd8ec7bb?permalink_comment_id=4616472#gistcomment-4616472)
