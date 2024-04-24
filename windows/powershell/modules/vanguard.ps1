@@ -18,8 +18,7 @@ if (-not $isAdmin) {
     if (Get-Command -Name "gsudo" -ErrorAction SilentlyContinue) {
         gsudo $currentScriptPath -operation $operation
         exit
-    }
-    else {
+    } else {
         Write-Host "'gsudo' not found, using native elevation..."
         $adminArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$currentScriptPath`" -operation $operation"
         $output = Start-Process -FilePath "powershell" -ArgumentList $adminArgs -Verb RunAs -Wait | Out-String
@@ -43,8 +42,7 @@ try {
 
             if (($vgcService.StartType -eq "Manual") -and ( $vgkService.StartType -eq "System")) {
                 $alreadyEnabled = "VGC & VGK already enabled"
-            }
-            else {
+            } else {
                 $vgcService | Set-Service -StartupType "Manual"
 
                 $command = { sc.exe config vgk start= system }
@@ -59,9 +57,7 @@ try {
 
             if (($vgcService.StartType -eq "Disabled") -and ($vgkService.StartType -eq "Disabled")) {
                 $alreadyDisabled = "VGC & VGK already disabled"
-            }
-            else {
-
+            } else {
                 if (($vgcService.StartType -eq "Manual") -and ($vgkService.StartType -eq "System")) {
                     $vgcService | Set-Service -StartupType "Disabled"
                     Stop-Service $vgcService -ErrorAction SilentlyContinue
@@ -75,8 +71,7 @@ try {
 
                     if (-not (Test-Path -Path "$env:PROGRAMFILES\Riot Vanguard\Logs")) {
                         $logs_deleted = "Logs deleted!"
-                    }
-                    else {
+                    } else {
                         $logs_errored = "Error: Failed to delete logs."
                     }
                 }
@@ -91,8 +86,7 @@ try {
     }
     $output = @($enabled, $alreadyEnabled, $disabled, $alreadyDisabled, $logs_deleted, $logs_errored, $errored) | Where-Object { $_ }
     $output | Out-String
-}
-catch {
+} catch {
     Write-Error "Error: $_"
 }
 

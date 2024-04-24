@@ -192,6 +192,7 @@
   // Code Spell Checker
   "cSpell.enableFiletypes": ["toml"],
   // Cypress Helper
+  "cypressHelper.includeAnnotationForCommands": true,
   "cypressHelper.typeDefinitionOnSave": true,
   // Even Better TOML
   "evenBetterToml.formatter.alignComments": true,
@@ -234,7 +235,7 @@
   // Material Theme
   "materialTheme.accent": "Blue",
   // Powershell
-  "powershell.codeFormatting.preset": "Allman",
+  "powershell.codeFormatting.preset": "OTBS",
   "powershell.codeFormatting.autoCorrectAliases": true,
   "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
   "powershell.codeFormatting.whitespaceBetweenParameters": true,

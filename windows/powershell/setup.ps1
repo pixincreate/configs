@@ -78,30 +78,34 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
                 $powershell = $false
                 New-Item -Path ($env:userprofile + "\Documents\Powershell") -ItemType "directory"
             }
-        }
-        elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+        } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
             if (!(Test-Path -Path ($env:userprofile + "\Documents\WindowsPowerShell"))) {
-                $$powershell = $true
+                $powershell = $true
                 New-Item -Path ($env:userprofile + "\Documents\WindowsPowerShell") -ItemType "directory"
             }
         }
 
-        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+        Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1 -OutFile "$PROFILE"
+
+        if (!$powershell) {
+            $powershellPath = "$env:userprofile\Documents\Powershell"
+            Copy-Item -Path "$PROFILE" -Destination "$powershellPath\Microsoft.VSCode_profile.ps1"
+        } else {
+            $powershellPath = "$env:userprofile\Documents\WindowsPowerShell"
+            Copy-Item -Path "$PROFILE" -Destination "$powershellPath\Microsoft.VSCode_profile.ps1"
+        }
+
         Write-Host "The profile @ [$PROFILE] has been created."
 
         $usesValorant = Read-Host -Prompt "Do you use Valorant? (y/n) Default: y"
         if (!$usesValorant -eq "n") {
-            if (!$powershell) {
-                $powershellPath = $env:userprofile\Documents\Powershell
-            } else {
-                $powershellPath = $env:userprofile\Documents\WindowsPowerShell
-            }
-            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1 -OutFile $powershellPath\vanguard.ps1
+
+            New-Item -Path "$powershellPath\Modules" -ItemType "directory" -ErrorAction SilentlyContinue
+            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1 -OutFile "$powershellPath\Modules\vanguard.ps1"
         } else {
             Write-Host "Rootkit (Vanguard) controller skipped."
         }
-    }
-    catch {
+    } catch {
         throw $_.Exception.Message
     }
 }
