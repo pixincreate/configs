@@ -80,6 +80,7 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
   - android-tools
   - croc
   - direnv
+  - fzf
   - git
   - git-delta
   - micro
@@ -107,13 +108,14 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
 - Installs `Fira Code` font
 - Installs below mentioned packages:
   - delta
+  - direnv
+  - fzf
   - git
   - gsudo
+  - micro
+  - walk
   - starship
   - zoxide
-  - micro
-  - direnv
-  - walk
   - Restores windows terminal settings
   - Installs `starship`
   - Installs WSL-Interop
@@ -152,7 +154,8 @@ Usage:
   vanguard vgk_status
   ```
 
-> [!NOTE] > `Auto disabler` to be added soon. This should prompt the user after the game is shutdown. If ignored, it should remind again after about an hour or so using a `scheduler`.
+> [!NOTE]
+> `Auto disabler` to be added soon. This should prompt the user after the game is shutdown. If ignored, it should remind again after about an hour or so using a `scheduler`.
 
 ## Credits
 
