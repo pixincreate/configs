@@ -41,7 +41,7 @@ try {
             Write-Host "Attempting to enable VGC & VGK..."
 
             if (($vgcService.StartType -eq "Manual") -and ( $vgkService.StartType -eq "System")) {
-                $alreadyEnabled = "VGC & VGK already enabled"
+                Write-Host "VGC & VGK already enabled"
             } else {
                 $vgcService | Set-Service -StartupType "Manual"
 
@@ -49,14 +49,14 @@ try {
                 . $command | Out-Null
                 $needsRestart = $true
 
-                $enabled = "VGC & VGK enabled"
+                Write-Host "VGC & VGK enabled"
             }
         }
         'disable' {
             Write-Host "Attempting to disable VGC & VGK..."
 
             if (($vgcService.StartType -eq "Disabled") -and ($vgkService.StartType -eq "Disabled")) {
-                $alreadyDisabled = "VGC & VGK already disabled"
+                Write-Host "VGC & VGK already disabled"
             } else {
                 if (($vgcService.StartType -eq "Manual") -and ($vgkService.StartType -eq "System")) {
                     $vgcService | Set-Service -StartupType "Disabled"
@@ -65,14 +65,14 @@ try {
                     $vgkService | Set-Service -StartupType "Disabled"
                     Stop-Service $vgkService -ErrorAction SilentlyContinue
 
-                    $disabled = "VGC & VGK disabled"
+                    Write-Host "VGC & VGK disabled"
 
                     Remove-Item -Path "$env:PROGRAMFILES\Riot Vanguard\Logs" -Force -Recurse -ErrorAction SilentlyContinue
 
                     if (-not (Test-Path -Path "$env:PROGRAMFILES\Riot Vanguard\Logs")) {
-                        $logs_deleted = "Logs deleted!"
+                        Write-Host "Logs deleted!"
                     } else {
-                        $logs_errored = "Error: Failed to delete logs."
+                        Write-Host "Error: Failed to delete logs."
                     }
                 }
             }
@@ -81,11 +81,9 @@ try {
             Get-Service -Name "vgk" | Select-Object -Property *
         }
         default {
-            $errored = "Error: Invalid operation '$operation'. Valid options are 'enable', 'disable' and 'vgk_status'."
+            Write-Host "Error: Invalid operation '$operation'. Valid options are 'enable', 'disable' and 'vgk_status'."
         }
     }
-    $output = @($enabled, $alreadyEnabled, $disabled, $alreadyDisabled, $logs_deleted, $logs_errored, $errored) | Where-Object { $_ }
-    $output | Out-String
 } catch {
     Write-Error "Error: $_"
 }
