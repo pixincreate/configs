@@ -1,18 +1,18 @@
 #!/bin/sh
 
 additional_zshrc() {
-echo '
-  export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+  echo '
+    export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
-  # Source init for Docker
-  source $HOME/.docker/init-zsh.sh || true # Added by Docker Desktop
+    # Source init for Docker
+    source $HOME/.docker/init-zsh.sh || true # Added by Docker Desktop
 
-  # Disable NPM ads
-  export DISABLE_OPENCOLLECTIVE=1
-  export ADBLOCK=1
+    # Disable NPM ads
+    export DISABLE_OPENCOLLECTIVE=1
+    export ADBLOCK=1
 
-  PQ_LIB_DIR="$(brew --prefix libpq)/lib"
-' >> ~/.zsh/.zshrc
+    PQ_LIB_DIR="$(brew --prefix libpq)/lib"
+  ' >> ~/.zsh/.zshrc
 }
 
 brew_install() {
@@ -87,7 +87,7 @@ brew_install() {
     nextdns \
     node \
     rustup-init \
-    topgrade \
+    topgrade
 }
 
 linux() {
@@ -100,7 +100,7 @@ linux() {
   # WSL Git Setup
   echo -e "\nSetting up git for WSL..."
   export WINHOME=$(wslpath $(powershell.exe '$env:USERPROFILE' | tr -d '\r'))
-  mkdir -p $HOME/.ssh
+  mkdir -p "$HOME/.ssh"
   cp $WINHOME/.ssh/id_ed25519_auth $HOME/.ssh/id_ed25519_auth
   cp $WINHOME/.ssh/id_ed25519_auth.pub $HOME/.ssh/id_ed25519_auth.pub
 
@@ -142,11 +142,11 @@ android() {
     zoxide
 
   termux-setup-storage
-   
+
   (
-      echo
-      echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
-      echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
+    echo
+    echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
+    echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
   ) >> ~/.zsh/.zshrc
 
   # Make sure that you've exported rish files from Shizuku app
