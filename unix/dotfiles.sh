@@ -18,7 +18,7 @@ additional_zshrc() {
 brew_install() {
   echo -e "\nInstalling brew..."
 
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
   if [[ "$OSTYPE" == "linux-gnu" ]]; then
     echo -e "\nAdding brew to Linux PATH..."
@@ -77,6 +77,7 @@ brew_install() {
     starship
 
   brew install \
+    fzf \
     tree \
     walk \
     zoxide
@@ -84,7 +85,7 @@ brew_install() {
   # Tools
   brew install \
     docker \
-    nextdns \
+    nextdns/tap/nextdns \
     node \
     rustup-init \
     topgrade
@@ -98,18 +99,26 @@ linux() {
   echo -e "Installation successful!"
 
   # WSL Git Setup
-  echo -e "\nSetting up git for WSL..."
-  export WINHOME=$(wslpath $(powershell.exe '$env:USERPROFILE' | tr -d '\r'))
-  mkdir -p "$HOME/.ssh"
-  cp $WINHOME/.ssh/id_ed25519_auth $HOME/.ssh/id_ed25519_auth
-  cp $WINHOME/.ssh/id_ed25519_auth.pub $HOME/.ssh/id_ed25519_auth.pub
+  if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
+    echo -e "\nSetting up git for WSL..."
+    export WINHOME=$(wslpath $(powershell.exe '$env:USERPROFILE' | tr -d '\r'))
+    mkdir -p "$HOME/.ssh"
+    cp $WINHOME/.ssh/id_ed25519_auth $HOME/.ssh/id_ed25519_auth
+    cp $WINHOME/.ssh/id_ed25519_auth.pub $HOME/.ssh/id_ed25519_auth.pub
 
-  cp $WINHOME/.ssh/id_ed25519_sign $HOME/.ssh/id_ed25519_sign
-  cp $WINHOME/.ssh/id_ed25519_sign.pub $HOME/.ssh/id_ed25519_sign.pub
+    cp $WINHOME/.ssh/id_ed25519_sign $HOME/.ssh/id_ed25519_sign
+    cp $WINHOME/.ssh/id_ed25519_sign.pub $HOME/.ssh/id_ed25519_sign.pub
 
-  chmod 0600 .ssh/*
+    chmod 0600 .ssh/*
 
-  echo -e "WSL setup completed!"
+    echo -e "WSL setup completed!"
+
+    # Install VSCode server
+    code
+
+    echo '' >> ~/.zshrc
+    echo 'export WINHOME=\$(wslpath \$(powershell.exe '\$env:USERPROFILE' | tr -d '\\\\r'))' >> ~/.zshrc
+  fi
   additional_zshrc
 }
 
@@ -192,9 +201,6 @@ main() {
       ;;
   esac
 
-  # Install VSCode server
-  code
-
   # Create zgenom directory (just to not be error prone) and change the default shell to zsh
   echo -e "\nSetting up zshell..."
   mkdir -p ~/.zsh/zgenom
@@ -207,8 +213,6 @@ main() {
 
   echo -e "\n\nInstallation successful!"
   echo -e "Please restart your terminal to see the changes."
-  echo -e "If you are using WSL, make sure that you execute the following commands in Windows:"
-  echo "echo '' >> ~/.zshrc; echo 'export WINHOME=\$(wslpath \$(powershell.exe '\$env:USERPROFILE' | tr -d '\\\\r'))' >> ~/.zshrc"
   echo
 }
 
