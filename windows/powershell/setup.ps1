@@ -1,4 +1,5 @@
 # Credits: ChrisTitusTech
+Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
 
 # Function to check and elevate the script
 function Grant-AdminAccess {
@@ -151,11 +152,21 @@ function Restore-Profile {
 
         # Check if the user uses Valorant and install the Vanguard controller
         $usesValorant = Read-Host -Prompt "Do you use Valorant? (y/n) Default: y"
-        if (!$usesValorant -eq "n") {
-            if (!(Test-Path -Path "$profilePath\Modules")) {
+        if (-not $usesValorant -eq "n") {
+            if (-not (Test-Path -Path "$profilePath\Modules")) {
                 New-Item -Path "$profilePath\Modules" -ItemType "directory"
             }
             Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1 -OutFile "$profilePath\Modules\vanguard.ps1"
+            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/scheduler.ps1 -OutFile "$profilePath\Modules\scheduler.ps1"
+            Show-Line "Installation of Rootkit (Vanguard) controller completed."
+            $setupScheduler = Read-Host -Prompt "Do you want to set up a scheduler task to disable Vanguard after gameplay? (y/n) Default: y"
+            if (-not $setupScheduler -eq "n") {
+                try {
+                    Install-ScheduledTask
+                } catch {
+                    Show-Error "Failed to set up the scheduler task. Error: $_"
+                }
+            }
         } else {
             Show-Line "Installation of Rootkit (Vanguard) controller skipped."
         }

@@ -26,7 +26,7 @@ Import-Module -Name Terminal-Icons
 # Check for Profile Updates
 function Update-Profile {
     if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        Write-Host "Skipping profile update check due to GitHub.com not responding within 10 seconds." -ForegroundColor Yellow
         return
     }
 
@@ -303,23 +303,51 @@ function winutil() {
     Invoke-RestMethod https://christitus.com/win | Invoke-Expression
 }
 
-function vanguard($operation) {
+function Grant-AdminAccess {
+    param (
+        [switch]$yes
+    )
+    if ($yes) {
+        Get-LocalUser -Name "Administrator" | Enable-LocalUser
+    } else {
+        Get-LocalUser -Name "Administrator" | Disable-LocalUser
+    }
+}
+
+
+function pathfetch {
     $profilePath = "$env:userprofile\Documents"
 
     if (Test-Path (Join-Path $profilePath "PowerShell")) {
-        $fullPath = "$profilePath\PowerShell"
+        return "$profilePath\PowerShell"
     } elseif (Test-Path (Join-Path $profilePath "WindowsPowerShell")) {
-        $fullPath = "$profilePath\WindowsPowerShell"
+        return "$profilePath\WindowsPowerShell"
     } else {
         Write-Output "Unknown PowerShell version or profile path"
     }
+}
 
+# Vanguard Anti-Cheat Controller
+function vanguard($operation) {
+    $fullPath = pathfetch
     try {
         Invoke-Expression "$fullPath\Modules\vanguard.ps1 -operation $operation"
     } catch {
         $install_vanguard_controller = Read-Host -Prompt "Rootkit controller script not found. Install? (y/n) Default (y)"
         if (!$install_vanguard_controller -eq "n") {
             Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1 -OutFile "$fullPath\Modules\vanguard.ps1" | Invoke-Expression
+        }
+    }
+}
+
+function vanguard_scheduler {
+    $fullPath = pathfetch
+    try {
+        Invoke-Expression "$fullPath\Modules\scheduler.ps1"
+    } catch {
+        $install_vanguard_controller = Read-Host -Prompt "Vanguard scheduler script not found. Install? (y/n) Default (y)"
+        if (!$install_vanguard_controller -eq "n") {
+            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard_scheduler.ps1 -OutFile "$fullPath\Modules\vanguard_scheduler.ps1" | Invoke-Expression
         }
     }
 }

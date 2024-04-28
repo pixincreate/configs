@@ -1,7 +1,14 @@
 [CmdletBinding()]
 param (
-    $operation = 'disable'
+    $operation = 'disable',
+    [switch]$isScheduledTask
 )
+
+Add-Type -AssemblyName PresentationCore, PresentationFramework
+$buttonType = [System.Windows.MessageBoxButton]::YesNo
+$messageBoxTitle = "Vanguard Control"
+$messageBoxBody = "Looks like you're not playing VALORANT, would you like to shut down Vanguard now?"
+$messageIcon = [System.Windows.MessageBoxImage]::Question
 
 $currentScriptPath = $MyInvocation.MyCommand.Definition
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -16,11 +23,18 @@ if (-not (Test-Path -Path "$env:PROGRAMFILES\Riot Vanguard")) {
 if (-not $isAdmin) {
     Write-Host "Elevating script to admin..."
     if (Get-Command -Name "gsudo" -ErrorAction SilentlyContinue) {
-        gsudo $currentScriptPath -operation $operation
+        $adminArgs = "$currentScriptPath -operation $operation"
+        if ($isScheduledTask) {
+            $adminArgs += " -isScheduledTask"
+        }
+        gsudo $adminArgs
         exit
     } else {
         Write-Host "'gsudo' not found, using native elevation..."
         $adminArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$currentScriptPath`" -operation $operation"
+        if ($isScheduledTask) {
+            $adminArgs += " -isScheduledTask"
+        }
         $output = Start-Process -FilePath "powershell" -ArgumentList $adminArgs -Verb RunAs -Wait | Out-String
         Write-Host $output
         exit
@@ -58,6 +72,13 @@ try {
             if (($vgcService.StartType -eq "Disabled") -and ($vgkService.StartType -eq "Disabled")) {
                 Write-Host "VGC & VGK already disabled"
             } else {
+                if (-not ((Get-Process).ProcessName -contains "Valorant") -and $isScheduledTask) {
+                    $userResponse = [System.Windows.MessageBox]::Show($MessageboxBody, $MessageboxTitle, $ButtonType, $messageIcon)
+                    if ($userResponse -eq "No") {
+                        Write-Host "User declined to disable Vanguard."
+                        exit
+                    }
+                }
                 if (($vgcService.StartType -eq "Manual") -and ($vgkService.StartType -eq "System")) {
                     $vgcService | Set-Service -StartupType "Disabled"
                     Stop-Service $vgcService -ErrorAction SilentlyContinue
@@ -65,12 +86,12 @@ try {
                     $vgkService | Set-Service -StartupType "Disabled"
                     Stop-Service $vgkService -ErrorAction SilentlyContinue
 
-                    Write-Host "VGC & VGK disabled"
+                    Write-Host "VGC and VGK are now disabled."
 
                     Remove-Item -Path "$env:PROGRAMFILES\Riot Vanguard\Logs" -Force -Recurse -ErrorAction SilentlyContinue
 
                     if (-not (Test-Path -Path "$env:PROGRAMFILES\Riot Vanguard\Logs")) {
-                        Write-Host "Logs deleted!"
+                        Write-Host "Logs have been deleted sucessfully!"
                     } else {
                         Write-Host "Error: Failed to delete logs."
                     }
