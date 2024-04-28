@@ -37,14 +37,14 @@ function Update-Profile {
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
 
         if ($newhash.Hash -ne $oldhash.Hash) {
-            Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps2" -Destination $PROFILE -Force
-            Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps2" -Force
+            Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
+            Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1" -Force
 
             Write-Host "Profile has been updated. Restarting shell..." -ForegroundColor Magenta
             Write-Host "Please restart your shell to reflect changes" -ForegroundColor Magenta
         }
     } catch {
-        Write-Error "Unable to check for `$profile updates due to an error: $_" -ForegroundColor Red
+        Write-Error "Unable to check for `$profile updates due to an error: $_"
         Write-Host "Try elevating with 'sudo' and running 'Update-Profile' to force an update." -ForegroundColor Yellow
     } finally {
         Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
@@ -300,7 +300,7 @@ function cmd() {
 }
 
 function winutil() {
-    Invoke-RestMethod https://christitus.com/win | Invoke-Expression
+    Invoke-RestMethod "https://christitus.com/win" | Invoke-Expression
 }
 
 function Grant-AdminAccess {
@@ -334,20 +334,20 @@ function vanguard($operation) {
         Invoke-Expression "$fullPath\Modules\vanguard.ps1 -operation $operation"
     } catch {
         $install_vanguard_controller = Read-Host -Prompt "Rootkit controller script not found. Install? (y/n) Default (y)"
-        if (!$install_vanguard_controller -eq "n") {
-            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1 -OutFile "$fullPath\Modules\vanguard.ps1" | Invoke-Expression
+        if (-not ($install_vanguard_controller -eq "n")) {
+            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1" -OutFile "$fullPath\Modules\vanguard.ps1" | Invoke-Expression
         }
     }
 }
 
-function vanguard_scheduler {
+function vanguard_scheduler($action) {
     $fullPath = pathfetch
     try {
-        Invoke-Expression "$fullPath\Modules\scheduler.ps1"
+        Invoke-Expression "$fullPath\Modules\vanguard_scheduler.ps1 -action $action"
     } catch {
         $install_vanguard_controller = Read-Host -Prompt "Vanguard scheduler script not found. Install? (y/n) Default (y)"
-        if (!$install_vanguard_controller -eq "n") {
-            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard_scheduler.ps1 -OutFile "$fullPath\Modules\vanguard_scheduler.ps1" | Invoke-Expression
+        if (-not ($install_vanguard_controller -eq "n")) {
+            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard_scheduler.ps1" -OutFile "$fullPath\Modules\vanguard_scheduler.ps1" | Invoke-Expression
         }
     }
 }

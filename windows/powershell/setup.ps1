@@ -141,7 +141,7 @@ function Restore-Profile {
                 New-Item -Path $profilePath -ItemType "directory"
             }
 
-            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1 -OutFile "$PROFILE"
+            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1" -OutFile "$PROFILE"
             Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1"
 
             Show-Line "The profile @ [$PROFILE] has been created."
@@ -152,15 +152,15 @@ function Restore-Profile {
 
         # Check if the user uses Valorant and install the Vanguard controller
         $usesValorant = Read-Host -Prompt "Do you use Valorant? (y/n) Default: y"
-        if (-not $usesValorant -eq "n") {
+        if (-not ($usesValorant -eq "n")) {
             if (-not (Test-Path -Path "$profilePath\Modules")) {
                 New-Item -Path "$profilePath\Modules" -ItemType "directory"
             }
-            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1 -OutFile "$profilePath\Modules\vanguard.ps1"
-            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/scheduler.ps1 -OutFile "$profilePath\Modules\scheduler.ps1"
+            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1" -OutFile "$profilePath\Modules\vanguard.ps1"
+            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/scheduler.ps1" -OutFile "$profilePath\Modules\scheduler.ps1"
             Show-Line "Installation of Rootkit (Vanguard) controller completed."
             $setupScheduler = Read-Host -Prompt "Do you want to set up a scheduler task to disable Vanguard after gameplay? (y/n) Default: y"
-            if (-not $setupScheduler -eq "n") {
+            if (-not ($setupScheduler -eq "n")) {
                 try {
                     Install-ScheduledTask
                 } catch {
@@ -174,7 +174,7 @@ function Restore-Profile {
         # Backup the old profile and update the profile forcefully if it exist already
         try {
             Get-Item -Path $PROFILE | Move-Item -Destination "oldProfile.ps1" -Force
-            Invoke-RestMethod https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1 -OutFile "$PROFILE"
+            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1" -OutFile "$PROFILE"
             Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1"
 
             Show-Line "The profile @ [$PROFILE] has been created and old profile backed up."

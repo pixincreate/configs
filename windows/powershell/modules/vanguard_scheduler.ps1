@@ -1,3 +1,9 @@
+
+[CmdletBinding()]
+param (
+    $action
+)
+
 function Install-ScheduledTask {
     Write-Host "Installing Scheduled Task..."
     # Create a new task action
@@ -42,7 +48,11 @@ function Unregister-SchedulerTask {
 
 # Function to get the last n event logs
 function Get-EventLogs {
-    Get-WinEvent -LogName application -MaxEvents $args[0]
+    param(
+        [Parameter(Mandatory = $true)]
+        [int]$number
+    )
+    Get-WinEvent -LogName application -MaxEvents $number
 }
 
 function help {
@@ -55,3 +65,35 @@ function help {
     Write-Host "Get-EventLogs: Get the last n event logs. Usage: Get-EventLogs <number>"
     Write-Host "help: Display this help message."
 }
+
+function main {
+    Write-Host "Scheduler Module"
+    Write-Host "----------------"
+    Write-Host "Operation: $action"
+
+    switch ($action) {
+        'Install-ScheduledTask' {
+            Install-ScheduledTask
+        }
+        'Backup-SchedulerTask' {
+            Backup-SchedulerTask
+        }
+        'Restore-SchedulerTask' {
+            Restore-SchedulerTask
+        }
+        'Unregister-SchedulerTask' {
+            Unregister-SchedulerTask
+        }
+        'Get-EventLogs' {
+            Get-EventLogs
+        }
+        'help' {
+            help
+        }
+        default {
+            Write-Host "Invalid action. Use 'help' to see available actions."
+        }
+    }
+}
+
+main

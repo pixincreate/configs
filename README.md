@@ -154,8 +154,47 @@ Usage:
   vanguard vgk_status
   ```
 
-> [!NOTE]
-> `Auto disabler` to be added soon. This should prompt the user after the game is shutdown. If ignored, it should remind again after about an hour or so using a `scheduler`.
+#### Vanguard-Controller-Scheduler
+
+[vanguard-scheduler.ps1](https://github.com/pixincreate/configs/blob/main/windows/powershell/modules/vanguard_scheduler.ps1) is another powershell script that can called by powershell profile to control the scheduler for ease of use.
+
+Usage:
+
+- help
+
+  ```shell
+  vanguard_scheduler help
+  ```
+
+- Install-ScheduledTask
+
+  ```shell
+  vanguard_scheduler Install-ScheduledTask
+  ```
+
+- Backup-SchedulerTask
+
+  ```shell
+  vanguard_scheduler Backup-SchedulerTask
+  ```
+
+- Restore-SchedulerTask
+
+  ```shell
+  vanguard_scheduler Restore-SchedulerTask
+  ```
+
+- Unregister-SchedulerTask
+
+  ```shell
+  vanguard_scheduler Unregister-SchedulerTask
+  ```
+
+- Get-EventLog
+
+  ```shell
+  vanguard_scheduler Get-EventLog <number>
+  ```
 
 ## Credits
 
