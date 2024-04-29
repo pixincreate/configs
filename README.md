@@ -38,6 +38,7 @@ This repo contains all of my development configs. I never had a backup of these 
     │   ├── modules
     │   │   ├── file_copy.ps1                             # a function to copy contents, especially terminal configs
     │   │   ├── vanguard.ps1                              # a function to control vanguard execution
+    │   │   ├── vanguard_scheduler.ps1                    # a function to schedule the disabling vanguard execution
     │   │   └── wsl_install.cmd                           # This file is automatically run on restart to install Debian, deleted once installed
     │   └── setup.ps1                                     # automated environment setup that targets windows
     ├── pro_scripts
@@ -193,7 +194,8 @@ Usage:
 - Get-EventLog
 
   ```shell
-  vanguard_scheduler Get-EventLog <number>
+  vanguard_scheduler Get-EventLog
+  # mandatory input -> number: <number>
   ```
 
 ## Credits
