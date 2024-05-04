@@ -35,6 +35,9 @@ function Show-Warning {
     Write-Warning "[$((Get-Date).ToString('HH:mm:ss'))] $args"
 }
 
+function Write-Prompt($question) {
+    Read-Host -Prompt $question"? (y/n). Default (y)"
+}
 
 # Function to test internet connectivity
 function Test-InternetConnection {
@@ -117,6 +120,19 @@ function Install-Package {
     }
 }
 
+function Disable-Ads {
+    $disableAds = Write-Prompt "Do you want to disable ads in Windows 11"
+    if (-not ($disableAds -eq "n")) {
+        # Download and run OFGB
+        Show-Line "Downloading and running OFGB..."
+        Show-Warning "You might have to install .NET8.0 Desktop Runtime if you haven't already."
+        Invoke-RestMethod "https://github.com/xM4ddy/OFGB/releases/latest/download/OFGB.exe" -OutFile ".\windows\tools\ofgb\OFGB.exe"
+        Start-Process -Wait ".\windows\tools\ofgb\OFGB.exe" -Verb RunAs
+    } else {
+        Show-Line "Disabling ads in Windows 11 skipped."
+    }
+}
+
 # Function to download the configs from GitHub repository
 function Get-Configs {
     Show-Line "Downloading the configs..."
@@ -151,7 +167,7 @@ function Restore-Profile {
         }
 
         # Check if the user uses Valorant and install the Vanguard controller
-        $usesValorant = Read-Host -Prompt "Do you use Valorant? (y/n) Default: y"
+        $usesValorant = Write-Prompt "Do you use Valorant"
         if (-not ($usesValorant -eq "n")) {
             if (-not (Test-Path -Path "$profilePath\Modules")) {
                 New-Item -Path "$profilePath\Modules" -ItemType "directory"
@@ -159,7 +175,7 @@ function Restore-Profile {
             Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1" -OutFile "$profilePath\Modules\vanguard.ps1"
             Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/scheduler.ps1" -OutFile "$profilePath\Modules\scheduler.ps1"
             Show-Line "Installation of Rootkit (Vanguard) controller completed."
-            $setupScheduler = Read-Host -Prompt "Do you want to set up a scheduler task to disable Vanguard after gameplay? (y/n) Default: y"
+            $setupScheduler = Write-Prompt "Do you want to set up a scheduler task to disable Vanguard after gameplay"
             if (-not ($setupScheduler -eq "n")) {
                 try {
                     Install-ScheduledTask
@@ -186,7 +202,7 @@ function Restore-Profile {
 }
 
 # Function to Configure the developer environment
-function Configure {
+function Set-DeveloperEnvironment {
     # Setup the terminal
     Show-Line "Setting up Terminal ..."
     & ".\windows\powershell\modules\file_copy.ps1" -sourceDirectory ".\home\.config\wt\LocalState\" -destinationBaseDirectory "$env:userprofile\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
@@ -234,6 +250,7 @@ function Install-WSL {
 function main {
     ## Variables
     $modules = @(
+        "ps2exe",
         "Terminal-Icons",
         "WalInterop"
     )
@@ -246,7 +263,6 @@ function main {
         "junegunn.fzf",
         "Microsoft.PowerShell",
         "Microsoft.VisualStudio.2022.BuildTools",
-        "Microsoft.VisualStudioCode.Insiders",
         "Neovim.Neovim",
         "Rustlang.Rustup",
         "Starship.Starship",
@@ -264,7 +280,8 @@ function main {
     Install-Module -moduleNames $modules
     Install-Package -packageNames $packages
     Get-Configs
-    Configure # Elephant in the room
+    Disable-Ads
+    Set-DeveloperEnvironment # Elephant in the room
     Install-WSL
 }
 
