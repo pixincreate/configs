@@ -4,52 +4,57 @@ This repo contains all of my development configs. I never had a backup of these 
 
 ## Contents
 
-```t
+```txt
 .
-├── LICENSE                                               # LICENSE file for this repo
-├── README.md                                             # this file
 ├── home
+│   ├── Code
+│   │   └── User
+│   │       └── settings.json                                       # my vs_code settings
 │   ├── .config
 │   │   ├── micro
-│   │   │   └── settings.json                             # configs for micro editor
+│   │   │   └── settings.json                                       # configs for micro editor
+│   │   ├── starship.toml                                           # my starship configs
 │   │   └── wt
 │   │       └── LocalState
-│   │           └── settings.json                         # windows terminal settings
-│   ├── .gitconfig                                        # my git config
-│   ├── .ssh
-│   │   └── config                                        # my ssh config
-│   └── Code
-│       └── User
-│           └── settings.json                             # my vs_code settings
+│   │           └── settings.json                                   # my windows terminal settings
+│   ├── .gitconfig                                                  # my git config
+│   └── .ssh
+│       └── config                                                  # my ssh config
+├── LICENSE                                                         # license for this repo
+├── README.md                                                       # this file
 ├── unix
+│   ├── dotfiles.sh                                                 # automated environment setup that targets linux, android and mac
 │   ├── .zsh
-│   │   ├── .zshenv                                       # zsh environment file
-│   │   └── .zshrc                                        # zsh run commands file
-│   ├── .zshenv                                           # zsh environment file that exposes.zsh directory
-│   └── dotfiles.sh                                       # automated environment setup that targets linux, android and mac
+│   │   ├── .zshenv                                                 # zsh environment file
+│   │   └── .zshrc                                                  # zsh run commands file
+│   └── .zshenv                                                     # zsh environment file that exposes.zsh directory
 └── windows
-    ├── Winutil
-    │   ├── build.ps1                                     # executable builder script
-    │   ├── windows.ico                                   # windows icon
-    │   ├── winutil.exe                                   # winutil
-    │   └── winutil.ps1                                   # winutil powershell script
     ├── powershell
-    │   ├── Microsoft.PowerShell_profile.ps1              # my powershell_profile configuration
+    │   ├── Microsoft.PowerShell_profile.ps1                        # my powershell_profile configuration
     │   ├── modules
-    │   │   ├── file_copy.ps1                             # a function to copy contents, especially terminal configs
-    │   │   ├── vanguard.ps1                              # a function to control vanguard execution
-    │   │   ├── vanguard_scheduler.ps1                    # a function to schedule the disabling vanguard execution
-    │   │   └── wsl_install.cmd                           # This file is automatically run on restart to install Debian, deleted once installed
-    │   └── setup.ps1                                     # automated environment setup that targets windows
+    │   │   ├── file_copy.ps1                                       # a function to copy contents, especially terminal configs
+    │   │   ├── vanguard.ps1                                        # a function to control vanguard execution
+    │   │   ├── vanguard_scheduler.ps1                              # a function to schedule the disabling vanguard execution
+    │   │   └── wsl_install.cmd                                     # this file is automatically run on restart to install Debian, deleted once installed
+    │   └── setup.ps1
     ├── pro_scripts
-    │   ├── gpedit-enabler.bat                            # enables group policy editor in windows_home
-    │   └── hyper-v-enabler.bat                           # enables hyper-v in windows_home
+    │   ├── gpedit-enabler.bat                                      # enables group policy editor in windows_home
+    │   └── hyper-v-enabler.bat                                     # enables hyper-v in windows_home
     ├── registry_edits
     │   └── folders-to-ThisPC
-    │       ├── add-folders-to-ThisPC.reg                 # this registry adds the good old folders at the top of `ThisPC`
-    │       └── remove-folders-from-ThisPC.reg            # removes them
-    └── theme
-        └── pix-dynamc-theme.deskthemepack                # my desktop theme with added wallpaper
+    │       ├── add-folders-to-ThisPC.reg                           # registry to add default folders at the top of `ThisPC`
+    │       └── remove-folders-from-ThisPC.reg                      # registry to remove default folders from the top of `ThisPC`
+    ├── theme
+    │   └── pix-dynamc-theme.deskthemepack                          # my desktop theme with added wallpaper
+    └── tools
+        ├── ofgb                                                    # oh frick! go back! a tool to disable ads in windows, downloaded by setup.ps1
+        │   └── placeholder
+        └── winutil
+            ├── build.ps1                                           # winutil builder script
+            ├── windows.ico
+            ├── winutil.exe                                         # winutil executable
+            └── winutil.ps1                                         # winutil powershell script
+
 ```
 
 ## One line installer
@@ -122,11 +127,12 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
   - Installs WSL-Interop
   - Restores `powershell_profile` where there exist many functions that help replicate linux commands and functionality
   - Restores VSCode settings
-  - Disables powershell telemetry
+  - Disables powershell telemetry and Ads on PC
   - It also has some extras
     - GPEdit enabler
     - Hyper-V enabler
     - Registry to add / remove default folders in `ThisPC` (downloads, documents, desktop, etc.,)
+    - Winutil
   - Installs WSL
 
 #### Vanguard-Controller

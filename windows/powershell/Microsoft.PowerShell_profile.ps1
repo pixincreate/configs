@@ -12,8 +12,8 @@
 #  ChrisTitus
 # --------------------------------------------------------------------------------------------------------------------------------------------
 
-# Initial GitHub.com connectivity check with 10 seconds timeout
-$canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 10
+# Initial GitHub.com connectivity check with 5 seconds timeout
+$canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 5
 
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
@@ -31,23 +31,49 @@ function Update-Profile {
     }
 
     try {
-        $url = "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1"
-        $oldhash = Get-FileHash $PROFILE
-        Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
-        $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
+        $urls = @(
+            "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1",
+            "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1",
+            "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard_scheduler.ps1"
+        )
 
-        if ($newhash.Hash -ne $oldhash.Hash) {
-            Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
-            Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1" -Force
+        $profilePath = ""
+        if ($PSVersionTable.PSEdition -eq "Core") {
+            $profilePath = "$env:userprofile\Documents\Powershell"
+        } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+            $profilePath = "$env:userprofile\Documents\WindowsPowerShell"
+        }
 
-            Write-Host "Profile has been updated. Restarting shell..." -ForegroundColor Magenta
-            Write-Host "Please restart your shell to reflect changes" -ForegroundColor Magenta
+        $oldHashes = @(
+            Get-FileHash $PROFILE
+            Get-FileHash $profilePath\Modules\vanguard.ps1
+            Get-FileHash $profilePath\Modules\vanguard_scheduler.ps1
+        )
+
+        foreach ($url in $urls) {
+            $newFileName = $(Split-Path -Leaf $url)
+            Invoke-RestMethod $url -OutFile "$env:temp/$newFileName"
+            $newHash = Get-FileHash "$env:temp/$newFileName"
+
+            foreach ($oldHash in $oldHashes) {
+                $oldFileName = $(Split-Path -Leaf $oldHash.Path)
+                if ($oldFileName -eq $newFileName) {
+                    if ($newHash.Hash -ne $oldHash.Hash) {
+                        Copy-Item -Path "$env:temp/$newFileName" -Destination $oldHash.Path -Force
+
+                        if ($oldHash.Path -eq $PROFILE) {
+                            Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1" -Force
+                        }
+                        Write-Host "Please restart your shell to reflect changes" -ForegroundColor Magenta
+                    }
+                }
+            }
         }
     } catch {
-        Write-Error "Unable to check for `$profile updates due to an error: $_"
+        Write-Error "Update check failed due to: $_"
         Write-Host "Try elevating with 'sudo' and running 'Update-Profile' to force an update." -ForegroundColor Yellow
     } finally {
-        Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
+        Remove-Item -Path "$env:temp/*.ps1" -Force
     }
 }
 
@@ -113,7 +139,7 @@ function touch {
 # find-file
 function ff($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
-        Write-Output "$($_.directory)\$($_)"
+        Write-Output "$($_.FullName)"
     }
 }
 
@@ -183,8 +209,8 @@ function head {
 }
 
 function tail {
-    param($Path, $n = 10)
-    Get-Content $Path -Tail $n
+    param($Path, $n = 10, [switch]$f = $false)
+    Get-Content $Path -Tail $n -Wait:$f
 }
 
 # Does the the rough equivalent of dir /s /b. For example, dirs *.png is dir /s /b *.png
