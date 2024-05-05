@@ -4,6 +4,7 @@ param (
     [switch]$isScheduledTask
 )
 
+
 Add-Type -AssemblyName PresentationCore, PresentationFramework
 $buttonType = [System.Windows.MessageBoxButton]::YesNo
 $messageBoxTitle = "Vanguard Control"
@@ -20,29 +21,36 @@ if (-not (Test-Path -Path "$env:PROGRAMFILES\Riot Vanguard")) {
     exit
 }
 
-if (-not $isAdmin) {
-    Write-Host "Elevating script to admin..."
-    if (Get-Command -Name "gsudo" -ErrorAction SilentlyContinue) {
-        $adminArgs = "$currentScriptPath -operation $operation"
-        if ($isScheduledTask) {
-            $adminArgs += " -isScheduledTask"
+function Grant-AdminAccess {
+    if (-not $isAdmin) {
+        Write-Host "Elevating script to admin..."
+        if (Get-Command -Name "gsudo" -ErrorAction SilentlyContinue) {
+            $adminArgs = "$currentScriptPath -operation $operation"
+            if ($isScheduledTask) {
+                $adminArgs += " -isScheduledTask"
+            }
+            gsudo $adminArgs
+            exit
+        } else {
+            Write-Host "'gsudo' not found, using native elevation..."
+            $adminArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$currentScriptPath`" -operation $operation"
+            if ($isScheduledTask) {
+                $adminArgs += " -isScheduledTask"
+            }
+            $output = Start-Process -FilePath "powershell" -ArgumentList $adminArgs -Verb RunAs -Wait | Out-String
+            Write-Host $output
+            exit
         }
-        gsudo $adminArgs
-        exit
-    } else {
-        Write-Host "'gsudo' not found, using native elevation..."
-        $adminArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$currentScriptPath`" -operation $operation"
-        if ($isScheduledTask) {
-            $adminArgs += " -isScheduledTask"
-        }
-        $output = Start-Process -FilePath "powershell" -ArgumentList $adminArgs -Verb RunAs -Wait | Out-String
-        Write-Host $output
-        exit
     }
 }
 
 Write-Host "Vanguard Control"
 Write-Host "----------------"
+
+if (-not $isScheduledTask) {
+    # Do not prompt user if script is running as scheduled task
+    Grant-AdminAccess
+}
 
 try {
     Write-Host "Operation: $operation"
@@ -73,6 +81,8 @@ try {
                 Write-Host "VGC & VGK already disabled"
             } else {
                 if (-not ((Get-Process).ProcessName -contains "Valorant") -and $isScheduledTask) {
+                    # Prompt user to disable Vanguard as Valorant is not running and script is running as scheduled task
+                    Grant-AdminAccess
                     $userResponse = [System.Windows.MessageBox]::Show($MessageboxBody, $MessageboxTitle, $ButtonType, $messageIcon)
                     if ($userResponse -eq "No") {
                         Write-Host "User declined to disable Vanguard."

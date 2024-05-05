@@ -128,81 +128,19 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
   - Restores `powershell_profile` where there exist many functions that help replicate linux commands and functionality
   - Restores VSCode settings
   - Disables powershell telemetry and Ads on PC
-  - It also has some extras
-    - GPEdit enabler
-    - Hyper-V enabler
-    - Registry to add / remove default folders in `ThisPC` (downloads, documents, desktop, etc.,)
-    - Winutil
   - Installs WSL
+  - Optionally, Vanguard controller and scheduler
 
-#### Vanguard-Controller
+The repo also has additional scripts:
 
-[vanguard.ps1](https://github.com/pixincreate/configs/blob/main/windows/powershell/modules/vanguard.ps1) is a special file called by powershell profile targeted at users who play Valorant.
-It is a controller that allows you to either `enable` or `disable` `vgc` and `vgk` along with an option to check their status (`vgk_status`).
-This is added as a measure to stop Vanguard from spying on its users all the time. Enable the rootkit before you wish to play, reboot and then start playing.
+- GPEdit enabler
+- Hyper-V enabler
+- Registry to add / remove default folders in `ThisPC` (downloads, documents, desktop, etc.,)
+- Winutil
 
-Usage:
+#### Vanguard Controller
 
-- Enable Vanguard
-
-  ```shell
-  vanguard enable
-  ```
-
-- Disable Vanguard
-
-  ```shell
-  vanguard disable
-  ```
-
-- Check Status
-
-  ```shell
-  vanguard vgk_status
-  ```
-
-#### Vanguard-Controller-Scheduler
-
-[vanguard-scheduler.ps1](https://github.com/pixincreate/configs/blob/main/windows/powershell/modules/vanguard_scheduler.ps1) is another powershell script that can called by powershell profile to control the scheduler for ease of use.
-
-Usage:
-
-- help
-
-  ```shell
-  vanguard_scheduler help
-  ```
-
-- Install-ScheduledTask
-
-  ```shell
-  vanguard_scheduler Install-ScheduledTask
-  ```
-
-- Backup-SchedulerTask
-
-  ```shell
-  vanguard_scheduler Backup-SchedulerTask
-  ```
-
-- Restore-SchedulerTask
-
-  ```shell
-  vanguard_scheduler Restore-SchedulerTask
-  ```
-
-- Unregister-SchedulerTask
-
-  ```shell
-  vanguard_scheduler Unregister-SchedulerTask
-  ```
-
-- Get-EventLog
-
-  ```shell
-  vanguard_scheduler Get-EventLog
-  # mandatory input -> number: <number>
-  ```
+To learn about what Vanguard controller is and how to use it, refer to [Vanguard Controller](./docs/vanguard.md)
 
 ## Credits
 

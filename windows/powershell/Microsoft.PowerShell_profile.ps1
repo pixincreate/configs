@@ -26,11 +26,14 @@ Import-Module -Name Terminal-Icons
 # Check for Profile Updates
 function Update-Profile {
     if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping profile update check due to GitHub.com not responding within 10 seconds." -ForegroundColor Yellow
+        Write-Host "Skipping profile update check due to GitHub.com not responding within 5 seconds." -ForegroundColor Yellow
         return
     }
 
+    Write-Host -NoNewLine "Checking for profile updates..."
+
     try {
+        $profileUpdated = $false
         $urls = @(
             "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1",
             "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1",
@@ -64,10 +67,14 @@ function Update-Profile {
                         if ($oldHash.Path -eq $PROFILE) {
                             Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1" -Force
                         }
-                        Write-Host "Please restart your shell to reflect changes" -ForegroundColor Magenta
+                        Write-Host -NoNewLine "`rPlease restart your shell to reflect changes".PadRight(100, " ") -ForegroundColor Magenta
+                        $profileUpdated = $true
                     }
                 }
             }
+        }
+        if (-not $profileUpdated) {
+            Write-Host "`rProfile is up to date!".PadRight(100, " ") -ForegroundColor Green
         }
     } catch {
         Write-Error "Update check failed due to: $_"
@@ -86,21 +93,19 @@ $adminSuffix = if ($isAdmin) { " [SUDO]" } else { "" }
 $Host.UI.RawUI.WindowTitle = "PowerShell {0}$adminSuffix" -f $PSVersionTable.PSVersion.ToString()
 
 function Grant-AdminAccess {
-    # Ensure the script can run with elevated privileges
-    $currentScriptPath = $MyInvocation.MyCommand.Definition
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Host "Elevating script to admin..."
+        Write-Host "Elevating to admin..."
         if (Get-Command -Name "gsudo" -ErrorAction SilentlyContinue) {
-            $output = gsudo $currentScriptPath | Out-String
+            $output = gsudo $args | Out-String
             Write-Host $output
-            exit
+            break
         } else {
             Write-Host "'gsudo' not found, using native elevation..."
-            $adminArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$currentScriptPath`""
+            $adminArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$args`""
             $output = Start-Process -FilePath "powershell" -ArgumentList $adminArgs -Verb RunAs -Wait | Out-String
             Write-Host $output
-            exit
+            break
         }
     }
 }
