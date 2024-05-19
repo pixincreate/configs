@@ -148,7 +148,7 @@ function Restore-Profile {
             # Detect Version of PowerShell & Create Profile directories if they do not exist.
             $profilePath = ""
             if ($PSVersionTable.PSEdition -eq "Core") {
-                $profilePath = "$env:userprofile\Documents\Powershell"
+                $profilePath = "$env:userprofile\Documents\PowerShell"
             } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
                 $profilePath = "$env:userprofile\Documents\WindowsPowerShell"
             }

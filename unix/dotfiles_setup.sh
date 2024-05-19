@@ -59,17 +59,19 @@ brew_install() {
   brew install \
     croc \
     direnv \
-    gcc
+    gcc \
+    trash-cli
 
   brew install \
     git-delta \
-    micro \
-    neofetch
+    fastfetch \
+    micro
 
   brew install \
     neovim # Because neovim has too many dependencies
 
   brew install \
+    multitail \
     openssh
 
   brew install \
@@ -80,6 +82,7 @@ brew_install() {
     fzf \
     tree \
     walk \
+    xclip \
     zoxide
 
   # Tools
@@ -101,13 +104,21 @@ linux() {
   # WSL Git Setup
   if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
     echo -e "\nSetting up git for WSL..."
-    export WINHOME=$(wslpath $(powershell.exe '$env:USERPROFILE' | tr -d '\r'))
-    mkdir -p "$HOME/.ssh"
-    cp $WINHOME/.ssh/id_ed25519_auth $HOME/.ssh/id_ed25519_auth
-    cp $WINHOME/.ssh/id_ed25519_auth.pub $HOME/.ssh/id_ed25519_auth.pub
+    WINHOME=$(wslpath "$(powershell.exe -Command 'echo $env:USERPROFILE' | tr -d '\r')")
 
-    cp $WINHOME/.ssh/id_ed25519_sign $HOME/.ssh/id_ed25519_sign
-    cp $WINHOME/.ssh/id_ed25519_sign.pub $HOME/.ssh/id_ed25519_sign.pub
+    mkdir -p "$HOME/.ssh"
+    files="id_ed25519_auth id_ed25519_auth.pub id_ed25519_sign id_ed25519_sign.pub"
+
+    for file in $files; do
+      src="$WINHOME/.ssh/$file"
+      dest="$HOME/.ssh/$file"
+
+      if [ -f "$src" ]; then
+        cp "$src" "$dest"
+      else
+        echo "File not found: $src"
+      fi
+    done
 
     chmod 0600 .ssh/*
 
@@ -116,8 +127,9 @@ linux() {
     # Install VSCode server
     code
 
-    echo '' >> ~/.zshrc
-    echo 'export WINHOME=\$(wslpath \$(powershell.exe '\$env:USERPROFILE' | tr -d '\\\\r'))' >> ~/.zshrc
+    echo '' >> ~/.zsh/.zshrc
+    echo 'export WINHOME=$(wslpath "$(powershell.exe -Command '\''echo $env:USERPROFILE'\'' | tr -d '\''\r'\'')")' >> ~/.zsh/.zshrc
+    echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/external_alias.zsh
   fi
   additional_zshrc
 }
@@ -127,18 +139,20 @@ android() {
   echo -e "Make sure that you've installed Termux and Shizuku."
 
   # Make a folder for Shizuku rish files
-  mkdir -p ~/.rish
+  mkdir -p ~/.rish ~/.zsh
 
   # Brew is unsupported in Android (Termux)
-  pkg update && pkg install \
+  pkg install -y \
     android-tools \
+    bat \
+    binutils \
     croc \
     direnv \
+    fastfetch \
     fzf \
-    git \
     git-delta \
     micro \
-    neofetch \
+    multitail \
     neovim \
     openssh \
     sqlite \
@@ -146,9 +160,12 @@ android() {
     tar \
     topgrade \
     tree \
-    tsu \
-    termux-am \
     zoxide
+
+  pkg install -y \
+    tsu \
+    termux-tools \
+    termux-api
 
   termux-setup-storage
 
@@ -156,7 +173,7 @@ android() {
     echo
     echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
     echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
-  ) >> ~/.zsh/.zshrc
+  ) >> ~/.zsh/external_alias.zsh
 
   # Make sure that you've exported rish files from Shizuku app
   cp /storage/emulated/0/Documents/Shizuku/* $HOME/.rish/*
@@ -174,6 +191,9 @@ mac() {
 }
 
 main() {
+  # Clone the configs repo and copy the files to the home directory
+  echo -e "\nCloning the configs repo and copying the files to the home directory..."
+
   if [[ "$OSTYPE" == "linux-gnu" ]]; then
     echo -e "OS: Linux"
     linux
@@ -185,12 +205,9 @@ main() {
     android
   fi
 
-  # Clone the configs repo and copy the files to the home directory
-  echo -e "\nCloning the configs repo and copying the files to the home directory..."
   git clone https://github.com/pixincreate/configs.git
   cp -r configs/home/. $HOME
   cp -r configs/unix/. $HOME
-  rm $HOME/dotfiles.sh
 
   case $OSTYPE in
     linux* | linux-android)
@@ -204,9 +221,14 @@ main() {
   # Create zgenom directory (just to not be error prone) and change the default shell to zsh
   echo -e "\nSetting up zshell..."
   mkdir -p ~/.zsh/zgenom
-  sudo chsh -s $(which zsh) $(whoami)
 
-  starship preset pastel-powerline -o ~/.config/starship.toml
+  if [[ "$OSTYPE" == "linux-android" ]]; then
+    chsh -s zsh
+  else
+    sudo chsh -s $(which zsh) $(whoami)
+  fi
+
+  mv -f configs/home/.config/starship.toml ~/.config/starship.toml
 
   # Delete the downloaded repository
   rm -rf configs
