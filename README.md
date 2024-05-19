@@ -71,7 +71,14 @@ By unix based OS I mean, WSL, Debian, Arch, or macOS
 
 ```sh
 sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
-    curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles.sh | bash
+    curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles_setup.sh | bash
+```
+
+If running in Termux
+
+```sh
+pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
+    curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles_setup.sh | bash
 ```
 
 > [!IMPORTANT]
@@ -84,13 +91,15 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
 - Executes `unix/dotfiles.sh`
 - Depending on the OS type: (`Andoroid`, `Linux based OS`, `macOS`), below mentioned packages are installed:
   - android-tools
+  - bat
   - croc
   - direnv
+  - fastfetch
   - fzf
   - git
   - git-delta
   - micro
-  - neofetch
+  - multitail
   - neovim
   - openssh
   - sqlite
@@ -99,10 +108,12 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
   - tree
   - tsu (Android only)
   - termux-am (Android only)
+  - termux-api (Android only)
   - walk
+  - xclip
   - zoxide
 - `Rish` is setup for Android as well
-- Installs `starship` and `zgenom` plugin manager
+- Installs `starship` and `zgenom` plugin manager and a ton of aliases for ease of use
 - Restores VSCode settings
 - Setup `zshell` where all `zsh` specific is kept in a single directory named as `.zsh`
 - Micro, SSH, Code settings are restored along with `.gitconfig`
@@ -145,6 +156,6 @@ To learn about what Vanguard controller is and how to use it, refer to [Vanguard
 ## Credits
 
 - SanchithHegde for [dotfiles](https://github.com/SanchithHegde/dotfiles)
-- Chris Titus for [powershell-profile](https://github.com/ChrisTitusTech/powershell-profile) and [winutil](https://github.com/ChrisTitusTech/winutil)
+- Chris Titus for [powershell-profile](https://github.com/ChrisTitusTech/powershell-profile), [bash-profile](https://github.com/ChrisTitusTech/mybash) and [winutil](https://github.com/ChrisTitusTech/winutil)
 - Mike Battista for [Powershell - WSL Interop](https://github.com/mikebattista/PowerShell-WSL-Interop)
 - AndrewMast for [disable_vanguard.vbs](https://gist.github.com/AndrewMast/742ac7e07c37096017e907b0fd8ec7bb?permalink_comment_id=4616472#gistcomment-4616472)

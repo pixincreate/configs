@@ -7,9 +7,6 @@
 # I wanted to have a similar unix based experience on Windows as well. Started with re-writing small commands such as `touch` and `ls` and then
 # found ChrisTitus Tech's powershell profile and decided to add his work on top of my customization.
 # This file also includes starship profile as well.
-
-# Credit:
-#  ChrisTitus
 # --------------------------------------------------------------------------------------------------------------------------------------------
 
 # Initial GitHub.com connectivity check with 5 seconds timeout
@@ -23,6 +20,19 @@ if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
 
 Import-Module -Name Terminal-Icons
 
+# A function to get the file hash only if the file exists, else return null
+function Get-ValidatedFileHash {
+    param (
+        [string]$filePath
+    )
+    if (Test-Path $filePath) {
+        return Get-FileHash $filePath
+    } else {
+        Write-Warning "File not found: $filePath"
+        return $null
+    }
+}
+
 # Check for Profile Updates
 function Update-Profile {
     if (-not $global:canConnectToGitHub) {
@@ -31,7 +41,6 @@ function Update-Profile {
     }
 
     Write-Host -NoNewLine "Checking for profile updates..."
-
     try {
         $profileUpdated = $false
         $urls = @(
@@ -40,35 +49,42 @@ function Update-Profile {
             "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard_scheduler.ps1"
         )
 
-        $profilePath = ""
+        $profilePaths = @()
         if ($PSVersionTable.PSEdition -eq "Core") {
-            $profilePath = "$env:userprofile\Documents\Powershell"
+            $profilePaths += "$env:userprofile\Documents\PowerShell"
+            $profilePaths += "$env:userprofile\Documents\WindowsPowerShell"
         } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-            $profilePath = "$env:userprofile\Documents\WindowsPowerShell"
+            $profilePaths += "$env:userprofile\Documents\WindowsPowerShell"
         }
 
-        $oldHashes = @(
-            Get-FileHash $PROFILE
-            Get-FileHash $profilePath\Modules\vanguard.ps1
-            Get-FileHash $profilePath\Modules\vanguard_scheduler.ps1
-        )
+        foreach ($profilePath in $profilePaths) {
+            $profileFile = Join-Path $profilePath "Microsoft.PowerShell_profile.ps1"
+            $vanguardFile = Join-Path $profilePath "Modules\vanguard.ps1"
+            $vanguardSchedulerFile = Join-Path $profilePath "Modules\vanguard_scheduler.ps1"
 
-        foreach ($url in $urls) {
-            $newFileName = $(Split-Path -Leaf $url)
-            Invoke-RestMethod $url -OutFile "$env:temp/$newFileName"
-            $newHash = Get-FileHash "$env:temp/$newFileName"
+            $oldHashes = @(
+                Get-ValidatedFileHash -filePath $profileFile
+                Get-ValidatedFileHash -filePath $vanguardFile
+                Get-ValidatedFileHash -filePath $vanguardSchedulerFile
+            )
 
-            foreach ($oldHash in $oldHashes) {
-                $oldFileName = $(Split-Path -Leaf $oldHash.Path)
-                if ($oldFileName -eq $newFileName) {
-                    if ($newHash.Hash -ne $oldHash.Hash) {
-                        Copy-Item -Path "$env:temp/$newFileName" -Destination $oldHash.Path -Force
+            foreach ($url in $urls) {
+                $newFileName = $(Split-Path -Leaf $url)
+                Invoke-RestMethod $url -OutFile "$env:temp/$newFileName"
+                $newHash = Get-FileHash "$env:temp/$newFileName"
 
-                        if ($oldHash.Path -eq $PROFILE) {
-                            Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1" -Force
+                foreach ($oldHash in $oldHashes) {
+                    $oldFileName = $(Split-Path -Leaf $oldHash.Path)
+                    if ($oldFileName -eq $newFileName) {
+                        if ($newHash.Hash -ne $oldHash.Hash) {
+                            Copy-Item -Path "$env:temp/$newFileName" -Destination $oldHash.Path -Force
+
+                            if ($oldHash.Path -eq $PROFILE) {
+                                Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1" -Force
+                            }
+                            Write-Host -NoNewLine "`rPlease restart your shell to reflect changes".PadRight(100, " ") -ForegroundColor Magenta
+                            $profileUpdated = $true
                         }
-                        Write-Host -NoNewLine "`rPlease restart your shell to reflect changes".PadRight(100, " ") -ForegroundColor Magenta
-                        $profileUpdated = $true
                     }
                 }
             }
@@ -345,7 +361,6 @@ function Grant-AdminAccess {
     }
 }
 
-
 function pathfetch {
     $profilePath = "$env:userprofile\Documents"
 
@@ -392,6 +407,8 @@ Set-PSReadLineOption -Colors @{
 
 # Invoke
 Set-Alias -Name sudo -Value Grant-AdminAccess
+
+
 Update-Profile
 
 # Invoke Expressions
