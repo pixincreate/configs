@@ -58,6 +58,7 @@ brew_install() {
   # Since brew has most of the packages, it is easy to maintain
   # Install the packages in batches
   brew install \
+    bat \
     croc \
     direnv \
     gcc \
@@ -105,7 +106,7 @@ linux() {
   # WSL Git Setup
   if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
     echo -e "\nSetting up git for WSL..."
-    WINHOME=$(wslpath "$(powershell.exe -Command 'echo $env:USERPROFILE' | tr -d '\r')")
+    WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C 'echo %USERPROFILE%' | tr -d '\r')")
 
     mkdir -p "$HOME/.ssh"
     files="id_ed25519_auth id_ed25519_auth.pub id_ed25519_sign id_ed25519_sign.pub"

@@ -4,19 +4,30 @@ command_exists() {
 
 # Auto update
 update_zshrc() {
-  url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
-  zshrc_file="${HOME}/.zsh/.zshrc"
-  temp_file=$(mktemp)
-  curl -sSL $url -o ${temp_file}
+	{
+		url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
+		zshrc_file="${HOME}/.zsh/.zshrc"
+		temp_file=$(mktemp)
+		curl -sSL $url -o ${temp_file}
 
-  if [[ "$(sha1sum ${zshrc_file})" != "$(sha1sum ${temp_file})" ]]; then
-    echo "Updating .zshrc..."
-    mv -f "${zshrc_file}" "${zshrc_file}.bak"
-    mv -f "${temp_file}" "${zshrc_file}"
-  else
-    echo ".zshrc is upto date!";
-  fi
+		current_checksum=$(sha1sum ${zshrc_file} | awk '{print $1}')
+		new_checksum=$(sha1sum ${temp_file} | awk '{print $1}')
+
+		if [[ "${current_checksum}" != "${new_checksum}" ]]; then
+			echo -ne "Updating .zshrc...\r"
+			mv -f "${zshrc_file}" "${zshrc_file}.bak"
+			mv -f "${temp_file}" "${zshrc_file}"
+			echo -e ".zshrc updated successfully!"
+		reload
+		else
+			echo ".zshrc is up-to-date!"
+			rm ${temp_file}
+		fi
+	} || {
+		echo "Failed to update .zshrc!"
+	}
 }
+
 # Show superiority
 if command_exists fastfetch; then
 	fastfetch
@@ -90,6 +101,7 @@ alias cls='clear'
 alias apt-get='sudo apt-get'
 alias multitail='multitail --no-repeat -c'
 alias vi='nvim'
+alias reload='echo "Reloading shell...";sleep 1;clear;exec ${SHELL} -l'
 
 ## Directory aliases
 alias home='cd ~'
@@ -151,10 +163,10 @@ alias checkcommand="type -t"
 alias openports='netstat -nape --inet'
 
 # Linux version of OSX pbcopy and pbpaste
-if [[ "$OSTYPE" -eq "linux-gnu" ]]; then
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
   alias pbcopy='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
-elif [[ "$OSTYPE" -eq "linux-android" ]]; then
+elif [[ "$OSTYPE" == "linux-android" ]]; then
   alias pbcopy='termux-clipboard-set $1'
   alias pbpaste='termux-clipboard-get'
 fi
@@ -329,6 +341,9 @@ eval "$(direnv hook zsh)"
 
 # Starship
 eval "$(starship init zsh)"
+
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
 
 function lk {
   cd "$(walk "$@")"

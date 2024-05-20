@@ -9,9 +9,6 @@
 # This file also includes starship profile as well.
 # --------------------------------------------------------------------------------------------------------------------------------------------
 
-# Initial GitHub.com connectivity check with 5 seconds timeout
-$canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 5
-
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
 if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
@@ -35,11 +32,6 @@ function Get-ValidatedFileHash {
 
 # Check for Profile Updates
 function Update-Profile {
-    if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping profile update check due to GitHub.com not responding within 5 seconds." -ForegroundColor Yellow
-        return
-    }
-
     Write-Host -NoNewLine "Checking for profile updates..."
     try {
         $profileUpdated = $false
@@ -408,8 +400,10 @@ Set-PSReadLineOption -Colors @{
 # Invoke
 Set-Alias -Name sudo -Value Grant-AdminAccess
 
-
-Update-Profile
+# Check if the script is being run interactively
+if ($Host.Name -eq 'ConsoleHost') {
+    Update-Profile
+}
 
 # Invoke Expressions
 Invoke-Expression (&starship init powershell)
