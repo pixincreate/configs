@@ -131,8 +131,8 @@ linux() {
     echo '
     # WSL specific configurations
     export WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C '\''echo %USERPROFILE%'\'' | tr -d '\''\r'\'')")
-    ' >> ~/.zsh/additionals.zsh
-    echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/additionals.zsh
+    ' >> ~/.zsh/.additionals.zsh
+    echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/.additionals.zsh
   fi
   additional_zshrc
 }
@@ -179,7 +179,7 @@ android() {
     echo
     echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
     echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
-  ) >> ~/.zsh/additionals.zsh
+  ) >> ~/.zsh/.additionals.zsh
 
   cp -a /storage/emulated/0/Documents/Dev/Shizuku/. $HOME/.rish/
   cp -a /storage/emulated/0/Documents/Dev/.ssh/. $HOME/.ssh/

@@ -335,4 +335,4 @@ function lk {
 }
 
 # Load application aliases
-[[ -f ~/.zsh/additionals.zsh ]] && source ~/.zsh/additionals.zsh
+[[ -f ~/.zsh/.additionals.zsh ]] && source ~/.zsh/.additionals.zsh
