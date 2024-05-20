@@ -77,7 +77,6 @@ sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
 If running in Termux
 
 ```sh
-termux-setup-storage && \
 pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
     curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles_setup.sh | bash
 ```

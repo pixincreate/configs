@@ -2,17 +2,18 @@
 
 additional_zshrc() {
   echo '
+    # Dev env variables
     export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
     # Source init for Docker
-    source $HOME/.docker/init-zsh.sh || true # Added by Docker Desktop
+    source $HOME/.docker/init-zsh.sh || true
 
     # Disable NPM ads
     export DISABLE_OPENCOLLECTIVE=1
     export ADBLOCK=1
 
     PQ_LIB_DIR="$(brew --prefix libpq)/lib"
-  ' >> ~/.zsh/.zshrc
+  ' >> ~/.zsh/.additionals.zsh
 }
 
 brew_install() {
@@ -127,9 +128,11 @@ linux() {
     # Install VSCode server
     code
 
-    echo '' >> ~/.zsh/.zshrc
-    echo 'export WINHOME=$(wslpath "$(powershell.exe -Command '\''echo $env:USERPROFILE'\'' | tr -d '\''\r'\'')")' >> ~/.zsh/.zshrc
-    echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/external_alias.zsh
+    echo '
+    # WSL specific configurations
+    export WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C '\''echo %USERPROFILE%'\'' | tr -d '\''\r'\'')")
+    ' >> ~/.zsh/additionals.zsh
+    echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/additionals.zsh
   fi
   additional_zshrc
 }
@@ -169,14 +172,19 @@ android() {
 
   termux-setup-storage
 
+  # You do not need much time  to hit `allow` on the dialog box
+  sleep 10
+
   (
     echo
     echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
     echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
-  ) >> ~/.zsh/external_alias.zsh
+  ) >> ~/.zsh/additionals.zsh
 
-  # Make sure that you've exported rish files from Shizuku app
-  cp /storage/emulated/0/Documents/Shizuku/* $HOME/.rish/*
+  cp -a /storage/emulated/0/Documents/Dev/Shizuku/. $HOME/.rish/
+  cp -a /storage/emulated/0/Documents/Dev/.ssh/. $HOME/.ssh/
+  chmod 0600 .ssh/*
+
   ln -s $HOME/.rish/rish $PATH/rish
   ln -s $HOME/.rish/rish_shizuku.dex $PATH/rish_shizuku.dex
 

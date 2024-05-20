@@ -3,22 +3,26 @@ command_exists() {
 }
 
 # Auto update
-url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
-zshrc_file="${HOME}/.zsh/.zshrc"
-temp_file=$(mktemp)
-curl -sSL $url -o ${temp_file}
+update_zshrc() {
+  url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
+  zshrc_file="${HOME}/.zsh/.zshrc"
+  temp_file=$(mktemp)
+  curl -sSL $url -o ${temp_file}
 
-if [[ "$(sha1sum ${zshrc_file})" == "$(sha1sum ${temp_file})" ]]; then
-  mv -f "${zshrc_file}" "${zshrc_file}.bak"
-  mv -f "${temp_file}" "${zshrc_file}"
-else
-  echo ".zshrc is upto date\!";
-fi
-
+  if [[ "$(sha1sum ${zshrc_file})" != "$(sha1sum ${temp_file})" ]]; then
+    echo "Updating .zshrc..."
+    mv -f "${zshrc_file}" "${zshrc_file}.bak"
+    mv -f "${temp_file}" "${zshrc_file}"
+  else
+    echo ".zshrc is upto date!";
+  fi
+}
 # Show superiority
 if command_exists fastfetch; then
 	fastfetch
 fi
+
+update_zshrc
 
 # Load colors
 autoload -U colors && colors
@@ -315,7 +319,7 @@ fi
 fpath=( $ZDOTDIR/.zfunc $fpath )
 
 # Load LS_COLORS
-zstyle ":completion:*" list-colors "${(s.:.)'LS_COLORS'}"
+zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"
 
 # zoxide
 eval "$(zoxide init zsh)"
@@ -331,4 +335,4 @@ function lk {
 }
 
 # Load application aliases
-[[ -f ~/.zsh/external_alias.zsh ]] && source ~/.zsh/external_alias.zsh
+[[ -f ~/.zsh/additionals.zsh ]] && source ~/.zsh/additionals.zsh
