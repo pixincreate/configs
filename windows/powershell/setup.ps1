@@ -131,6 +131,17 @@ function Disable-Ads {
     } else {
         Show-Line "Disabling ads in Windows 11 skipped."
     }
+    Show-Line "Disabling powerhell telemetry..."
+    [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 1, 'Machine')
+
+    $executeWinutil = Write-Prompt "Do you want to run WinUtil to disable all Microsoft tracking services"
+    if (-not ($executeWinutil -eq "n")) {
+        Show-Line "Running WinUtil..."
+        Invoke-RestMethod "https://christitus.com/win" | Invoke-Expression
+        Show-Line "You can also run WinUtil from terminal directly by typing 'winutil' and pressing enter."
+    } else {
+        Show-Line "WinUtil execution skipped."
+    }
 }
 
 # Function to download the configs from GitHub repository
@@ -252,7 +263,7 @@ function main {
     $modules = @(
         "ps2exe",
         "Terminal-Icons",
-        "WalInterop"
+        "WslInterop"
     )
     $packages = @(
         "ajeetdsouza.zoxide",

@@ -23,7 +23,7 @@ This repo contains all of my development configs. I never had a backup of these 
 ├── LICENSE                                                         # license for this repo
 ├── README.md                                                       # this file
 ├── unix
-│   ├── dotfiles.sh                                                 # automated environment setup that targets linux, android and mac
+│   ├── dotfiles_setup.sh                                           # automated environment setup that targets linux, android and mac
 │   ├── .zsh
 │   │   ├── .zshenv                                                 # zsh environment file
 │   │   └── .zshrc                                                  # zsh run commands file
@@ -88,12 +88,14 @@ pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
 
 ### Shell command
 
-- Executes `unix/dotfiles.sh`
-- Depending on the OS type: (`Andoroid`, `Linux based OS`, `macOS`), below mentioned packages are installed:
+- Executes `unix/dotfiles_setup.sh`
+- Depending on the OS type: (`Android`, `Linux based OS`, `macOS`), below mentioned packages are installed:
   - android-tools
   - bat
+  - binutils (Android only)
   - croc
   - direnv
+  - docker
   - fastfetch
   - fzf
   - git
@@ -101,10 +103,14 @@ pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
   - micro
   - multitail
   - neovim
+  - nextdns
+  - node
   - openssh
+  - rustup-init
   - sqlite
   - starship
   - tar (Android only)
+  - topgrade
   - tree
   - tsu (Android only)
   - termux-am (Android only)
@@ -112,17 +118,24 @@ pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
   - walk
   - xclip
   - zoxide
-- `Rish` is setup for Android as well
-- Installs `starship` and `zgenom` plugin manager and a ton of aliases for ease of use
-- Restores VSCode settings
+- `Rish` is setup for Android given that you've `Shizuku` installed and rish files are exported to `Documents/Dev/Shizuku` directory
+- Installs `starship` and `zgenom` plugin manager
+- Restores:
+  - VSCode settings
+  - .gitconfig
+  - .ssh config
+  - micro, windows terminal, and starship configs
 - Setup `zshell` where all `zsh` specific is kept in a single directory named as `.zsh`
-- Micro, SSH, Code settings are restored along with `.gitconfig`
 - In the end, after all the setup is done, the cloned repo is deleted
 
 ### Powershell command
 
 - Executes `setup.ps1`
-- Installs `Fira Code` font
+- Installs `Fira Code Nerd` font
+- Installs below mentioned modules:
+  - ps2exe
+  - Terminal icons
+  - wslInterop
 - Installs below mentioned packages:
   - delta
   - direnv
@@ -130,24 +143,28 @@ pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
   - git
   - gsudo
   - micro
-  - walk
+  - neovim
+  - powershell
+  - rustup
   - starship
+  - topgrade
+  - vs build tools
+  - walk
   - zoxide
+- Disable all windows telemetry and ads with OFGB
+- Sets up dev environment:
   - Restores windows terminal settings
-  - Installs `starship`
-  - Installs WSL-Interop
-  - Restores `powershell_profile` where there exist many functions that help replicate linux commands and functionality
   - Restores VSCode settings
-  - Disables powershell telemetry and Ads on PC
+  - Restores `powershell_profile` where there exist many functions that help replicate linux commands and functionality
+    - Optionally, Vanguard controller and scheduler
   - Installs WSL
-  - Optionally, Vanguard controller and scheduler
 
 The repo also has additional scripts:
 
 - GPEdit enabler
 - Hyper-V enabler
 - Registry to add / remove default folders in `ThisPC` (downloads, documents, desktop, etc.,)
-- Winutil
+- Winutil (package)
 
 #### Vanguard Controller
 

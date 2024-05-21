@@ -1,5 +1,14 @@
 #!/bin/sh
 
+dir_setup() {
+  mkdir -p \
+    ~/.config \
+    ~/.rish \
+    ~/.ssh \
+    ~/.zsh \
+    ~/.zsh/.zgenom
+}
+
 additional_zshrc() {
   echo '
     # Dev env variables
@@ -23,7 +32,6 @@ brew_install() {
 
   if [[ "$OSTYPE" == "linux-gnu" ]]; then
     echo -e "\nAdding brew to Linux PATH..."
-    mkdir -p ~/.zsh
 
     (
       echo
@@ -61,8 +69,7 @@ brew_install() {
     bat \
     croc \
     direnv \
-    gcc \
-    trash-cli
+    gcc
 
   brew install \
     git-delta \
@@ -108,7 +115,6 @@ linux() {
     echo -e "\nSetting up git for WSL..."
     WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C 'echo %USERPROFILE%' | tr -d '\r')")
 
-    mkdir -p "$HOME/.ssh"
     files="id_ed25519_auth id_ed25519_auth.pub id_ed25519_sign id_ed25519_sign.pub"
 
     for file in $files; do
@@ -141,9 +147,6 @@ linux() {
 android() {
   echo -e "\nInstalling for Andoird..."
   echo -e "Make sure that you've installed Termux and Shizuku."
-
-  # Make a folder for Shizuku rish files
-  mkdir -p ~/.rish ~/.zsh
 
   # Brew is unsupported in Android (Termux)
   pkg install -y \
@@ -200,8 +203,8 @@ mac() {
 }
 
 main() {
-  # Clone the configs repo and copy the files to the home directory
-  echo -e "\nCloning the configs repo and copying the files to the home directory..."
+  # Create the necessary directories
+  dir_setup
 
   if [[ "$OSTYPE" == "linux-gnu" ]]; then
     echo -e "OS: Linux"
@@ -214,6 +217,8 @@ main() {
     android
   fi
 
+  # Clone the configs repo and copy the files to the home directory
+  echo -e "\nCloning the configs repo and copying the files to the home directory..."
   git clone https://github.com/pixincreate/configs.git
   cp -r configs/home/. $HOME
   cp -r configs/unix/. $HOME
@@ -229,7 +234,6 @@ main() {
 
   # Create zgenom directory (just to not be error prone) and change the default shell to zsh
   echo -e "\nSetting up zshell..."
-  mkdir -p ~/.zsh/zgenom
 
   if [[ "$OSTYPE" == "linux-android" ]]; then
     chsh -s zsh
