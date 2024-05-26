@@ -193,7 +193,6 @@ linux() {
     WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C 'echo %USERPROFILE%' | tr -d '\r')")
 
     files="id_ed25519_auth id_ed25519_auth.pub id_ed25519_sign id_ed25519_sign.pub"
-
     for file in $files; do
       src="$WINHOME/.ssh/$file"
       dest="$HOME/.ssh/$file"
@@ -306,6 +305,8 @@ main() {
   git clone https://github.com/pixincreate/configs.git
   cp -r configs/home/. $HOME
   cp -r configs/unix/. $HOME
+
+  git_setup
 
   case $OSTYPE in
     linux* | linux-android)
