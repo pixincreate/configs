@@ -9,6 +9,84 @@ dir_setup() {
     ~/.zsh/.zgenom
 }
 
+replace_gitconfig_data() {
+  sed -i '.bak' 's/email = example@email.com/email = 69745008+pixincreate@users.noreply.github.com/' ~/.gitconfig
+  sed -i '.bak' 's/name = username/name = PiX/' ~/.gitconfig
+  sed -i '.bak' 's/signingkey = ~/.ssh\/signing_key.pub/signingkey = ~/.ssh\/id_ed25519_sign.pub/' ~/.gitconfig
+}
+
+git_setup() {
+  read -p "Fresh setup Git (Y/N)? Selecting N will restore existing." confirm
+  if [[ $confirm =~ ^[Yy][eE][sS]?$ || $confirm =~ ^[Nn][oO]?$ ]]; then
+    if [[ $confirm == [nN] || $confirm == [nN][oO] ]]; then
+    echo "Restoring existing Git configuration..."
+    replace_gitconfig_data
+    else
+      # Fresh setup (if Y)
+      echo "Performing fresh Git setup..."
+      
+      # Prompt for user details (single loop)
+      while [[ -z "$user_name" || -z "$user_email" ]]; do
+        read -p "Enter you user name for configuring git: " user_name
+        read -p "Enter your email for configuring git: " user_email
+        read -p "Enter your no-reply email for configuring git: " private_email
+        
+        # Validate non-empty and non-whitespace
+        if [[ -z "$user_name" || "$user_name" =~ ^[[:space:]]*$ ]]; then
+          echo "Username cannot be empty or whitespace."
+        fi
+        if [[ -z "$user_email" || "$user_email" =~ ^[[:space:]]*$ ]]; then
+          echo "Email cannot be empty or whitespace."
+        fi
+        if [[ -z "$private_email" || "$private_email" =~ ^[[:space:]]*$ ]]; then
+          echo "No-reply email cannot be empty or whitespace."
+        fi
+      done
+      
+      replace_gitconfig_data
+      generate_ssh_keys "$user_email"
+      copy_and_update_keys
+    fi
+  else
+    echo "Invalid input. Please enter 'Y' for fresh setup or 'N' to restore existing git configuration."
+    echo 'You can also run `./dotfiles_setup.sh git_setup` to setup Git.'
+  fi
+}
+
+# Function to generate SSH keys (DRY principle)
+generate_ssh_keys() {
+  local email="$1"
+  auth_path="~/.ssh/id_ed25519_auth"
+  sign_path="~/.ssh/id_ed25519_sign"
+
+  echo "Path to authentication file: ${auth}"
+  echo "Path to signature file: ${sign}"
+  
+  ssh-keygen -t ed25519 -C "$email" -f "$auth_path"
+  eval "$(ssh-agent -s)"
+  ssh-keygen -t ed25519 -C "$email" -f "$sign_path"
+  eval "$(ssh-agent -s)"
+
+  ssh-add "$auth_path"
+  ssh-add "$sign_path"
+}
+
+# Function to copy keys and prompt (DRY principle)
+copy_and_update_keys() {
+  auth_path="~/.ssh/id_ed25519_auth"
+  sign_path="~/.ssh/id_ed25519_sign"
+  
+  pbcopy < "$auth_path"
+  echo "You have 3 minutes to visit https://github.com/settings/keys and update keys on GitHub."
+  echo "Update the Authentication key"
+  sleep 180
+  pbcopy < "$sign_path"
+  echo "Update the Signature key"
+  sleep 180
+  
+  ssh -T git@github.com
+}
+
 additional_zshrc() {
   echo '
     # Dev env variables
@@ -27,7 +105,6 @@ additional_zshrc() {
 
 brew_install() {
   echo -e "\nInstalling brew..."
-
   yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
   if [[ "$OSTYPE" == "linux-gnu" ]]; then
@@ -203,6 +280,13 @@ mac() {
 }
 
 main() {
+
+  # Check for function argument and execute if provided
+  if [[ "$@" == "git_setup" ]]; then
+    "$@"
+    exit
+  fi
+
   # Create the necessary directories
   dir_setup
 
