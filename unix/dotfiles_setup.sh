@@ -231,7 +231,7 @@ android() {
     bat \
     binutils \
     croc \
-    cronies \
+    cronie \
     direnv \
     fastfetch \
     fzf \
