@@ -177,7 +177,8 @@ brew_install() {
     nextdns/tap/nextdns \
     node \
     rustup-init \
-    topgrade
+    topgrade \
+    trash-cli
 }
 
 linux() {
@@ -230,6 +231,7 @@ android() {
     bat \
     binutils \
     croc \
+    cronies \
     direnv \
     fastfetch \
     fzf \
@@ -238,6 +240,7 @@ android() {
     multitail \
     neovim \
     openssh \
+    python \
     sqlite \
     starship \
     tar \
@@ -249,6 +252,11 @@ android() {
     tsu \
     termux-tools \
     termux-api
+
+  # Install other tools
+  pip install trash-cli
+  # Setup crontab to auto empty trash after 60 days
+  (crontab -l ; echo "@daily $(which trash-empty) 60") | crontab -
 
   termux-setup-storage
 
