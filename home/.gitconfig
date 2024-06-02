@@ -5,9 +5,9 @@ editor = micro
 pager = delta --diff-so-fancy
 
 [user]
-email = 69745008+pixincreate@users.noreply.github.com
-name = PiX
-signingkey = ~/.ssh/id_ed25519_sign.pub
+email = example@email.com
+name = username
+signingkey = ~/.ssh/signingkey
 
 [color]
 ui = true
