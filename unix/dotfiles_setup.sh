@@ -246,6 +246,7 @@ android() {
     tar \
     topgrade \
     tree \
+    which \
     zoxide
 
   pkg install -y \
