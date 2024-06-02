@@ -273,8 +273,8 @@ android() {
   cp -a /storage/emulated/0/Documents/Dev/.ssh/. $HOME/.ssh/
   chmod 0600 .ssh/*
 
-  ln -s $HOME/.rish/rish $PATH/rish
-  ln -s $HOME/.rish/rish_shizuku.dex $PATH/rish_shizuku.dex
+  ln -sfn $HOME/.rish/rish $PATH/rish
+  ln -sfn $HOME/.rish/rish_shizuku.dex $PATH/rish_shizuku.dex
 
   echo -e "Installation successful!"
 }
