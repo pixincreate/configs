@@ -323,8 +323,6 @@ main() {
   cp -r configs/home/. $HOME
   cp -r configs/unix/. $HOME
 
-  git_setup
-
   case $OSTYPE in
     linux* | linux-android)
       mv $HOME/Code $HOME/.config/Code
@@ -345,6 +343,8 @@ main() {
 
   # Delete the downloaded repository
   rm -rf configs
+
+  git_setup
 
   echo -e "\n\nInstallation successful!"
   echo -e "Please restart your terminal to see the changes."
