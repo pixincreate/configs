@@ -96,7 +96,7 @@ copy_and_update_keys() {
 additional_zshrc() {
   echo '
     # Dev env variables
-    export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
+    export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
     # Source init for Docker
     source $HOME/.docker/init-zsh.sh || true
@@ -150,6 +150,7 @@ brew_install() {
   # Install the packages in batches
   brew install \
     bat \
+    coreutils \
     croc \
     direnv \
     gcc
@@ -268,10 +269,9 @@ android() {
   crontab -l
 
   termux-setup-storage
-
-  # You do not need much time  to hit `allow` on the dialog box
   sleep 10
 
+  echo "Setting up aliases for termux data backup and restore..."
   (
     echo
     echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
