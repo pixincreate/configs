@@ -10,9 +10,9 @@ dir_setup() {
 }
 
 replace_gitconfig_data() {
-  sed -i '.bak' 's/email = example@email.com/email = 69745008+pixincreate@users.noreply.github.com/' ~/.gitconfig
-  sed -i '.bak' 's/name = username/name = PiX/' ~/.gitconfig
-  sed -i '.bak' 's/signingkey = ~/.ssh\/signing_key.pub/signingkey = ~/.ssh\/id_ed25519_sign.pub/' ~/.gitconfig
+  sed -i.bak 's/email = example@email.com/email = 69745008+pixincreate@users.noreply.github.com/' ~/.gitconfig
+  sed -i.bak 's/name = username/name = PiX/' ~/.gitconfig
+  sed -i.bak 's|signingkey = ~/.ssh/signingkey|signingkey = ~/.ssh/id_ed25519_sign.pub|' ~/.gitconfig
 }
 
 git_setup() {
