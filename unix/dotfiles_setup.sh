@@ -96,7 +96,7 @@ copy_and_update_keys() {
 additional_zshrc() {
   echo '
     # Dev env variables
-    export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+    export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
 
     # Source init for Docker
     source $HOME/.docker/init-zsh.sh || true
