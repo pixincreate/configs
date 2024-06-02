@@ -16,18 +16,15 @@ replace_gitconfig_data() {
 }
 
 git_setup() {
-  read -p "Fresh setup Git (Y/N)? Selecting N will restore existing." confirm
-  if [[ $confirm =~ ^[Yy][eE][sS]?$ || $confirm =~ ^[Nn][oO]?$ ]]; then
-    if [[ $confirm == [nN] || $confirm == [nN][oO] ]]; then
-    echo "Restoring existing Git configuration..."
-    replace_gitconfig_data
-    else
+  read -p "Fresh setup Git (Y/N)? Selecting N will restore existing: " confirm
+  case "$confirm" in
+    [Yy]* )
       # Fresh setup (if Y)
       echo "Performing fresh Git setup..."
       
       # Prompt for user details (single loop)
-      while [[ -z "$user_name" || -z "$user_email" ]]; do
-        read -p "Enter you user name for configuring git: " user_name
+      while [[ -z "$user_name" || -z "$user_email" || -z "$private_email" ]]; do
+        read -p "Enter your user name for configuring git: " user_name
         read -p "Enter your email for configuring git: " user_email
         read -p "Enter your no-reply email for configuring git: " private_email
         
@@ -46,11 +43,18 @@ git_setup() {
       replace_gitconfig_data
       generate_ssh_keys "$user_email"
       copy_and_update_keys
-    fi
-  else
-    echo "Invalid input. Please enter 'Y' for fresh setup or 'N' to restore existing git configuration."
-    echo 'You can also run `./dotfiles_setup.sh git_setup` to setup Git.'
-  fi
+      ;;
+    [Nn]* )
+      # Restore existing configuration
+      echo "Restoring existing Git configuration..."
+      replace_gitconfig_data
+      ;;
+    * )
+      # Invalid input
+      echo "Invalid input. Please enter 'Y' for fresh setup or 'N' to restore existing git configuration."
+      echo 'You can also run `./dotfiles_setup.sh git_setup` to setup Git.'
+      ;;
+  esac
 }
 
 # Function to generate SSH keys (DRY principle)
@@ -257,8 +261,9 @@ android() {
   # Install other tools
   pip install trash-cli
   # Setup crontab to auto empty trash after 60 days
-  sleep 5
   (crontab -l ; echo "@daily $(which trash-empty) 60") | crontab -
+  # List it for satisfaction
+  crontab -l
 
   termux-setup-storage
 
@@ -316,9 +321,7 @@ main() {
   cp -r configs/home/. $HOME
   cp -r configs/unix/. $HOME
 
-  sleep 5
   git_setup
-  sleep 5
 
   case $OSTYPE in
     linux* | linux-android)
