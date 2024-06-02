@@ -16,45 +16,47 @@ replace_gitconfig_data() {
 }
 
 git_setup() {
-  read -p "Fresh setup Git (Y/N)? Selecting N will restore existing: " confirm
-  case "$confirm" in
-    [Yy]* )
-      # Fresh setup (if Y)
-      echo "Performing fresh Git setup..."
-      
-      # Prompt for user details (single loop)
-      while [[ -z "$user_name" || -z "$user_email" || -z "$private_email" ]]; do
-        read -p "Enter your user name for configuring git: " user_name
-        read -p "Enter your email for configuring git: " user_email
-        read -p "Enter your no-reply email for configuring git: " private_email
+  echo "Fresh setup Git or restore existing configuration?"
+  select confirm in "Fresh setup" "Restore existing"; do
+    case $confirm in
+      "Fresh setup" )
+        # Fresh setup (if selected)
+        echo "Performing fresh Git setup..."
         
-        # Validate non-empty and non-whitespace
-        if [[ -z "$user_name" || "$user_name" =~ ^[[:space:]]*$ ]]; then
-          echo "Username cannot be empty or whitespace."
-        fi
-        if [[ -z "$user_email" || "$user_email" =~ ^[[:space:]]*$ ]]; then
-          echo "Email cannot be empty or whitespace."
-        fi
-        if [[ -z "$private_email" || "$private_email" =~ ^[[:space:]]*$ ]]; then
-          echo "No-reply email cannot be empty or whitespace."
-        fi
-      done
-      
-      replace_gitconfig_data
-      generate_ssh_keys "$user_email"
-      copy_and_update_keys
-      ;;
-    [Nn]* )
-      # Restore existing configuration
-      echo "Restoring existing Git configuration..."
-      replace_gitconfig_data
-      ;;
-    * )
-      # Invalid input
-      echo "Invalid input. Please enter 'Y' for fresh setup or 'N' to restore existing git configuration."
-      echo 'You can also run `./dotfiles_setup.sh git_setup` to setup Git.'
-      ;;
-  esac
+        # Prompt for user details (single loop)
+        while [[ -z "$user_name" || -z "$user_email" || -z "$private_email" ]]; do
+          read -p "Enter your user name for configuring git: " user_name
+          read -p "Enter your email for configuring git: " user_email
+          read -p "Enter your no-reply email for configuring git: " private_email
+          
+          # Validate non-empty and non-whitespace
+          if [[ -z "$user_name" || "$user_name" =~ ^[[:space:]]*$ ]]; then
+            echo "Username cannot be empty or whitespace."
+          fi
+          if [[ -z "$user_email" || "$user_email" =~ ^[[:space:]]*$ ]]; then
+            echo "Email cannot be empty or whitespace."
+          fi
+          if [[ -z "$private_email" || "$private_email" =~ ^[[:space:]]*$ ]]; then
+            echo "No-reply email cannot be empty or whitespace."
+          fi
+        done
+        
+        replace_gitconfig_data
+        generate_ssh_keys "$user_email"
+        copy_and_update_keys
+        break
+        ;;
+      "Restore existing" )
+        # Restore existing configuration
+        echo "Restoring existing Git configuration..."
+        replace_gitconfig_data
+        break
+        ;;
+      * )
+        echo "Invalid selection. Please choose '1' for fresh setup or '2' to restore existing git configuration."
+        ;;
+    esac
+  done
 }
 
 # Function to generate SSH keys (DRY principle)
