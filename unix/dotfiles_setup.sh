@@ -257,6 +257,7 @@ android() {
   # Install other tools
   pip install trash-cli
   # Setup crontab to auto empty trash after 60 days
+  sleep 5
   (crontab -l ; echo "@daily $(which trash-empty) 60") | crontab -
 
   termux-setup-storage
@@ -315,7 +316,9 @@ main() {
   cp -r configs/home/. $HOME
   cp -r configs/unix/. $HOME
 
+  sleep 5
   git_setup
+  sleep 5
 
   case $OSTYPE in
     linux* | linux-android)
@@ -326,9 +329,7 @@ main() {
       ;;
   esac
 
-  # Create zgenom directory (just to not be error prone) and change the default shell to zsh
   echo -e "\nSetting up zshell..."
-
   if [[ "$OSTYPE" == "linux-android" ]]; then
     chsh -s zsh
   else
