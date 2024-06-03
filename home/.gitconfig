@@ -6,9 +6,10 @@
 	ignorecase = false
 
 [user]
-	email = 69745008+pixincreate@users.noreply.github.com
-	name = PiX
-	signingkey = "/Users/pavana.narayana/.ssh/id_ed25519_sign.pub"
+	email = example@email.com
+	name = username
+	signingkey = "~/.ssh/signingkey"
+
 
 [color]
 	ui = true
