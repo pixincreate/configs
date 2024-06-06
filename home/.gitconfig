@@ -1,7 +1,7 @@
 [core]
 	abbrev = 12
 	autocrlf = input
-	editor = micro
+	editor = nvim
 	pager = delta --diff-so-fancy
 	ignorecase = false
 
