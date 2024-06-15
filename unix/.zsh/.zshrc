@@ -9,6 +9,11 @@ command_exists() {
   command -v "$1" > /dev/null 2>&1
 }
 
+update_configs() {
+  url="https://github.com/pixincreate/configs/tree/main/home/.config"
+  curl -sSL https://codeload.github.com/pixincreate/configs/tar.gz/main | tar -xzk --strip=2 ${HOME} configs-main/home/.config
+}
+
 # Auto update
 update_zshrc() {
   {

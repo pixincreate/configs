@@ -194,6 +194,7 @@
   // Cypress Helper
   "cypressHelper.includeAnnotationForCommands": true,
   "cypressHelper.typeDefinitionOnSave": true,
+  "cypressHelper.typeDefinitionFile": "",
   // Even Better TOML
   "evenBetterToml.formatter.alignComments": true,
   "evenBetterToml.formatter.alignEntries": false,
@@ -205,6 +206,7 @@
   "evenBetterToml.semanticTokens": true,
   // Git
   "diffEditor.experimental.showMoves": true,
+  "diffEditor.ignoreTrimWhitespace": false,
   "git.autofetch": "all",
   "git.autofetchPeriod": 600,
   "git.branchSortOrder": "committerdate",
@@ -224,6 +226,9 @@
   "scm.defaultViewMode": "tree",
   "scm.diffDecorations": "all",
   "scm.diffDecorationsIgnoreTrimWhitespace": "false",
+
+  // Copilot
+  "github.copilot.editor.enableAutoCompletions": true,
   // Live Previw
   "livePreview.hostIP": "191.168.0.189",
   "livePreview.httpHeaders": {
@@ -239,6 +244,11 @@
   "powershell.codeFormatting.autoCorrectAliases": true,
   "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
   "powershell.codeFormatting.whitespaceBetweenParameters": true,
+  // Prettier
+  "prettier.useTabs": false,
+  "reactSnippets.settings.prettierEnabled": true,
+  "prettier.resolveGlobalModules": false,
+  "prettier.requireConfig": true,
   // Red Hat Telemetry
   "redhat.telemetry.enabled": false,
   // Rust Analyzer
@@ -318,7 +328,7 @@
     "files.insertFinalNewline": true
   },
   "[javascript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"

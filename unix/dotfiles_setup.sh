@@ -247,8 +247,8 @@ android() {
     openssh \
     python \
     sqlite \
-    starship \
     tar \
+    tmux \
     topgrade \
     tree \
     which \
