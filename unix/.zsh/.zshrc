@@ -12,7 +12,26 @@ command_exists() {
 
 # A function to update `.config` directory in ${HOME}
 update_configs() {
-  curl -sSL https://codeload.github.com/pixincreate/configs/tar.gz/main | tar -xz --strip-components=2 -C "${HOME}" configs-main/home/.config
+  REPO_URL="https://github.com/pixincreate/configs.git"
+  TEMP_DIR=$(mktemp -d)
+  CLONE_DIR="${TEMP_DIR}/configs"
+  TARGET_DIR="${HOME}/.config"
+
+  git clone --recurse-submodules "${REPO_URL}" "${CLONE_DIR}"
+  git submodule update --init --recursive
+
+  current_checksum=$(sha1sum "${TARGET_DIR}" | awk '{print $1}')
+  new_checksum=$(sha1sum "${CLONE_DIR}/home/.config" | awk '{print $1}')
+
+  if [[ "${current_checksum}" == "${new_checksum}" ]]; then
+    echo "Configs are up-to-date!"
+    return
+  fi
+
+  rsync -av "${CLONE_DIR}/home/.config/" "${TARGET_DIR}/"
+  rm -fr "${TEMP_DIR}"
+
+  echo "Configs have been updated!"
 }
 
 # Auto update this file
