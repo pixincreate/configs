@@ -83,6 +83,7 @@ setopt auto_cd                  # Automatically change directory if a directory 
 setopt notify                   # Report the status of background jobs immediately
 
 # Aliases
+alias cd='z'
 alias ls='ls --color=auto'
 alias ll='ls --color=auto -l --almost-all --human-readable'
 alias df='df --human-readable'
@@ -195,7 +196,7 @@ extract() {
 }
 
 # Automatically do an ls after each cd, z, or zoxide
-cd ()
+z ()
 {
 	if [ -n "$1" ]; then
 		builtin cd "$@" && ls

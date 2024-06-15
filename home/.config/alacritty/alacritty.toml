@@ -13,14 +13,21 @@ args = ["new-session", "-A", "-D", "-s", "main"]
 WINIT_X11_SCALE_FACTOR = "1.0"
 
 [window]
+blur = true
+
+decorations = "Buttonless"
+decorations_theme_variant = "None"
+
+dynamic_padding = true
+dynamic_title = true
+
+padding.x = 10
+padding.y = 10
+
+opacity = 0.85
+option_as_alt = "Both"
 startup_mode = "Windowed"
 title = "Alacritty"
-dynamic_title = true
-dynamic_padding = true
-decorations_theme_variant = "None"
-decorations = "Full"
-opacity = 0.85
-blur = true
 
 [scrolling]
 history = 100000
