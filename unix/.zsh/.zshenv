@@ -4,5 +4,5 @@ path=(
   "$HOME/.local/bin"
   "$HOME/.cargo/bin"
 )
-export EDITOR=micro
-export VISUAL=micro
+export EDITOR=nvim
+export VISUAL=nvim

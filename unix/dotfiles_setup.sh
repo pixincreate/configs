@@ -147,45 +147,43 @@ brew_install() {
   echo -e "Brew install successful\nInstalling brew packages..."
 
   # Since brew has most of the packages, it is easy to maintain
-  # Install the packages in batches
   brew install \
-    bat \
     coreutils \
     croc \
-    direnv \
     gcc
-
-  brew install \
-    git-delta \
-    fastfetch \
-    micro
-
-  brew install \
-    neovim # Because neovim has too many dependencies
-
-  brew install \
-    multitail \
-    openssh
-
-  brew install \
-    sqlite \
-    starship
-
-  brew install \
-    fzf \
-    tree \
-    walk \
-    xclip \
-    zoxide
 
   # Tools
   brew install \
     docker \
+    multitail \
     nextdns/tap/nextdns \
     node \
+    openssh \
     rustup-init \
+    sqlite
+
+  # Terminal setup
+  brew install \
+    alacritty \
+    bat \
+    direnv \
+    fastfetch \
+    fzf \
+    git-delta \
+    tmux \
+    trash-cli \
+    zoxide
+
+  # Terminal additionals
+  brew install \
+    fastfetch \
+    git-delta \
+    lazygit \
+    micro \
+    neovim \
     topgrade \
-    trash-cli
+    tree \
+    xclip
 }
 
 linux() {

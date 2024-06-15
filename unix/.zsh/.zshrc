@@ -1,42 +1,47 @@
 command_exists() {
-    command -v "$1" >/dev/null 2>&1
+  command -v "$1" > /dev/null 2>&1
 }
 
 # Auto update
 update_zshrc() {
-	{
-		url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
-		zshrc_file="${HOME}/.zsh/.zshrc"
-		temp_file=$(mktemp)
-		curl -sSL $url -o ${temp_file}
+  {
+    url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
+    zshrc_file="${HOME}/.zsh/.zshrc"
+    temp_file=$(mktemp)
+    curl -sSL $url -o ${temp_file}
 
-		current_checksum=$(sha1sum ${zshrc_file} | awk '{print $1}')
-		new_checksum=$(sha1sum ${temp_file} | awk '{print $1}')
+    current_checksum=$(sha1sum ${zshrc_file} | awk '{print $1}')
+    new_checksum=$(sha1sum ${temp_file} | awk '{print $1}')
 
-		if [[ "${current_checksum}" != "${new_checksum}" ]]; then
-			echo -ne "Updating .zshrc...\r"
-			mv -f "${zshrc_file}" "${zshrc_file}.bak"
-			mv -f "${temp_file}" "${zshrc_file}"
-			echo -e ".zshrc updated successfully!"
-		reload
-		else
-			echo ".zshrc is up-to-date!"
-			rm ${temp_file}
-		fi
-	} || {
-		echo "Failed to update .zshrc!"
-	}
+    if [[ "${current_checksum}" != "${new_checksum}" ]]; then
+      echo -ne "Updating .zshrc...\r"
+      mv -f "${zshrc_file}" "${zshrc_file}.bak"
+      mv -f "${temp_file}" "${zshrc_file}"
+      echo -e ".zshrc updated successfully!"
+      reload
+    else
+      echo ".zshrc is up-to-date!"
+      rm ${temp_file}
+    fi
+  } || {
+    echo "Failed to update .zshrc!"
+  }
 }
+
+if command_exists tmux; then
+  # If tmux is executable, X is running, and not inside a tmux session, then start tmux.
+  # Refer to the tmx script for details
+  if [ -x "$(command -v tmux)" ] && [ -n "${DISPLAY}" ]; then
+    [ -z "${TMUX}" ] && exec ~/.tmux/tmx TMUX 1 >/dev/null 2>&1
+  fi
+fi
 
 # Show superiority
 if command_exists fastfetch; then
-	fastfetch
+  fastfetch
 fi
 
 update_zshrc
-
-# Load colors
-autoload -U colors && colors
 
 # Zstyle
 zstyle ':completion:*:*:*:*:*' menu select
@@ -57,6 +62,7 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
 zstyle ':completion:*' rehash true
+zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"
 
 # History
 export HISTFILE="$ZDOTDIR/.zsh_history"
@@ -67,20 +73,20 @@ export SAVEHIST=10000
 export HISTCONTROL=erasedups:ignoredups:ignorespace
 
 # Options
-setopt append_history           # Append history list to the history file, rather than replace it
-setopt inc_append_history       # Write to the history file immediately, not when the shell exits
-setopt share_history            # Share history between all sessions
-setopt hist_expire_dups_first   # Expire a duplicate event first when trimming history
-setopt hist_ignore_dups         # Do not record an event that was just recorded again
-setopt hist_ignore_all_dups     # Delete an old recorded event if a new event is a duplicate
-setopt hist_find_no_dups        # Do not display a previously found event
-setopt hist_ignore_space        # Do not record an event starting with a space
-setopt hist_save_no_dups        # Do not write a duplicate event to the history file
-setopt hist_verify              # Do not execute immediately upon history expansion
-setopt extended_history         # Show timestamp in history
-setopt extended_glob            # Use extended globbing
-setopt auto_cd                  # Automatically change directory if a directory is entered
-setopt notify                   # Report the status of background jobs immediately
+setopt append_history         # Append history list to the history file, rather than replace it
+setopt inc_append_history     # Write to the history file immediately, not when the shell exits
+setopt share_history          # Share history between all sessions
+setopt hist_expire_dups_first # Expire a duplicate event first when trimming history
+setopt hist_ignore_dups       # Do not record an event that was just recorded again
+setopt hist_ignore_all_dups   # Delete an old recorded event if a new event is a duplicate
+setopt hist_find_no_dups      # Do not display a previously found event
+setopt hist_ignore_space      # Do not record an event starting with a space
+setopt hist_save_no_dups      # Do not write a duplicate event to the history file
+setopt hist_verify            # Do not execute immediately upon history expansion
+setopt extended_history       # Show timestamp in history
+setopt extended_glob          # Use extended globbing
+setopt auto_cd                # Automatically change directory if a directory is entered
+setopt notify                 # Report the status of background jobs immediately
 
 # Aliases
 alias cd='z'
@@ -162,6 +168,9 @@ alias checkcommand="type -t"
 ## Show open ports
 alias openports='netstat -nape --inet'
 
+# IP address lookup
+alias whatismyip="whatsmyip"
+
 # Linux version of OSX pbcopy and pbpaste
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   alias pbcopy='xclip -selection clipboard'
@@ -171,50 +180,63 @@ elif [[ "$OSTYPE" == "linux-android" ]]; then
   alias pbpaste='termux-clipboard-get'
 fi
 
+function whatsmyip() {
+  # Internal IP Lookup.
+  if [ -e /sbin/ip ]; then
+    echo -n "Internal IP: "
+    /sbin/ip addr show wlan0 | grep "inet " | awk -F: '{print $1}' | awk '{print $2}'
+  else
+    echo -n "Internal IP: "
+    /sbin/ifconfig wlan0 | grep "inet " | awk -F: '{print $1} |' | awk '{print $2}'
+  fi
+
+  # External IP Lookup
+  echo -n "External IP: "
+  curl -s ifconfig.me
+}
 # Extracts any archive(s) (if unp isn't installed)
 extract() {
-	for archive in "$@"; do
-		if [ -f "$archive" ]; then
-			case $archive in
-			*.tar.bz2) tar xvjf $archive ;;
-			*.tar.gz) tar xvzf $archive ;;
-			*.bz2) bunzip2 $archive ;;
-			*.rar) rar x $archive ;;
-			*.gz) gunzip $archive ;;
-			*.tar) tar xvf $archive ;;
-			*.tbz2) tar xvjf $archive ;;
-			*.tgz) tar xvzf $archive ;;
-			*.zip) unzip $archive ;;
-			*.Z) uncompress $archive ;;
-			*.7z) 7z x $archive ;;
-			*) echo "don't know how to extract '$archive'..." ;;
-			esac
-		else
-			echo "'$archive' is not a valid file!"
-		fi
-	done
+  for archive in "$@"; do
+    if [ -f "$archive" ]; then
+      case $archive in
+        *.tar.bz2) tar xvjf $archive ;;
+        *.tar.gz) tar xvzf $archive ;;
+        *.bz2) bunzip2 $archive ;;
+        *.rar) rar x $archive ;;
+        *.gz) gunzip $archive ;;
+        *.tar) tar xvf $archive ;;
+        *.tbz2) tar xvjf $archive ;;
+        *.tgz) tar xvzf $archive ;;
+        *.zip) unzip $archive ;;
+        *.Z) uncompress $archive ;;
+        *.7z) 7z x $archive ;;
+        *) echo "don't know how to extract '$archive'..." ;;
+      esac
+    else
+      echo "'$archive' is not a valid file!"
+    fi
+  done
 }
 
 # Automatically do an ls after each cd, z, or zoxide
-z ()
-{
-	if [ -n "$1" ]; then
-		builtin cd "$@" && ls
-	else
-		builtin cd ~ && ls
-	fi
+z() {
+  if [ -n "$1" ]; then
+    builtin cd "$@" && ls
+  else
+    builtin cd ~ && ls
+  fi
 }
 
 # Returns the last 2 fields of the working directory
 pwdtail() {
-	pwd | awk -F/ '{nlast = NF -1;print $nlast"/"$NF}'
+  pwd | awk -F/ '{nlast = NF -1;print $nlast"/"$NF}'
 }
 
 # Copy file with a progress bar
 cpp() {
-	set -e
-	strace -q -ewrite cp -- "${1}" "${2}" 2>&1 |
-		awk '{
+  set -e
+  strace -q -ewrite cp -- "${1}" "${2}" 2>&1 \
+    | awk '{
 	count += $NF
 	if (count % 10 == 0) {
 		percent = count / total_size * 100
@@ -232,69 +254,56 @@ cpp() {
 
 # Copy and go to the directory
 cpg() {
-	if [ -d "$2" ]; then
-		cp "$1" "$2" && cd "$2"
-	else
-		cp "$1" "$2"
-	fi
+  if [ -d "$2" ]; then
+    cp "$1" "$2" && cd "$2"
+  else
+    cp "$1" "$2"
+  fi
 }
 
 # Move and go to the directory
 mvg() {
-	if [ -d "$2" ]; then
-		mv "$1" "$2" && cd "$2"
-	else
-		mv "$1" "$2"
-	fi
+  if [ -d "$2" ]; then
+    mv "$1" "$2" && cd "$2"
+  else
+    mv "$1" "$2"
+  fi
 }
 
 # Create and go to the directory
 mkdirg() {
-	mkdir -p "$1"
-	cd "$1"
+  mkdir -p "$1"
+  cd "$1"
 }
 
 # Goes up a specified number of directories  (i.e. up 4)
 up() {
-	local d=""
-	limit=$1
-	for ((i = 1; i <= limit; i++)); do
-		d=$d/..
-	done
-	d=$(echo $d | sed 's/^\///')
-	if [ -z "$d" ]; then
-		d=..
-	fi
-	cd $d
-}
-
-# IP address lookup
-alias whatismyip="whatsmyip"
-function whatsmyip ()
-{
-	# Internal IP Lookup.
-	if [ -e /sbin/ip ]; then
-		echo -n "Internal IP: "
-		/sbin/ip addr show wlan0 | grep "inet " | awk -F: '{print $1}' | awk '{print $2}'
-	else
-		echo -n "Internal IP: "
-		/sbin/ifconfig wlan0 | grep "inet " | awk -F: '{print $1} |' | awk '{print $2}'
-	fi
-
-	# External IP Lookup
-	echo -n "External IP: "
-	curl -s ifconfig.me
+  local d=""
+  limit=$1
+  for ((i = 1; i <= limit; i++)); do
+    d=$d/..
+  done
+  d=$(echo $d | sed 's/^\///')
+  if [ -z "$d" ]; then
+    d=..
+  fi
+  cd $d
 }
 
 # ZGenom
-if [[ ! -f $ZDOTDIR/zgenom/zgenom.zsh ]]; then
-  command git clone https://github.com/jandamm/zgenom.git "$ZDOTDIR/zgenom"
-  command mkdir -p "$ZDOTDIR" && command chmod g-rwX "$ZDOTDIR/zgenom"
+if [[ ! -f "$ZDOTDIR/.zgenom/.zgenom.zsh" ]]; then
+  command git clone https://github.com/jandamm/zgenom.git "$ZDOTDIR/.zgenom"
+  command mkdir -p "$ZDOTDIR" && command chmod g-rwX "$ZDOTDIR/.zgenom"
 fi
 
 # Source zgenom
-source "${ZDOTDIR}/zgenom/zgenom.zsh"
+source "${ZDOTDIR}/.zgenom/.zgenom.zsh"
 
+# Check for plugin and zgenom updates every 7 days
+# This does not increase the startup time.
+zgenom autoupdate
+
+# use zgenom reset to delete init.zsh
 # If the zgenom init script doesn't exist
 if ! zgenom saved; then
   zgenom compdef
@@ -308,16 +317,15 @@ if ! zgenom saved; then
   zgenom ohmyzsh plugins/git
   zgenom ohmyzsh plugins/gitignore
 
+  # Powerlevel10k
+  zgenom load romkatv/powerlevel10k powerlevel10k
+
   # LS_COLORS
   zgenom load trapd00r/LS_COLORS lscolors.sh
 
-  # Syntax highlighting
+  # Plugins files from zsh-users
   zgenom load zsh-users/zsh-syntax-highlighting
-
-  # Auto-suggestions
   zgenom load zsh-users/zsh-autosuggestions
-
-  # Completions
   zgenom load zsh-users/zsh-completions
 
   # Save plugins to init script
@@ -326,12 +334,6 @@ if ! zgenom saved; then
   # Compile files
   zgenom compile "${ZDOTDIR}/zgenom/zgenom.zsh"
 fi
-
-# Path to zsh completion scripts
-fpath=( $ZDOTDIR/.zfunc $fpath )
-
-# Load LS_COLORS
-zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"
 
 # zoxide
 eval "$(zoxide init zsh)"
@@ -345,9 +347,8 @@ eval "$(starship init zsh)"
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
-function lk {
-  cd "$(walk "$@")"
-}
+# Source Powerlevel10k configuration
+source "${ZDOTDIR}/.p10k.zsh"
 
 # Load application aliases
 [[ -f ~/.zsh/.additionals.zsh ]] && source ~/.zsh/.additionals.zsh
