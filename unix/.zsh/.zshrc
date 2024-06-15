@@ -12,48 +12,86 @@ command_exists() {
 
 # A function to update `.config` directory in ${HOME}
 update_configs() {
-  REPO_URL="https://github.com/pixincreate/configs.git"
-  TEMP_DIR=$(mktemp -d)
-  CLONE_DIR="${TEMP_DIR}/configs"
-  TARGET_DIR="${HOME}/.config"
+  force_update=false
 
-  git clone --recurse-submodules "${REPO_URL}" "${CLONE_DIR}"
-  git submodule update --init --recursive
-
-  current_checksum=$(sha1sum "${TARGET_DIR}" | awk '{print $1}')
-  new_checksum=$(sha1sum "${CLONE_DIR}/home/.config" | awk '{print $1}')
-
-  if [[ "${current_checksum}" == "${new_checksum}" ]]; then
-    echo "Configs are up-to-date!"
-    return
+  # Check if --force flag is provided
+  if [[ "$1" == "--force" ]]; then
+    force_update=true
   fi
 
-  rsync -av "${CLONE_DIR}/home/.config/" "${TARGET_DIR}/"
-  rm -fr "${TEMP_DIR}"
+  {
+    REPO_URL="https://github.com/pixincreate/configs.git"
+    TEMP_DIR=$(mktemp -d)
+    CLONE_DIR="${TEMP_DIR}/configs"
+    TARGET_DIR="${HOME}/.config"
 
-  echo "Configs have been updated!"
+    git clone --recurse-submodules "${REPO_URL}" "${CLONE_DIR}"
+    git submodule update --init --recursive
+
+    if [[ "$force_update" == true ]]; then
+      # Force update without checksum comparison
+      echo -ne "Updating .config...\r"
+      rsync -av "${CLONE_DIR}/home/.config/" "${TARGET_DIR}/"
+      rm -fr "${TEMP_DIR}"
+
+      echo -e "Configs have been updated!"
+      reload
+    else
+      current_checksum=$(sha1sum "${TARGET_DIR}" | awk '{print $1}')
+      new_checksum=$(sha1sum "${CLONE_DIR}/home/.config" | awk '{print $1}')
+
+      if [[ "${current_checksum}" == "${new_checksum}" ]]; then
+        echo "Configs are up-to-date!"
+        return
+      fi
+
+      rsync -av "${CLONE_DIR}/home/.config/" "${TARGET_DIR}/"
+      rm -fr "${TEMP_DIR}"
+
+      echo "Configs have been updated!"
+    fi
+  } || {
+    echo "Failed to update configs!"
+  }
 }
 
 # Auto update this file
 update_zshrc() {
+  force_update=false
+
+  # Check if --force flag is provided
+  if [[ "$1" == "--force" ]]; then
+    force_update=true
+  fi
+
   {
     url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
     zshrc_file="${HOME}/.zsh/.zshrc"
     temp_file=$(mktemp)
     curl -sSL $url -o ${temp_file}
 
-    current_checksum=$(sha1sum ${zshrc_file} | awk '{print $1}')
-    new_checksum=$(sha1sum ${temp_file} | awk '{print $1}')
-
-    if [[ "${current_checksum}" != "${new_checksum}" ]]; then
+    if [[ "$force_update" == true ]]; then
+      # Force update without checksum comparison
       echo -ne "Updating .zshrc...\r"
       mv -f "${zshrc_file}" "${zshrc_file}.bak"
       mv -f "${temp_file}" "${zshrc_file}"
       echo -e ".zshrc updated successfully!"
       reload
     else
-      echo ".zshrc is up-to-date!"
-      rm ${temp_file}
+      # Perform checksum comparison
+      current_checksum=$(sha1sum ${zshrc_file} | awk '{print $1}')
+      new_checksum=$(sha1sum ${temp_file} | awk '{print $1}')
+
+      if [[ "${current_checksum}" != "${new_checksum}" ]]; then
+        echo -ne "Updating .zshrc...\r"
+        mv -f "${zshrc_file}" "${zshrc_file}.bak"
+        mv -f "${temp_file}" "${zshrc_file}"
+        echo -e ".zshrc updated successfully!"
+        reload
+      else
+        echo ".zshrc is up-to-date!"
+        rm ${temp_file}
+      fi
     fi
   } || {
     echo "Failed to update .zshrc!"
