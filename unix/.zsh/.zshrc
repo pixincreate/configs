@@ -5,16 +5,17 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# A function to check if a command exists
 command_exists() {
   command -v "$1" > /dev/null 2>&1
 }
 
+# A function to update `.config` directory in ${HOME}
 update_configs() {
-  url="https://github.com/pixincreate/configs/tree/main/home/.config"
-  curl -sSL https://codeload.github.com/pixincreate/configs/tar.gz/main | tar -xzk --strip=2 ${HOME} configs-main/home/.config
+  curl -sSL https://codeload.github.com/pixincreate/configs/tar.gz/main | tar -xz --strip-components=2 -C "${HOME}" configs-main/home/.config
 }
 
-# Auto update
+# Auto update this file
 update_zshrc() {
   {
     url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
@@ -120,6 +121,7 @@ alias cls='clear'
 alias multitail='multitail --no-repeat -c'
 alias vi='nvim'
 alias reload='echo "Reloading shell...";sleep 1;clear;exec ${SHELL} -l'
+alias tmux_debug='tmux kill-server && tmux -f ~/.config/tmux/.tmux.conf > tmux.log 2>&1'
 
 ## Directory aliases
 alias home='cd ~'
@@ -352,6 +354,7 @@ eval "$(zoxide init zsh)"
 
 # direnv
 eval "$(direnv hook zsh)"
+
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
