@@ -291,13 +291,13 @@ up() {
 }
 
 # ZGenom
-if [[ ! -f "$ZDOTDIR/.zgenom/.zgenom.zsh" ]]; then
+if [[ ! -f "$ZDOTDIR/.zgenom/zgenom.zsh" ]]; then
   command git clone https://github.com/jandamm/zgenom.git "$ZDOTDIR/.zgenom"
   command mkdir -p "$ZDOTDIR" && command chmod g-rwX "$ZDOTDIR/.zgenom"
 fi
 
 # Source zgenom
-source "${ZDOTDIR}/.zgenom/.zgenom.zsh"
+source "${ZDOTDIR}/.zgenom/zgenom.zsh"
 
 # Check for plugin and zgenom updates every 7 days
 # This does not increase the startup time.
@@ -340,10 +340,6 @@ eval "$(zoxide init zsh)"
 
 # direnv
 eval "$(direnv hook zsh)"
-
-# Starship
-eval "$(starship init zsh)"
-
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
