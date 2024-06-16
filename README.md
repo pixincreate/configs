@@ -71,14 +71,15 @@ By unix based OS I mean, WSL, Debian, Arch, or macOS
 
 ```sh
 sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
-    curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles_setup.sh | bash
+    bash -c "$(curl -sSL https://github.com/pixincreate/configs/raw/main/unix/setup.sh)" -- --setup
 ```
 
 If running in Termux
 
 ```sh
 pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
-    curl -sSL https://github.com/pixincreate/configs/raw/main/unix/dotfiles_setup.sh | bash
+    bash -c "$(curl -sSL https://github.com/pixincreate/configs/raw/main/unix/setup.sh)" -- --setup
+
 ```
 
 > [!IMPORTANT]

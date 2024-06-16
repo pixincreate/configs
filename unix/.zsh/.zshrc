@@ -1,3 +1,4 @@
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zsh/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -8,51 +9,6 @@ fi
 # A function to check if a command exists
 command_exists() {
   command -v "$1" > /dev/null 2>&1
-}
-
-# A function to update `.config` directory in ${HOME}
-update_configs() {
-  force_update=false
-
-  # Check if --force flag is provided
-  if [[ "$1" == "--force" ]]; then
-    force_update=true
-  fi
-
-  {
-    REPO_URL="https://github.com/pixincreate/configs.git"
-    TEMP_DIR=$(mktemp -d)
-    CLONE_DIR="${TEMP_DIR}/configs"
-    TARGET_DIR="${HOME}/.config"
-
-    git clone --recurse-submodules "${REPO_URL}" "${CLONE_DIR}"
-    git submodule update --init --recursive
-
-    if [[ "$force_update" == true ]]; then
-      # Force update without checksum comparison
-      echo -ne "Updating .config...\r"
-      rsync -av "${CLONE_DIR}/home/.config/" "${TARGET_DIR}/"
-      rm -fr "${TEMP_DIR}"
-
-      echo -e "Configs have been updated!"
-      reload
-    else
-      current_checksum=$(sha1sum "${TARGET_DIR}" | awk '{print $1}')
-      new_checksum=$(sha1sum "${CLONE_DIR}/home/.config" | awk '{print $1}')
-
-      if [[ "${current_checksum}" == "${new_checksum}" ]]; then
-        echo "Configs are up-to-date!"
-        return
-      fi
-
-      rsync -av "${CLONE_DIR}/home/.config/" "${TARGET_DIR}/"
-      rm -fr "${TEMP_DIR}"
-
-      echo "Configs have been updated!"
-    fi
-  } || {
-    echo "Failed to update configs!"
-  }
 }
 
 # Auto update this file
@@ -98,6 +54,8 @@ update_zshrc() {
   }
 }
 
+update_zshrc
+
 if command_exists tmux; then
   # If tmux is executable, X is running, and not inside a tmux session, then start tmux.
   # Refer to the tmx script for details
@@ -106,12 +64,6 @@ if command_exists tmux; then
   fi
 fi
 
-# Show superiority
-if command_exists fastfetch; then
-  fastfetch
-fi
-
-update_zshrc
 
 # Zstyle
 zstyle ':completion:*:*:*:*:*' menu select
