@@ -3,7 +3,9 @@
 # DECLARATIONS
 # These values can be overrided by exporting them in the shell as environment variables
 REPO_URL="https://github.com/pixincreate/configs.git"
-LOCAL_DIR="${HOME}/Dev/scripts/configs"
+
+LOCAL_PATH="${HOME}/Dev/scripts/configs"
+RISH_PATH="/storage/emulated/0/Documents/Dev/Shizuku"
 
 GITCONFIG_EMAIL="69745008+pixincreate@users.noreply.github.com"
 GITCONFIG_USERNAME="PiX"
@@ -191,7 +193,6 @@ additional_zshrc() {
         echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
         echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
       ) >> ~/.zsh/.additionals.zsh
-
       ;;
     *)
       print "Unsupported platform: $platform"
@@ -250,7 +251,7 @@ change_shopt() {
 
 git_setup() {
   print "Fresh setup Git or restore existing configuration?"
-  select confirm in "Fresh setup" "Restore existing"; do
+  select confirm in "Fresh setup" "Restore existing" "exit"; do
     case $confirm in
       "Fresh setup")
         # Fresh setup (if selected)
@@ -394,23 +395,21 @@ config_setup() {
     print "Running upgrade..." true
     if git diff-index --quiet HEAD --; then
       print "Configs are unmodified, pulling latest changes from main..." true
-      git -C "${LOCAL_DIR}" pull
+      git -C "${LOCAL_PATH}" pull
     else
       print "Configs have been modified. Please \`commit\` or \`stash\` your changes first."
       break
     fi
   else
     # Clone the repository if it does not exist
-    if [ ! -d "${LOCAL_DIR}" ]; then
-      git clone "${REPO_URL}" "${LOCAL_DIR}"
+    if [ ! -d "${LOCAL_PATH}" ]; then
+      git clone --recurse-submodule "${REPO_URL}" "${LOCAL_PATH}"
     fi
 
-    dirs=("${LOCAL_DIR}/home", "${LOCAL_DIR}/unix")
-    for dir in "${dirs[@]}"/*; do
-      ln -sfn "$dir" "${HOME}/$(basename "$dir")"
-      echo "Created symlink: ${HOME}/$(basename "$dir") -> $dir"
-    done
+    cp -r ${LOCAL_PATH}/home/. $HOME
+    cp -r ${LOCAL_PATH}/unix/. $HOME
 
+    update_gitconfig_data
     additional_zshrc $platform
 
     case "$platform" in
@@ -418,7 +417,7 @@ config_setup() {
         termux-setup-storage
         sleep 10
 
-        cp -a /storage/emulated/0/Documents/Dev/Shizuku/. $HOME/.rish/
+        cp -a ${RISH_PATH}/. $HOME/.rish/
         ln -sfn $HOME/.rish/rish $PATH/rish
         ln -sfn $HOME/.rish/rish_shizuku.dex $PATH/rish_shizuku.dex
         ;;
@@ -462,8 +461,8 @@ main() {
   while [[ "$#" -gt 0 ]]; do
     case $1 in
       -s | --setup) setup=true ;;
-      -g | --git-setup) git_setup=true ;;
-      -c | --config-setup) config_setup=true ;;
+      -g | --setup-git) git_setup=true ;;
+      -c | --setup-config) config_setup=true ;;
       -i | --install) install=true ;;
       -u | --upgrade) upgrade=true ;;
       -h | --help)
@@ -509,7 +508,7 @@ main() {
     install_apps $setup_platform
   fi
 
-  if [[ "config_setup" == true ]]; then
+  if [[ "$config_setup" == true ]]; then
     config_setup $setup_platform
   fi
 
