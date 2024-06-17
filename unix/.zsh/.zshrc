@@ -6,67 +6,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# A function to check if a command exists
-command_exists() {
-  command -v "$1" > /dev/null 2>&1
-}
-
-# Auto update this file
-update_zshrc() {
-  force_update=false
-
-  # Check if --force flag is provided
-  if [[ "$1" == "--force" ]]; then
-    force_update=true
-  fi
-
-  {
-    wget -q --spider http://duck.com
-    if [[ $? == 0 ]]; then
-      local url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
-      local zshrc_file="${HOME}/.zsh/.zshrc"
-      local temp_file=$(mktemp)
-      curl -sSL $url -o ${temp_file}
-
-      if [[ "$force_update" == true ]]; then
-        # Force update without checksum comparison
-        echo -ne "Updating .zshrc...\r"
-        mv -f "${zshrc_file}" "${zshrc_file}.bak"
-        mv -f "${temp_file}" "${zshrc_file}"
-        echo -e ".zshrc updated successfully!"
-        reload
-      else
-        # Perform checksum comparison
-        local current_checksum=$(sha1sum ${zshrc_file} | awk '{print $1}')
-        local new_checksum=$(sha1sum ${temp_file} | awk '{print $1}')
-
-        if [[ "${current_checksum}" != "${new_checksum}" ]]; then
-          echo -ne "Updating .zshrc...\r"
-          mv -f "${zshrc_file}" "${zshrc_file}.bak"
-          mv -f "${temp_file}" "${zshrc_file}"
-          echo -e ".zshrc updated successfully!"
-          reload
-        else
-          echo ".zshrc is up-to-date!"
-          rm ${temp_file}
-        fi
-      fi
-    fi
-  } || {
-    echo "Failed to update .zshrc\!"
-  }
-}
-
-update_zshrc
-
-if command_exists tmux; then
-  # If tmux is executable and not inside a tmux session, then start tmux.
-  # Refer to the tmx script for details
-  if [ -x "$(command -v tmux)" ] && [ -z "${TMUX}" ]; then
-    exec tmux
-  fi
-fi
-
 # Zstyle
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*:matches' group 'yes'
@@ -118,8 +57,6 @@ alias ls='ls --color=auto'
 alias ll='ls --color=auto -l --almost-all --human-readable'
 alias df='df --human-readable'
 alias du='du --human-readable'
-alias mv='mv --verbose'
-alias ln='ln --verbose'
 alias exal='exa --long --all --binary --header'
 alias ip='ip --color'
 alias ncdu='ncdu -rr --color dark'
@@ -170,7 +107,7 @@ alias ldir="ls -l | egrep '^d'"   # directories only
 alias diskspace="du -S | sort -n -r |more"
 alias folders='du -h --max-depth=1'
 alias folderssort='find . -maxdepth 1 -type d -print0 | xargs -0 du -sk | sort -rn'
-alias tree='tree -CAhF --dirsfirst'
+alias treef='tree -CAhF --dirsfirst'
 alias treed='tree -CAFd'
 alias mountedinfo='df -hT'
 
@@ -207,6 +144,65 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
 elif [[ "$OSTYPE" == "linux-android" ]]; then
   alias pbcopy='termux-clipboard-set $1'
   alias pbpaste='termux-clipboard-get'
+fi
+
+# A function to check if a command exists
+command_exists() {
+  command -v "$1" > /dev/null 2>&1
+}
+
+# Auto update this file
+update_zshrc() {
+  force_update=false
+
+  # Check if --force flag is provided
+  if [[ "$1" == "--force" ]]; then
+    force_update=true
+  fi
+
+  if wget -q --spider http://duck.com; then
+    local url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
+    local zshrc_file="${HOME}/.zsh/.zshrc"
+    local temp_file=$(mktemp)
+
+    curl -sSL "$url" -o "$temp_file"
+
+    if [[ "$force_update" == true ]]; then
+      # Force update without checksum comparison
+      echo -ne "Updating .zshrc...\r"
+      mv -f "$zshrc_file" "${zshrc_file}.bak"
+      mv -f "$temp_file" "$zshrc_file"
+      echo -e ".zshrc updated successfully!"
+      source "$zshrc_file"
+    else
+      # Perform checksum comparison
+      local current_checksum=$(sha1sum "$zshrc_file" | awk '{print $1}')
+      local new_checksum=$(sha1sum "$temp_file" | awk '{print $1}')
+
+      if [[ "$current_checksum" != "$new_checksum" ]]; then
+        echo -ne "Updating .zshrc...\r"
+        mv -f "$zshrc_file" "${zshrc_file}.bak"
+        mv -f "$temp_file" "$zshrc_file"
+        echo -e ".zshrc updated successfully!"
+        source "$zshrc_file"
+      else
+        echo ".zshrc is up-to-date!"
+        rm "$temp_file"
+      fi
+    fi
+  else
+    echo "Failed to update .zshrc!"
+  fi
+}
+
+update_zshrc
+
+if command_exists tmux; then
+  # If tmux is executable and not inside a tmux session, then start tmux.
+  # Refer to the tmx script for details
+  if [ -x "$(command -v tmux)" ] && [ -z "${TMUX}" ]; then
+    exec tmux
+  fi
 fi
 
 function whatsmyip() {
@@ -317,6 +313,17 @@ up() {
     d=..
   fi
   cd $d
+}
+
+# Tmux specific functions
+function rsc() {
+  CLIENTID=$1.`date +%S`
+  tmux new-session -d -t $1 -s $CLIENTID \; set-option destroy-unattached \; attach-session -t $CLIENTID
+}
+
+function mksc() {
+  tmux new-session -d -s $1
+  rsc $1
 }
 
 # ZGenom
