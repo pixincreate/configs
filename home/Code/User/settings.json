@@ -42,7 +42,7 @@
   "explorer.confirmDragAndDrop": false,
   // Terminal
   "terminal.external.linuxExec": "alacritty",
-  "terminal.external.osxExec": "Kitty.app",
+  "terminal.external.osxExec": "alacritty",
   "terminal.integrated.cursorStyle": "line",
   "terminal.integrated.cursorBlinking": true,
   "terminal.integrated.fontFamily": "FiraCode Nerd Font",

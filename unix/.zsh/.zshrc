@@ -21,49 +21,51 @@ update_zshrc() {
   fi
 
   {
-    url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
-    zshrc_file="${HOME}/.zsh/.zshrc"
-    temp_file=$(mktemp)
-    curl -sSL $url -o ${temp_file}
+    wget -q --spider http://duck.com
+    if [[ $? == 0 ]]; then
+      local url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
+      local zshrc_file="${HOME}/.zsh/.zshrc"
+      local temp_file=$(mktemp)
+      curl -sSL $url -o ${temp_file}
 
-    if [[ "$force_update" == true ]]; then
-      # Force update without checksum comparison
-      echo -ne "Updating .zshrc...\r"
-      mv -f "${zshrc_file}" "${zshrc_file}.bak"
-      mv -f "${temp_file}" "${zshrc_file}"
-      echo -e ".zshrc updated successfully!"
-      reload
-    else
-      # Perform checksum comparison
-      current_checksum=$(sha1sum ${zshrc_file} | awk '{print $1}')
-      new_checksum=$(sha1sum ${temp_file} | awk '{print $1}')
-
-      if [[ "${current_checksum}" != "${new_checksum}" ]]; then
+      if [[ "$force_update" == true ]]; then
+        # Force update without checksum comparison
         echo -ne "Updating .zshrc...\r"
         mv -f "${zshrc_file}" "${zshrc_file}.bak"
         mv -f "${temp_file}" "${zshrc_file}"
         echo -e ".zshrc updated successfully!"
         reload
       else
-        echo ".zshrc is up-to-date!"
-        rm ${temp_file}
+        # Perform checksum comparison
+        local current_checksum=$(sha1sum ${zshrc_file} | awk '{print $1}')
+        local new_checksum=$(sha1sum ${temp_file} | awk '{print $1}')
+
+        if [[ "${current_checksum}" != "${new_checksum}" ]]; then
+          echo -ne "Updating .zshrc...\r"
+          mv -f "${zshrc_file}" "${zshrc_file}.bak"
+          mv -f "${temp_file}" "${zshrc_file}"
+          echo -e ".zshrc updated successfully!"
+          reload
+        else
+          echo ".zshrc is up-to-date!"
+          rm ${temp_file}
+        fi
       fi
     fi
   } || {
-    echo "Failed to update .zshrc!"
+    echo "Failed to update .zshrc\!"
   }
 }
 
 update_zshrc
 
 if command_exists tmux; then
-  # If tmux is executable, X is running, and not inside a tmux session, then start tmux.
+  # If tmux is executable and not inside a tmux session, then start tmux.
   # Refer to the tmx script for details
-  if [ -x "$(command -v tmux)" ] && [ -n "${DISPLAY}" ]; then
-    [ -z "${TMUX}" ] && exec ~/.tmux/tmx TMUX 1 >/dev/null 2>&1
+  if [ -x "$(command -v tmux)" ] && [ -z "${TMUX}" ]; then
+    exec tmux
   fi
 fi
-
 
 # Zstyle
 zstyle ':completion:*:*:*:*:*' menu select
@@ -116,7 +118,6 @@ alias ls='ls --color=auto'
 alias ll='ls --color=auto -l --almost-all --human-readable'
 alias df='df --human-readable'
 alias du='du --human-readable'
-alias cp='cp --verbose'
 alias mv='mv --verbose'
 alias ln='ln --verbose'
 alias exal='exa --long --all --binary --header'
@@ -130,7 +131,12 @@ alias cls='clear'
 alias multitail='multitail --no-repeat -c'
 alias vi='nvim'
 alias reload='echo "Reloading shell...";sleep 1;clear;exec ${SHELL} -l'
+
+# Tmux aliases
 alias tmux_debug='tmux kill-server && tmux -f ~/.config/tmux/.tmux.conf > tmux.log 2>&1'
+alias tmux_attach='tmux attach -d -t' # Attach to a detached session. Usage: tmux_attach <session_name/id>
+alias tmux_switch='tmux switch-client -t' # Switch to another client. Usage: tmux_switch <session_name/id>
+alias tmux_kill_session='tmux kill-session -t' # Kill a session. Usage: tmux_killsession <session_name/id>
 
 ## Directory aliases
 alias home='cd ~'

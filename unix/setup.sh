@@ -54,7 +54,7 @@ git_checkup() {
       print "Android setup completed!"
       ;;
     *)
-      print "Unsupported OS: $OSTYPE"
+      print "unsupported platform: $OSTYPE"
       ;;
   esac
 }
@@ -149,7 +149,7 @@ additional_zshrc() {
   local platform="$1"
 
   case "$platform" in
-    darwin)
+    darwin*)
       echo '
       # Dev env variables
       export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
@@ -396,14 +396,20 @@ config_setup() {
     if git diff-index --quiet HEAD --; then
       print "Configs are unmodified, pulling latest changes from main..." true
       git -C "${LOCAL_PATH}" pull
+
+      cp -r ${LOCAL_PATH}/home/.config $HOME/.config
+      cp -r ${LOCAL_PATH}/unix/. $HOME
+
+      update_gitconfig_data
+      additional_zshrc $platform
     else
       print "Configs have been modified. Please \`commit\` or \`stash\` your changes first."
-      break
+      exit 1
     fi
   else
     # Clone the repository if it does not exist
     if [ ! -d "${LOCAL_PATH}" ]; then
-      git clone --recurse-submodule "${REPO_URL}" "${LOCAL_PATH}"
+      git clone --recurse-submodules "${REPO_URL}" "${LOCAL_PATH}"
     fi
 
     cp -r ${LOCAL_PATH}/home/. $HOME
@@ -491,7 +497,7 @@ main() {
         setup_platform="android"
         ;;
       *)
-        echo "Unsupported OS: $OSTYPE"
+        echo "unsupported platform: $OSTYPE"
         ;;
     esac
 
