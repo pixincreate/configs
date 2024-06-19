@@ -4,6 +4,7 @@ autocrlf = input
 editor = nvim
 pager = delta --diff-so-fancy
 ignorecase = false
+filemode = true
 
 [user]
 email = example@email.com
@@ -33,6 +34,7 @@ rebase = true
 
 [push]
 default = simple
+autoSetupRemote = true
 
 [rerere]
 enabled = true

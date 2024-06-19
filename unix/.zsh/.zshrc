@@ -70,7 +70,7 @@ alias vi='nvim'
 alias reload='echo "Reloading shell...";sleep 1;clear;exec ${SHELL} -l'
 
 # Tmux aliases
-alias tmux_debug='tmux kill-server && tmux -f ~/.config/tmux/.tmux.conf > tmux.log 2>&1'
+alias tmux_debug='tmux kill-server && tmux -f ~/.config/tmux/tmux.conf > tmux.log 2>&1'
 alias tmux_attach='tmux attach -d -t' # Attach to a detached session. Usage: tmux_attach <session_name/id>
 alias tmux_switch='tmux switch-client -t' # Switch to another client. Usage: tmux_switch <session_name/id>
 alias tmux_kill_session='tmux kill-session -t' # Kill a session. Usage: tmux_killsession <session_name/id>

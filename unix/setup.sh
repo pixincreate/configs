@@ -317,7 +317,7 @@ install_apps() {
   android_specific=("termux-api" "termux-tools" "tsu")
   applications=(
     "alacritty" "alt-tab" "android-studio" "bitwarden" "brave-browser@beta"
-    "firefox@nightly" "localsend" "maccy" "obsidian" "signal@beta"
+    "firefox@nightly" "localsend" "maccy" "obsidian" "rectangle" "signal@beta"
     "visual-studio-code@insiders"
   )
   dev_applications=("docker" "kubectl" "nextdns/tap/nextdns" "node")
