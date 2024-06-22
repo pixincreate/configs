@@ -21,10 +21,10 @@ decorations_theme_variant = "None"
 dynamic_padding = true
 dynamic_title = true
 
-padding.x = 5
-padding.y = 5
+padding.x = 10
+padding.y = 10
 
-opacity = 0.8
+opacity = 0.87
 option_as_alt = "Both"
 startup_mode = "Windowed"
 title = "Alacritty"

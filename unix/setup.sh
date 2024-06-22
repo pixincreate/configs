@@ -149,7 +149,7 @@ additional_zshrc() {
   local platform="$1"
 
   case "$platform" in
-    darwin*)
+    darwin* | gnu)
       echo '
       # Dev env variables
       export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
@@ -163,21 +163,6 @@ additional_zshrc() {
 
       PQ_LIB_DIR="$(brew --prefix libpq)/lib"
     ' >> ~/.zsh/.additionals.zsh
-      ;;
-    gnu)
-      echo '
-      # Dev env variables
-      export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-      # Source init for Docker
-      source $HOME/.docker/init-zsh.sh || true
-
-      # Disable NPM ads
-      export DISABLE_OPENCOLLECTIVE=1
-      export ADBLOCK=1
-
-      PQ_LIB_DIR="$(brew --prefix libpq)/lib"
-      ' >> ~/.zsh/.additionals.zsh
 
       if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
         echo '
