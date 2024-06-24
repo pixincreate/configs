@@ -43,7 +43,6 @@
   // Terminal
   "terminal.external.linuxExec": "alacritty",
   "terminal.external.osxExec": "Alacritty.app",
-  "terminal.integrated.shellIntegration.history": 1000000,
   "terminal.integrated.cursorStyle": "line",
   "terminal.integrated.enableImages": true,
   "terminal.integrated.cursorBlinking": true,
@@ -58,9 +57,15 @@
       "path": "bash",
       "icon": "terminal-bash"
     },
-    "tmux": {
+    "tmux-shell": {
       "path": "tmux",
-      "icon": "terminal-tmux"
+      "icon": "terminal-tmux",
+      "args": [
+        "new-session",
+        "-A",
+        "-s",
+        "vscode:${workspaceFolder}"
+      ]
     },
     "zsh": {
       "path": "zsh"
@@ -69,15 +74,40 @@
   "terminal.integrated.profiles.osx": {
     "bash": {
       "path": "bash",
+      "args": [
+        "-l"
+      ],
       "icon": "terminal-bash"
     },
-    "tmux": {
-      "path": "tmux",
-      "icon": "terminal-tmux"
-    },
     "zsh": {
-      "path": "zsh"
+      "path": "zsh",
+      "args": [
+        "-l"
+      ]
     },
+    "fish": {
+      "path": "fish",
+      "args": [
+        "-l"
+      ]
+    },
+    "tmux-shell": {
+      "path": "tmux",
+      "icon": "terminal-tmux",
+      "args": [
+        "new-session",
+        "-A",
+        "-s",
+        "vscode:${workspaceFolder}"
+      ]
+    },
+    "pwsh": {
+      "path": "pwsh",
+      "icon": "terminal-powershell"
+    },
+    "sh": {
+      "path": "/bin/sh"
+    }
   },
   "terminal.integrated.profiles.windows": {
     "PowerShell": {
@@ -125,16 +155,16 @@
   // Better Comments
   "better-comments.tags": [
     /*
-      {
-        "tag": "!",
-        "color": "#FF2D00",
-        "strikethrough": false,
-        "underline": false,
-        "backgroundColor": "transparent",
-        "bold": false,
-        "italic": false
-      },
-      */
+        {
+          "tag": "!",
+          "color": "#FF2D00",
+          "strikethrough": false,
+          "underline": false,
+          "backgroundColor": "transparent",
+          "bold": false,
+          "italic": false
+        },
+        */
     {
       "tag": "?",
       "color": "#3498DB",
@@ -145,14 +175,14 @@
       "italic": false
     },
     /* {
-        "tag": "//",
-        "color": "#474747",
-        "strikethrough": false,
-        "underline": false,
-        "backgroundColor": "transparent",
-        "bold": false,
-        "italic": false
-      }, */
+          "tag": "//",
+          "color": "#474747",
+          "strikethrough": false,
+          "underline": false,
+          "backgroundColor": "transparent",
+          "bold": false,
+          "italic": false
+        }, */
     {
       "tag": "todo",
       "color": "#FF8C00",
@@ -200,7 +230,9 @@
     // }
   ],
   // Code Spell Checker
-  "cSpell.enableFiletypes": ["toml"],
+  "cSpell.enableFiletypes": [
+    "toml"
+  ],
   // Cypress Helper
   "cypressHelper.includeAnnotationForCommands": true,
   "cypressHelper.typeDefinitionOnSave": true,
@@ -236,7 +268,6 @@
   "scm.defaultViewMode": "tree",
   "scm.diffDecorations": "all",
   "scm.diffDecorationsIgnoreTrimWhitespace": "false",
-
   // Copilot
   "github.copilot.editor.enableAutoCompletions": true,
   // Live Previw
@@ -309,7 +340,9 @@
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.suggest.insertMode": "replace",
-    "gitlens.codeLens.scopes": ["document"]
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
   },
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker"
@@ -328,7 +361,9 @@
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.suggest.insertMode": "replace",
-    "gitlens.codeLens.scopes": ["document"]
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
   },
   "[ignore]": {
     "editor.renderFinalNewline": "on",
@@ -349,7 +384,9 @@
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [80],
+    "editor.rulers": [
+      80
+    ],
     "editor.trimAutoWhitespace": true,
     // "editor.wordWrap": "bounded",
     "editor.wordWrap": "on",
@@ -359,7 +396,9 @@
   },
   "[python]": {
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [88],
+    "editor.rulers": [
+      88
+    ],
     "editor.trimAutoWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
@@ -375,7 +414,9 @@
   "[powershell]": {
     "editor.defaultFormatter": "ms-vscode.powershell",
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [120],
+    "editor.rulers": [
+      120
+    ],
     "editor.trimAutoWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
@@ -385,7 +426,9 @@
     "editor.defaultFormatter": "rust-lang.rust-analyzer",
     "editor.formatOnSave": true,
     "editor.renderFinalNewline": "on",
-    "editor.rulers": [99],
+    "editor.rulers": [
+      99
+    ],
     "editor.trimAutoWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
@@ -432,7 +475,9 @@
       "strings": true
     },
     "editor.tabSize": 2,
-    "gitlens.codeLens.scopes": ["document"]
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
