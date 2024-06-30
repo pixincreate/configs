@@ -1,3 +1,15 @@
+# A function to check if a command exists
+command_exists() {
+  command -v "$1" > /dev/null 2>&1
+}
+
+if command_exists tmux; then
+  # If tmux is executable and not inside a tmux session, then start tmux.
+  # Refer to the tmx script for details
+  if [ -x "$(command -v tmux)" ] && [ -z "${TMUX}" ]; then
+    exec tmux
+  fi
+fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zsh/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -146,10 +158,6 @@ elif [[ "$OSTYPE" == "linux-android" ]]; then
   alias pbpaste='termux-clipboard-get'
 fi
 
-# A function to check if a command exists
-command_exists() {
-  command -v "$1" > /dev/null 2>&1
-}
 
 # Auto update this file
 update_zshrc() {
@@ -196,14 +204,6 @@ update_zshrc() {
 }
 
 update_zshrc
-
-if command_exists tmux; then
-  # If tmux is executable and not inside a tmux session, then start tmux.
-  # Refer to the tmx script for details
-  if [ -x "$(command -v tmux)" ] && [ -z "${TMUX}" ]; then
-    exec tmux
-  fi
-fi
 
 function whatsmyip() {
   # Internal IP Lookup.
