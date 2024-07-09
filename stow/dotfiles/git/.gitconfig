@@ -1,0 +1,68 @@
+[core]
+abbrev = 12
+autocrlf = input
+editor = nvim
+pager = delta --diff-so-fancy
+ignorecase = false
+filemode = true
+
+[user]
+email = example@email.com
+name = username
+signingkey = "~/.ssh/signingkey"
+
+[color]
+ui = true
+
+[commit]
+gpgsign = true
+
+[diff]
+colorMoved = default
+
+[gpg]
+format = ssh
+
+[init]
+defaultBranch = main
+
+[merge]
+log = true
+
+[pull]
+rebase = true
+
+[push]
+default = simple
+autoSetupRemote = true
+
+[rerere]
+enabled = true
+
+[status]
+submodulesummary = true
+
+[alias]
+root = rev-parse --show-toplevel
+fomo = !git fetch origin main && git rebase origin/main
+lose-all = !git fetch origin main && git reset --hard origin/main
+lose = !git reset --hard HEAD
+no-edit-force-push = !git add . && git commit --amend --no-edit && git push --force-with-lease
+undo = reset --soft HEAD^
+
+[delta]
+line-numbers = true
+side-by-side = true
+syntax-theme = Monokai Extended Bright
+
+[url "git@github.com:"]
+insteadOf = https://github.com/
+insteadOf = git://github.com/
+
+[url "git@gitlab.com:"]
+insteadOf = https://gitlab.com/
+insteadOf = git://gitlab.com/
+
+[url "git@bitbucket.org:"]
+insteadOf = https://bitbucket.org/
+insteadOf = git://bitbucket.org/
