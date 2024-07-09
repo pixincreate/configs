@@ -80,6 +80,7 @@ alias cls='clear'
 alias multitail='multitail --no-repeat -c'
 alias vi='nvim'
 alias reload='echo "Reloading shell...";sleep 1;clear;exec ${SHELL} -l'
+alias inv='nvim $(fzf -m --preview="bat --color=always {}")'  # Open files in nvim with fzf
 
 # Tmux aliases
 alias tmux_debug='tmux kill-server && tmux -f ~/.config/tmux/tmux.conf > tmux.log 2>&1'
