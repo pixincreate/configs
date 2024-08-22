@@ -1,0 +1,70 @@
+# Visit https://alacritty.org/config-alacritty.html or execute `man 5 alacritty` for documentation
+
+import = ["~/.config/alacritty/themes/themes/catppuccin_mocha.toml"]
+
+live_config_reload = true
+working_directory = "None"
+
+[shell]
+program = "/bin/zsh"
+args = ["-l"]
+
+[env]
+WINIT_X11_SCALE_FACTOR = "1.0"
+
+[window]
+blur = true
+
+decorations = "Buttonless"
+decorations_theme_variant = "None"
+
+dynamic_padding = true
+dynamic_title = true
+
+padding.x = 10
+padding.y = 10
+
+opacity = 0.87
+option_as_alt = "Both"
+startup_mode = "Windowed"
+title = "Alacritty"
+
+[scrolling]
+history = 100000
+multiplier = 3
+
+[font]
+normal = { family = "FiraCode Nerd Font" }
+size = 10
+builtin_box_drawing = true
+
+[bell]
+animation = "Linear"
+duration = 0
+
+[selection]
+semantic_escape_chars = ",│`|:\"' ()[]{}<>\t"
+save_to_clipboard = false
+
+[cursor]
+style = { shape = "Block", blinking = "On" }
+unfocused_hollow = true
+thickness = 0.1
+
+
+[mouse]
+hide_when_typing = true
+
+[[hints.enabled]]
+# command = "xdg-open" # On Linux/BSD
+command = "open" # On macOS
+# command = { program = "cmd", args = [ "/c", "start", "" ] } # On Windows
+hyperlinks = true
+post_processing = true
+persist = true
+mouse.enabled = true
+binding = { key = "U", mods = "Control|Shift" }
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+
+[keyboard]
+bindings = [{ key = "N", mods = "Control|Shift", action = "CreateNewWindow" }]

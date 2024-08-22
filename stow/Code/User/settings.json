@@ -1,0 +1,485 @@
+{
+  /* **************** Workbench and Editor Settings **************** */
+  // Window
+  "window.commandCenter": true,
+  "window.titleBarStyle": "custom",
+  "workbench.colorTheme": "Catppuccin Mocha",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.productIconTheme": "Default",
+  "workbench.settings.editor": "json", // comment this out to get UI in settings
+  // Editor
+  "editor.inlineSuggest.enabled": true,
+  "editor.acceptSuggestionOnEnter": "off",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "editor.fontFamily": "FiraCode Nerd Font, Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  // "editor.fontSize": 24,
+  "editor.fontSize": 13,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.guides.bracketPairsHorizontal": "active",
+  "editor.inlayHints.enabled": "onUnlessPressed",
+  "editor.letterSpacing": 0.2,
+  // "editor.lineHeight": 32,
+  "editor.lineHeight": 17,
+  "editor.minimap.enabled": false,
+  "editor.renderWhitespace": "all",
+  "editor.semanticTokenColorCustomizations": {
+    "[Catppuccin Mocha]": {
+      "enabled": true
+    }
+  },
+  "editor.stickyScroll.enabled": true,
+  "editor.stickyScroll.maxLineCount": 7,
+  "editor.suggestSelection": "first",
+  "editor.suggest.matchOnWordStartOnly": false,
+  "editor.accessibilitySupport": "off",
+  // Explorer
+  "explorer.confirmDragAndDrop": false,
+  // Terminal
+  "terminal.external.linuxExec": "alacritty",
+  "terminal.external.osxExec": "Alacritty.app",
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.enableImages": true,
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.fontFamily": "FiraCode Nerd Font",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.letterSpacing": 0.1,
+  "terminal.integrated.lineHeight": 1.2,
+  "terminal.integrated.defaultProfile.linux": "tmux",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "path": "bash",
+      "icon": "terminal-bash"
+    },
+    "tmux-shell": {
+      "path": "tmux",
+      "icon": "terminal-tmux",
+      "args": [
+        "new-session",
+        "-A",
+        "-s",
+        "vscode:${workspaceFolder}"
+      ]
+    },
+    "zsh": {
+      "path": "zsh"
+    },
+  },
+  "terminal.integrated.profiles.osx": {
+    "bash": {
+      "path": "bash",
+      "args": [
+        "-l"
+      ],
+      "icon": "terminal-bash"
+    },
+    "zsh": {
+      "path": "zsh",
+      "args": [
+        "-l"
+      ]
+    },
+    "fish": {
+      "path": "fish",
+      "args": [
+        "-l"
+      ]
+    },
+    "tmux-shell": {
+      "path": "tmux",
+      "icon": "terminal-tmux",
+      "args": [
+        "new-session",
+        "-A",
+        "-s",
+        "vscode:${workspaceFolder}"
+      ]
+    },
+    "pwsh": {
+      "path": "pwsh",
+      "icon": "terminal-powershell"
+    },
+    "sh": {
+      "path": "/bin/sh"
+    }
+  },
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    },
+    "Command Prompt": {
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
+      "args": [],
+      "icon": "terminal-cmd"
+    },
+    "Git Bash": {
+      "source": "Git Bash"
+    }
+  },
+  "terminal.integrated.useWslProfiles": true,
+  "terminal.integrated.scrollback": 1000000,
+  // Telemetry
+  "telemetry.telemetryLevel": "off",
+  "extensions.ignoreRecommendations": true,
+  "npm.fetchOnlinePackageInfo": false,
+  "code-runner.enableAppInsights": false,
+  // Debugger
+  "debug.allowBreakpointsEverywhere": true,
+  // Search
+  "search.showLineNumbers": true,
+  // Zen Mode
+  "zenMode.centerLayout": true,
+  "zenMode.fullScreen": true,
+  "zenMode.hideActivityBar": true,
+  "zenMode.hideLineNumbers": false,
+  /* **************** Extensions Settings **************** */
+  // GitHub copilot
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": true,
+    "scminput": false,
+    "rust": false
+  },
+  "github.copilot.editor.enableCodeActions": false,
+  // Better Comments
+  "better-comments.tags": [
+    /*
+        {
+          "tag": "!",
+          "color": "#FF2D00",
+          "strikethrough": false,
+          "underline": false,
+          "backgroundColor": "transparent",
+          "bold": false,
+          "italic": false
+        },
+        */
+    {
+      "tag": "?",
+      "color": "#3498DB",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    /* {
+          "tag": "//",
+          "color": "#474747",
+          "strikethrough": false,
+          "underline": false,
+          "backgroundColor": "transparent",
+          "bold": false,
+          "italic": false
+        }, */
+    {
+      "tag": "todo",
+      "color": "#FF8C00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "fixme",
+      "color": "#FF8C00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "question",
+      "color": "#FE0100",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "help",
+      "color": "#FEFF00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    }
+    // {
+    //   "tag": "*",
+    //   "color": "#98C379",
+    //   "strikethrough": false,
+    //   "underline": false,
+    //   "backgroundColor": "transparent",
+    //   "bold": false,
+    //   "italic": false
+    // }
+  ],
+  // Code Spell Checker
+  "cSpell.enableFiletypes": [
+    "toml"
+  ],
+  // Cypress Helper
+  "cypressHelper.includeAnnotationForCommands": true,
+  "cypressHelper.typeDefinitionOnSave": true,
+  "cypressHelper.typeDefinitionFile": "",
+  // Even Better TOML
+  "evenBetterToml.formatter.alignComments": true,
+  "evenBetterToml.formatter.alignEntries": false,
+  "evenBetterToml.formatter.columnWidth": 100,
+  "evenBetterToml.formatter.compactArrays": true,
+  "evenBetterToml.formatter.compactInlineTables": false,
+  "evenBetterToml.formatter.indentTables": false,
+  "evenBetterToml.formatter.reorderKeys": false,
+  "evenBetterToml.semanticTokens": true,
+  // Git
+  "diffEditor.experimental.showMoves": true,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "git.autofetch": "all",
+  "git.autofetchPeriod": 600,
+  "git.branchSortOrder": "committerdate",
+  "git.branchWhitespaceChar": "-",
+  "git.closeDiffOnOperation": true,
+  "git.confirmEmptyCommits": true,
+  "git.decorations.enabled": true,
+  "git.detectSubmodules": true,
+  "git.enableCommitSigning": true,
+  "git.enabled": true,
+  "git.promptToSaveFilesBeforeCommit": "always",
+  "git.promptToSaveFilesBeforeStash": "always",
+  "git.timeline.date": "authored",
+  "git.useEditorAsCommitInput": true,
+  "gitlens.defaultDateStyle": "absolute",
+  "gitlens.defaultGravatarsStyle": "identicon",
+  "scm.defaultViewMode": "tree",
+  "scm.diffDecorations": "all",
+  "scm.diffDecorationsIgnoreTrimWhitespace": "false",
+  // Copilot
+  "github.copilot.editor.enableAutoCompletions": true,
+  // Live Previw
+  "livePreview.hostIP": "191.168.0.189",
+  "livePreview.httpHeaders": {
+    "Accept-Ranges": "bytes"
+  },
+  // Material Icon Theme
+  "material-icon-theme.folders.color": "#42a5f5",
+  "material-icon-theme.folders.theme": "specific",
+  // Material Theme
+  "materialTheme.accent": "Blue",
+  // Powershell
+  "powershell.codeFormatting.preset": "OTBS",
+  "powershell.codeFormatting.autoCorrectAliases": true,
+  "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
+  "powershell.codeFormatting.whitespaceBetweenParameters": true,
+  // Prettier
+  "prettier.useTabs": false,
+  "reactSnippets.settings.prettierEnabled": true,
+  "prettier.resolveGlobalModules": false,
+  "prettier.requireConfig": true,
+  // Red Hat Telemetry
+  "redhat.telemetry.enabled": false,
+  // Rust Analyzer
+  "rust-analyzer.cargo.features": "all",
+  "rust-analyzer.check.allTargets": true,
+  "rust-analyzer.check.features": "all",
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.completion.autoimport.enable": true,
+  "rust-analyzer.completion.privateEditable.enable": true,
+  "rust-analyzer.debug.engine": "vadimcn.vscode-lldb",
+  "rust-analyzer.imports.granularity.enforce": true,
+  "rust-analyzer.imports.granularity.group": "crate",
+  "rust-analyzer.imports.prefix": "crate",
+  "rust-analyzer.rust.analyzerTargetDir": true,
+  // "rust-analyzer.inlayHints.expressionAdjustmentHints.enable": "reborrow",
+  // "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "always",
+  // "rust-analyzer.inlayHints.reborrowHints.enable": "mutable",
+  // shell-format
+  "shellformat.flag": "--indent 2 --binary-next-line --case-indent --space-redirects",
+  /* **************** Language Extension Settings **************** */
+  // Go
+  "go.useLanguageServer": true,
+  // Java
+  "java.debug.settings.console": "integratedTerminal",
+  "java.debug.logLevel": "verbose",
+  "java.configuration.checkProjectSettingsExclusions": false,
+  /* **************** Language Settings **************** */
+  "files.autoSave": "afterDelay",
+  "[asciidoc]": {
+    "editor.renderFinalNewline": "on",
+    "editor.trimAutoWhitespace": true,
+    "editor.wordWrap": "bounded",
+    "editor.wordWrapColumn": 180,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[c]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools"
+  },
+  "[cpp]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.wordBasedSuggestions": "matchingDocuments",
+    "editor.suggest.insertMode": "replace",
+    "editor.semanticHighlighting.enabled": true,
+    "C_Cpp.default.cppStandard": "c++20"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.suggest.insertMode": "replace",
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
+  },
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+  },
+  "[dockercompose]": {
+    "editor.autoIndent": "advanced",
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker",
+    "editor.insertSpaces": true,
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "editor.tabSize": 2
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.suggest.insertMode": "replace",
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
+  },
+  "[ignore]": {
+    "editor.renderFinalNewline": "on",
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.renderFinalNewline": "on",
+    "editor.rulers": [
+      80
+    ],
+    "editor.trimAutoWhitespace": true,
+    // "editor.wordWrap": "bounded",
+    "editor.wordWrap": "on",
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[python]": {
+    "editor.renderFinalNewline": "on",
+    "editor.rulers": [
+      88
+    ],
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[plaintext]": {
+    "editor.renderFinalNewline": "on",
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell",
+    "editor.renderFinalNewline": "on",
+    "editor.rulers": [
+      120
+    ],
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true,
+    "editor.renderFinalNewline": "on",
+    "editor.rulers": [
+      99
+    ],
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[shell]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format",
+    "editor.renderFinalNewline": "on",
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[shellscript]": {
+    "editor.tabSize": 2,
+    "files.eol": "\n"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools",
+    "editor.renderFinalNewline": "on",
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[terraform]": {
+    "editor.tabSize": 2
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml",
+    "editor.renderFinalNewline": "on",
+    "editor.trimAutoWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true
+  },
+  "[yaml]": {
+    "editor.autoIndent": "keep",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.insertSpaces": true,
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "editor.tabSize": 2,
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+}

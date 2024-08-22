@@ -6,17 +6,9 @@ command_exists() {
 if command_exists tmux; then
   # If tmux is executable and not inside a tmux session, then start tmux.
   # Refer to the tmx script for details
-  if [ -x "$(command -v tmux)" ] && [ -z "${TMUX}" ] && [ -z "${VSCODE_RESOLVING_ENVIRONMENT}"]; then
-    if tmux ls | grep -qv attached; then
-      # attach to the existing session and when it exits if the exit code is 0 then exit the shell (C-b d in tmux has exit code 0)
-      exec tmux at && exit
-    else
-      # create a new session and when it exits if the exit code is 0 then exit the shell (C-b d in tmux has exit code 0)
-      exec tmux new-session && exit
-    fi
+  if [ -x "$(command -v tmux)" ] && [ -z "${TMUX}" ]; then
+    exec tmux
   fi
-  else
-    echo -e "tmux missing. Please install tmux to continue!"
 fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zsh/.zshrc.

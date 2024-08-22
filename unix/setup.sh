@@ -382,6 +382,8 @@ config_setup() {
       print "Configs are unmodified, pulling latest changes from main..." true
       git -C "${LOCAL_PATH}" pull
 
+      git sumodule update --init --recursive
+
       cp -r ${LOCAL_PATH}/home/.config $HOME/.config
       cp -r ${LOCAL_PATH}/unix/. $HOME
 
