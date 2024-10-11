@@ -16,7 +16,7 @@ if command_exists tmux; then
     fi
   fi
   else
-    echo -e "tmux missing. Please install tmux to continue!"
+    echo -e "package tmux is missing!"
 fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zsh/.zshrc.

@@ -5,8 +5,6 @@ path=(
   "$HOME/.cargo/bin"
 )
 
-# Set XDG base directories
-
 # User directories
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
@@ -24,3 +22,6 @@ export CONFIGS=${HOME}/Dev/scripts/configs
 # Set default editor
 export EDITOR=nvim
 export VISUAL=nvim
+
+# Source env from cargo
+. "$HOME/.cargo/env"
