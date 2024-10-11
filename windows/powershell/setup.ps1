@@ -269,6 +269,7 @@ function main {
         "ajeetdsouza.zoxide",
         "dandavison.delta",
         "direnv.direnv",
+        "eza-community.eza",
         "gerardog.gsudo",
         "Git.Git",
         "junegunn.fzf",

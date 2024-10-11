@@ -308,7 +308,7 @@ install_apps() {
   dev_applications=("docker" "kubectl" "nextdns/tap/nextdns" "node")
   languages=("gcc" "python" "rustup-init" "sqlite")
   terminal_additions=(
-    "bat" "direnv" "fastfetch" "fzf" "git-delta" "jq" "lazygit"
+    "bat" "direnv" "eza" "fastfetch" "fzf" "git-delta" "jq" "lazygit"
     "ripgrep" "tar" "tmux" "topgrade" "tree" "which" "xclip" "zoxide"
   )
   tools=(

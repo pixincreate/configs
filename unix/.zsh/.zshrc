@@ -26,6 +26,12 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+if type brew &>/dev/null; then
+    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+    autoload -Uz compinit
+    compinit
+fi
+
 # Zstyle
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*:matches' group 'yes'
@@ -73,7 +79,7 @@ setopt notify                 # Report the status of background jobs immediately
 
 # Aliases
 alias cd='z'
-alias ls='ls --color=auto'
+alias ls='eza'
 alias ll='ls --color=auto -l --almost-all --human-readable'
 alias df='df --human-readable'
 alias du='du --human-readable'
