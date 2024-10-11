@@ -152,10 +152,24 @@ additional_zshrc() {
     darwin* | gnu)
       echo '
       # Dev env variables
-      export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
+      typeset -U PATH path
+      path=(
+        $path
+        $HOME/.yarn/bin
+        $HOME/.config/yarn/global/node_modules/.bin
+        $(brew --prefix)/opt/coreutils/libexec/gnubin
+        $(brew --prefix)/opt/findutils/libexec/gnubin
+        $(brew --prefix)/opt/gnu-getopt/bin
+        $(brew --prefix)/opt/gnu-indent/libexec/gnubin
+        $(brew --prefix)/opt/gnu-tar/libexec/gnubin
+      )
 
       # Source init for Docker
       source $HOME/.docker/init-zsh.sh || true
+
+      # Added by OrbStack: command-line tools and integration
+      # Comment this line if you do not want it to be added again.
+      # source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
       # Disable NPM ads
       export DISABLE_OPENCOLLECTIVE=1
@@ -166,7 +180,7 @@ additional_zshrc() {
 
       if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
         echo '
-        # WSL specific configurations
+        # WSL configurations
         export WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C '\''echo %USERPROFILE%'\'' | tr -d '\''\r'\'')")
         ' >> ~/.zsh/.additionals.zsh
         echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/.additionals.zsh
