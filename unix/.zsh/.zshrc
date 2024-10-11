@@ -3,20 +3,41 @@ command_exists() {
   command -v "$1" > /dev/null 2>&1
 }
 
-if command_exists tmux; then
-  # If tmux is executable and not inside a tmux session, then start tmux.
-  # Refer to the tmx script for details
-  if [ -x "$(command -v tmux)" ] && [ -z "${TMUX}" ] && [ -z "${VSCODE_RESOLVING_ENVIRONMENT}"]; then
-    if tmux ls | grep -qv attached; then
-      # attach to the existing session and when it exits if the exit code is 0 then exit the shell (C-b d in tmux has exit code 0)
-      exec tmux at && exit
+if [[ "$TERM" = "alacritty" ]]; then
+  if [[ "${MUX}" == "zellij" ]]; then
+    if command -v zellij &> /dev/null; then
+      # List Zellij sessions
+      ZJ_SESSIONS=$(zellij list-sessions)
+      NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
+
+      # Attach to the main session or create a new one if none exists
+      if [[ "${NO_SESSIONS}" -gt 2 ]]; then
+        # Attach to any session using fzf if no 'main' session exists
+        zellij attach "$(echo "${ZJ_SESSIONS}" | fzf)"
+      # Attach to the existing session, replace 'main' with your session name if different
+      elif echo "${ZJ_SESSIONS}" | grep -q 'main'; then
+        zellij attach main
+      else
+        zellij new-session -n main
+      fi
+      # Setup Zellij completions and environment
+      source <(zellij setup --generate-completion zsh | sed '/_zellij "$@"/d')
     else
-      # create a new session and when it exits if the exit code is 0 then exit the shell (C-b d in tmux has exit code 0)
-      exec tmux new-session && exit
+      echo "Package zellij is missing!"
+    fi
+  elif [[ "${MUX}" == "tmux" ]]; then
+    if command -v tmux &> /dev/null; then
+      if [ -z "${TMUX}" ]; then
+        if tmux ls | grep -qv attached; then
+          exec tmux attach
+        else
+          exec tmux new-session
+        fi
+      fi
+    else
+      echo "Package tmux is missing!"
     fi
   fi
-  else
-    echo -e "package tmux is missing!"
 fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zsh/.zshrc.
@@ -79,7 +100,10 @@ setopt notify                 # Report the status of background jobs immediately
 
 # Aliases
 alias cd='z'
-alias ls='eza'
+alias ls='eza -lh --group-directories-first --icons --hyperlink'
+alias lsa='ls -a'
+alias lt='eza --tree --level=2 --long --icons --git'
+alias lta='lt -a'
 alias ll='ls --color=auto -l --almost-all --human-readable'
 alias df='df --human-readable'
 alias du='du --human-readable'
