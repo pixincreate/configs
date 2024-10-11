@@ -14,11 +14,13 @@ if [[ "$TERM" = "alacritty" ]]; then
       if [[ "${NO_SESSIONS}" -gt 2 ]]; then
         # Attach to any session using fzf if no 'main' session exists
         zellij attach "$(echo "${ZJ_SESSIONS}" | fzf)"
-      # Attach to the existing session, replace 'main' with your session name if different
       elif echo "${ZJ_SESSIONS}" | grep -q 'main'; then
-        zellij attach main
+        # Check if currently in the 'main' session
+        if ! [[ "$ZELLIJ" == 0 ]] && ! [[ "$ZELLIJ_SESSION_NAME" == "main" ]]; then
+          zellij attach main
+        fi
       else
-        zellij new-session -n main
+        zellij attach -c main
       fi
       # Setup Zellij completions and environment
       source <(zellij setup --generate-completion zsh | sed '/_zellij "$@"/d')
