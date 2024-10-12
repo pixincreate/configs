@@ -128,6 +128,10 @@ alias tmux_attach='tmux attach -d -t' # Attach to a detached session. Usage: tmu
 alias tmux_switch='tmux switch-client -t' # Switch to another client. Usage: tmux_switch <session_name/id>
 alias tmux_kill_session='tmux kill-session -t' # Kill a session. Usage: tmux_killsession <session_name/id>
 
+# Zellij aliases
+alias zj='zellij'
+alias zrf='zj run -f -- '
+
 ## Directory aliases
 alias home='cd ~'
 alias cd..='cd ..'
