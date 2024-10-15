@@ -355,7 +355,7 @@ install_apps() {
       ;;
     gnu)
       apps_category=(
-        "${"${dev_applications[@]}" "${languages[@]}"
+        "${dev_applications[@]}" "${languages[@]}"
         "${terminal_additions[@]}" "${tools[@]}"
       )
       for app in "${apps_category[@]}"; do
