@@ -327,7 +327,7 @@ install_apps() {
   languages=("gcc" "python" "rustup" "sqlite")
   terminal_additions=(
     "bat" "direnv" "eza" "fastfetch" "fzf" "git-delta" "jq" "lazygit"
-    "ripgrep" "tmux" "topgrade" "tree" "xclip" "zoxide"
+    "pipx" "ripgrep" "tmux" "topgrade" "tree" "xclip" "zoxide"
   )
   tools=(
     "android-platform-tools" "android-tools" "binutils" "coreutils"
@@ -393,7 +393,7 @@ install_apps() {
   esac
 
   print "Installing trash-cli..." true
-  pip install "trash-cli"
+  pipx install "trash-cli"
 
   # Setup crontab to auto empty trash after 60 days
   (
