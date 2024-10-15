@@ -162,6 +162,7 @@ additional_zshrc() {
         $(brew --prefix)/opt/gnu-getopt/bin
         $(brew --prefix)/opt/gnu-indent/libexec/gnubin
         $(brew --prefix)/opt/gnu-tar/libexec/gnubin
+        $(brew --prefix))/opt/binutils/bin
       )
 
       # Source init for Docker
@@ -178,10 +179,13 @@ additional_zshrc() {
       PQ_LIB_DIR="$(brew --prefix libpq)/lib"
     ' >> ~/.zsh/.additionals.zsh
 
-      if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
+      if [[ "$WSL_DISTRO_NAME" == "Debian" ]] || [[ "$WSL_DISTRO_NAME" == "Fedora" ]]; then
         echo '
         # WSL configurations
         export WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C '\''echo %USERPROFILE%'\'' | tr -d '\''\r'\'')")
+
+          export LDFLAGS="-L/$(brew --prefix)/opt/binutils/lib"
+          export CPPFLAGS="-I/$(brew --prefix)/opt/binutils/include"
         ' >> ~/.zsh/.additionals.zsh
         echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/.additionals.zsh
       fi
@@ -316,25 +320,42 @@ install_apps() {
   android_specific=("termux-api" "termux-tools" "tsu")
   applications=(
     "alacritty" "alt-tab" "android-studio" "bitwarden" "brave-browser@beta"
-    "firefox@nightly" "localsend" "maccy" "obsidian" "rectangle" "signal@beta"
-    "visual-studio-code@insiders"
+    "firefox@dev" "localsend" "maccy" "obsidian" "rectangle" "signal@beta"
+    "tar" "visual-studio-code@insiders"
   )
   dev_applications=("docker" "kubectl" "nextdns/tap/nextdns" "node")
-  languages=("gcc" "python" "rustup-init" "sqlite")
+  languages=("gcc" "python" "rustup" "sqlite")
   terminal_additions=(
     "bat" "direnv" "eza" "fastfetch" "fzf" "git-delta" "jq" "lazygit"
-    "ripgrep" "tar" "tmux" "topgrade" "tree" "which" "xclip" "zoxide"
+    "ripgrep" "tmux" "topgrade" "tree" "xclip" "zoxide"
   )
   tools=(
     "android-platform-tools" "android-tools" "binutils" "coreutils"
-    "croc" "cronie" "micro" "multitail" "neovim" "openssh"
+    "croc" "micro" "multitail" "neovim" "openssh"
   )
 
   # Install applications based on the platform
   case "$platform" in
-    darwin | gnu)
+    darwin)
       apps_category=(
         "${applications[@]}" "${dev_applications[@]}" "${languages[@]}"
+        "${terminal_additions[@]}" "${tools[@]}"
+      )
+      for app in "${apps_category[@]}"; do
+        exclude_list=("android-tools")
+        [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
+        if command -v $app &> /dev/null; then
+          echo "$app is already installed. Trying to upgrade..."
+          brew upgrade "$app"
+        else
+          echo "Installing $app..."
+          brew install "$app"
+        fi
+      done
+      ;;
+    gnu)
+      apps_category=(
+        "${"${dev_applications[@]}" "${languages[@]}"
         "${terminal_additions[@]}" "${tools[@]}"
       )
       for app in "${apps_category[@]}"; do
