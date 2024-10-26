@@ -2,6 +2,14 @@
 
 Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
 
+# DECLARATIONS
+# These values can be overrided by exporting them in the shell as environment variables
+$REPO_URL="https://github.com/pixincreate/configs.git"
+
+$GITCONFIG_EMAIL="69745008+pixincreate@users.noreply.github.com"
+$GITCONFIG_USERNAME="PiX"
+$GITCONFIG_SIGNGING_KEY="~/.ssh/id_ed25519_sign.pub"
+
 # Functions to print a message with a timestamp
 function Show-Error {
     Write-Error "[$((Get-Date).ToString('HH:mm:ss'))] $args"
@@ -206,7 +214,7 @@ function Install-Packages {
 
 function Get-Configs {
     Show-Line "Downloading the configs..."
-    git clone "https://github.com/pixincreate/configs.git" "$env:userprofile\Desktop\configs"
+    git clone "$REPO_URL" "$env:userprofile\Desktop\configs"
     Set-Location "$env:userprofile\Desktop\configs"
 }
 
@@ -279,6 +287,25 @@ function Restore-Profile {
     }
 }
 
+function Update-GitConfigData {
+    # Define the path to the Git config file
+    $gitConfigPath = "$HOME\.gitconfig"
+
+    # Read the contents of the Git config file
+    $gitConfigContent = Get-Content -Path $gitConfigPath
+
+    # Update the email and username in the Git config
+    $gitConfigContent = $gitConfigContent -replace 'email = example@email.com', "email = $GITCONFIG_EMAIL"
+    $gitConfigContent = $gitConfigContent -replace 'name = username', "name = $GITCONFIG_USERNAME"
+    $gitConfigContent = $gitConfigContent -replace 'signingkey = ~/.ssh/signingkey', "signingkey = $GITCONFIG_SIGNGING_KEY"
+
+    # Write the updated content back to the Git config file
+    $gitConfigContent | Set-Content -Path $gitConfigPath
+
+    # Optionally, you can create a backup if needed
+    Copy-Item -Path $gitConfigPath -Destination "$gitConfigPath.bak" -Force
+}
+
 function Set-DeveloperEnvironment {
     # Terminal Setup
     Show-Line "Setting up the terminal..."
@@ -297,6 +324,10 @@ function Set-DeveloperEnvironment {
         Show-Warning "Failed to write Starship configs. Error: $_"
         Copy-Item -Path "./home/.config/starship.toml" -Destination "$env:userprofile\.config\starship.toml"
     }
+
+    Show-Line "Setting up Git..."
+    Copy-Item -Path "./home/.gitconfig" -Destination "$env:userprofile\.gitconfig"
+    Update-GitConfigData
 
     # Configure direnv for Windows
     Show-Line "Configuring direnv on user level..."
