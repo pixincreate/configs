@@ -1,26 +1,6 @@
-# Credits: ChrisTitusTech
-Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
+#Requires -RunAsAdministrator
 
-# Function to check and elevate the script
-function Grant-AdminAccess {
-    # Ensure the script can run with elevated privileges
-    $currentScriptPath = $MyInvocation.MyCommand.Definition
-    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    if (-not $isAdmin) {
-        Write-Host "Elevating script to admin..."
-        if (Get-Command -Name "gsudo" -ErrorAction SilentlyContinue) {
-            $output = gsudo $currentScriptPath
-            Write-Host $output
-            exit
-        } else {
-            Write-Host "'gsudo' not found, using native elevation..."
-            $adminArgs = "-NoProfile -ExecutionPolicy Bypass -File `"$currentScriptPath`""
-            $output = Start-Process -FilePath "powershell" -ArgumentList $adminArgs -Verb RunAs -Wait | Out-String
-            Write-Host $output
-            exit
-        }
-    }
-}
+Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
 
 # Functions to print a message with a timestamp
 function Show-Error {
@@ -47,6 +27,32 @@ function Test-InternetConnection {
     } catch {
         Show-Warning "Internet connection is required but not available. Please check your connection."
         return $false
+    }
+}
+
+# Disable Ads and Trackers in Windows
+function Disable-Ads {
+    $disableAds = Write-Prompt "Do you want to disable ads in Windows 11 with OFGB (Oh Frick Go Back)"
+    if (-not ($disableAds -eq "n")) {
+        # Download and run OFGB
+        Show-Line "Downloading and running OFGB..."
+        Show-Warning "You might have to install .NET8.0 Desktop Runtime if you haven't already."
+        Invoke-RestMethod "https://github.com/xM4ddy/OFGB/releases/latest/download/OFGB.exe" -OutFile ".\windows\tools\ofgb\OFGB.exe"
+        Start-Process -Wait ".\windows\tools\ofgb\OFGB.exe" -Verb RunAs
+    } else {
+        Show-Line "Disabling ads in Windows 11 skipped."
+    }
+
+    Show-Line "Disabling powerhell telemetry..."
+    [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 1, 'Machine')
+
+    $executeWinutil = Write-Prompt "Do you want to run WinUtil to disable all Microsoft tracking services"
+    if (-not ($executeWinutil -eq "n")) {
+        Show-Line "Running WinUtil..."
+        Invoke-RestMethod "https://christitus.com/win" | Invoke-Expression
+        Show-Line "You can also run WinUtil from terminal directly by typing 'winutil' and pressing enter."
+    } else {
+        Show-Line "WinUtil execution skipped."
     }
 }
 
@@ -120,54 +126,112 @@ function Install-Package {
     }
 }
 
-function Disable-Ads {
-    $disableAds = Write-Prompt "Do you want to disable ads in Windows 11"
-    if (-not ($disableAds -eq "n")) {
-        # Download and run OFGB
-        Show-Line "Downloading and running OFGB..."
-        Show-Warning "You might have to install .NET8.0 Desktop Runtime if you haven't already."
-        Invoke-RestMethod "https://github.com/xM4ddy/OFGB/releases/latest/download/OFGB.exe" -OutFile ".\windows\tools\ofgb\OFGB.exe"
-        Start-Process -Wait ".\windows\tools\ofgb\OFGB.exe" -Verb RunAs
-    } else {
-        Show-Line "Disabling ads in Windows 11 skipped."
-    }
-    Show-Line "Disabling powerhell telemetry..."
-    [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 1, 'Machine')
+function Install-Packages {
+    # define variables
+    $modules = @(
+        "ps2exe",
+        "Terminal-Icons",
+        "WslInterop"
+    )
+    $packages = @(  
+        # Applications
+        "Giorgiotani.Peazip",
+        "Bitwarden.Bitwarden",
+        "LocalSend.LocalSend",
+        "Obsidian.Obsidian",
+        "OBSProject.OBSStudio",
+        "ONLYOFFICE.DesktopEditors",
+        "Oracle.VirtualBox",
+        "qBittorrent.qBittorrent",
 
-    $executeWinutil = Write-Prompt "Do you want to run WinUtil to disable all Microsoft tracking services"
-    if (-not ($executeWinutil -eq "n")) {
-        Show-Line "Running WinUtil..."
-        Invoke-RestMethod "https://christitus.com/win" | Invoke-Expression
-        Show-Line "You can also run WinUtil from terminal directly by typing 'winutil' and pressing enter."
-    } else {
-        Show-Line "WinUtil execution skipped."
-    }
+        # Browser
+        "Brave.Brave.Beta",
+        "Mozilla.Firefox.DeveloperEdition",
+
+        # Cloud
+        "FilenCloud.FilenSync",
+        "Proton.ProtonDrive",
+        "SyncTrayzor.SyncTrayzor",
+
+        # Communication
+        "OpenWhisperSystems.Signal",
+
+        # Developer Tools
+        "Git.Git",
+        "Hugo.Hugo.Extended",
+        "Kitware.CMake",
+        "OpenJS.NodeJS.LTS",
+        "Microsoft.PowerToys",
+
+        # Games
+        "Valve.Steam",
+
+        # IDEs
+        "Google.AndroidStudio",
+        "JetBrains.IntelliJIDEA.Community",
+        "JetBrains.PyCharm.Community",
+        "Microsoft.VisualStudioCode.Insiders",
+
+        # Languages
+        "Microsoft.VisualStudio.2022.BuildTools",
+        "Oracle.JDK",
+        "Python.Python",
+        "Rustlang.Rustup",
+        "zig.zig",
+
+        # Networking tools
+        "Safing.Portmaster",
+
+        # Terminal
+        "Microsoft.PowerShell",
+
+        # Terminal Tools
+        "ajeetdsouza.zoxide",
+        "dandavison.delta",
+        "Debian.Debian",
+        "direnv.direnv",
+        "gerardog.gsudo",
+        "junegunn.fzf",
+        "Microsoft.WindowsTerminal",
+        "Neovim.Neovim",
+        "openssl",
+        "Starship.Starship",
+        "topgrade-rs.topgrade",
+        "zyedidia.micro"
+    )
+
+    Install-Module -moduleNames $modules
+    Install-Package -packageNames $packages
 }
 
-# Function to download the configs from GitHub repository
 function Get-Configs {
     Show-Line "Downloading the configs..."
     git clone "https://github.com/pixincreate/configs.git" "$env:userprofile\Desktop\configs"
     Set-Location "$env:userprofile\Desktop\configs"
 }
 
-# Function to restore the powershell profile
 function Restore-Profile {
-    # Profile creation or update
+    # Powershell 7 is recommended to be the default. Execute Winutil to set Powershell 7 as default in a click
+
+        # Profile creation or update
     if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
         try {
             # Detect Version of PowerShell & Create Profile directories if they do not exist.
             $profilePath = ""
+
+            # Set paths depending on the version of PowerShell
             if ($PSVersionTable.PSEdition -eq "Core") {
                 $profilePath = "$env:userprofile\Documents\PowerShell"
             } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
                 $profilePath = "$env:userprofile\Documents\WindowsPowerShell"
             }
 
+            # Create Powershell Directory if does not exist
             if (!(Test-Path -Path $profilePath)) {
                 New-Item -Path $profilePath -ItemType "directory"
             }
 
+            # Download PowerShell profile from GitHub
             Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1" -OutFile "$PROFILE"
             Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1"
 
@@ -177,19 +241,22 @@ function Restore-Profile {
             Show-Error "Failed to create or update the profile. Error: $_"
         }
 
-        # Check if the user uses Valorant and install the Vanguard controller
-        $usesValorant = Write-Prompt "Do you use Valorant"
+        # Ask if the user plays Valorant and wants to install the Vanguard controller
+        $usesValorant = Write-Prompt "Do you play Valorant"
         if (-not ($usesValorant -eq "n")) {
             if (-not (Test-Path -Path "$profilePath\Modules")) {
                 New-Item -Path "$profilePath\Modules" -ItemType "directory"
             }
+
             Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1" -OutFile "$profilePath\Modules\vanguard.ps1"
             Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/scheduler.ps1" -OutFile "$profilePath\Modules\scheduler.ps1"
+            
             Show-Line "Installation of Rootkit (Vanguard) controller completed."
+
             $setupScheduler = Write-Prompt "Do you want to set up a scheduler task to disable Vanguard after gameplay"
             if (-not ($setupScheduler -eq "n")) {
                 try {
-                    Install-ScheduledTask
+                    Install-ScheduledTask $profilePath
                 } catch {
                     Show-Error "Failed to set up the scheduler task. Error: $_"
                 }
@@ -212,10 +279,9 @@ function Restore-Profile {
     }
 }
 
-# Function to Configure the developer environment
 function Set-DeveloperEnvironment {
-    # Setup the terminal
-    Show-Line "Setting up Terminal ..."
+    # Terminal Setup
+    Show-Line "Setting up the terminal..."
     & ".\windows\powershell\modules\file_copy.ps1" -sourceDirectory ".\home\.config\wt\LocalState\" -destinationBaseDirectory "$env:userprofile\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
 
     # Create the .config directory if it doesn't exist
@@ -232,7 +298,7 @@ function Set-DeveloperEnvironment {
         Copy-Item -Path "./home/.config/starship.toml" -Destination "$env:userprofile\.config\starship.toml"
     }
 
-    # Configure direnv
+    # Configure direnv for Windows
     Show-Line "Configuring direnv on user level..."
     [Environment]::SetEnvironmentVariable('DIRENV_CONFIG', '%APPDATA%\direnv\conf', 'User')
     [Environment]::SetEnvironmentVariable('XDG_CACHE_HOME', '%APPDATA%\direnv\cache', 'User')
@@ -245,57 +311,28 @@ function Set-DeveloperEnvironment {
     Restore-Profile
 }
 
-# Function to install WSL
 function Install-WSL {
     Show-Line "Installing Debian WSL..."
 
-    wsl --install
-    # Place the installer in startup directory just so that the installation starts at next start up
-    Copy-Item -Path "./windows/powershell/modules/wsl_install.cmd" -Destination "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\wsl_install.cmd"
-
-    Show-Line "Restarting PC..."
-    Restart-Computer
+    # Directly call `debian` wsl because winget has already installed wsl and Debian
+    debian
 }
 
-# Main function
 function main {
-    ## Variables
-    $modules = @(
-        "ps2exe",
-        "Terminal-Icons",
-        "WslInterop"
-    )
-    $packages = @(
-        "ajeetdsouza.zoxide",
-        "dandavison.delta",
-        "direnv.direnv",
-        "eza-community.eza",
-        "gerardog.gsudo",
-        "Git.Git",
-        "junegunn.fzf",
-        "Microsoft.PowerShell",
-        "Microsoft.VisualStudio.2022.BuildTools",
-        "Neovim.Neovim",
-        "Rustlang.Rustup",
-        "Starship.Starship",
-        "topgrade-rs.topgrade",
-        "zyedidia.micro"
-    )
-
+    
     # Check for internet connectivity before proceeding
     if (-not (Test-InternetConnection)) {
         break
     }
 
-    Grant-AdminAccess
     Install-Font
-    Install-Module -moduleNames $modules
-    Install-Package -packageNames $packages
-    Get-Configs
+    Install-Packages
     Disable-Ads
-    Set-DeveloperEnvironment # Elephant in the room
+
+    Get-Configs
+    Set-DeveloperEnvironment
     Install-WSL
 }
 
-# Run the main function
+# Call the main function
 main
