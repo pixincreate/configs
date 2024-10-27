@@ -221,10 +221,20 @@ function Get-Configs {
     Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
 }
 
+function Restore-Data {
+    Show-Line "Restoring developer data..."
+    
+    Copy-Item -Path ".home\.config\*" -Destination "$HOME\.config" -Recurse -Force
+    Copy-Item -Path ".home\.ssh\*" -Destination "$HOME\.ssh" -Recurse -Force
+    Copy-Item -Path ".home\Code\*" -Destination "$env:APPDATA\Code\User" -Recurse -Force
+    
+    Copy-Item -Path ".home\.gitconfig" -Destination "$HOME\.gitconfig" -Force
+}
+
+
 function Restore-Profile {
     # Powershell 7 is recommended to be the default. Execute Winutil to set Powershell 7 as default in a click
-
-        # Profile creation or update
+    # Profile creation or update
     if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
         try {
             # Detect Version of PowerShell & Create Profile directories if they do not exist.
@@ -363,6 +373,7 @@ function main {
     Install-Packages
     Get-Configs
     Disable-Ads
+    Restore-Data
     Set-DeveloperEnvironment
     Install-WSL
 }
