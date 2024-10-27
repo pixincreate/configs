@@ -1,7 +1,5 @@
 #Requires -RunAsAdministrator
 
-Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
-
 # DECLARATIONS
 # These values can be overrided by exporting them in the shell as environment variables
 $REPO_URL="https://github.com/pixincreate/configs.git"
@@ -219,6 +217,8 @@ function Get-Configs {
     Show-Line "Downloading the configs..."
     git clone "$REPO_URL" "$env:userprofile\Desktop\configs"
     Set-Location "$env:userprofile\Desktop\configs"
+
+    Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
 }
 
 function Restore-Profile {
@@ -260,7 +260,7 @@ function Restore-Profile {
             }
 
             Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1" -OutFile "$profilePath\Modules\vanguard.ps1"
-            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/scheduler.ps1" -OutFile "$profilePath\Modules\scheduler.ps1"
+            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard_scheduler.ps1" -OutFile "$profilePath\Modules\vanguard_scheduler.ps1"
             
             Show-Line "Installation of Rootkit (Vanguard) controller completed."
 
