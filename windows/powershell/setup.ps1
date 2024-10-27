@@ -198,6 +198,7 @@ function Install-Packages {
         "dandavison.delta",
         "Debian.Debian",
         "direnv.direnv",
+        "eza-community.eza",
         "gerardog.gsudo",
         "junegunn.fzf",
         "Microsoft.WindowsTerminal",
