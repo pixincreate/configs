@@ -101,7 +101,7 @@ function Install-Font {
 # Function to install PowerShell modules
 function Install-Module {
     param(
-        [string]$moduleNames
+        [string[]]$moduleNames
     )
 
     foreach ($moduleName in $moduleNames) {
@@ -361,9 +361,8 @@ function main {
 
     Install-Font
     Install-Packages
-    Disable-Ads
-
     Get-Configs
+    Disable-Ads
     Set-DeveloperEnvironment
     Install-WSL
 }
