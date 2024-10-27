@@ -125,7 +125,7 @@ function Install-Package {
     foreach ($packageName in $packageNames) {
         try {
             Show-Line "Installing package '$packageName'..."
-            winget install $packageName
+            winget install $packageName --accept-source-agreements --accept-package-agreements
         } catch {
             Show-Error "Failed to install package '$packageName'. Error: $_"
         }
