@@ -395,6 +395,7 @@ if ! zgenom saved; then
   # Library files from ohmyzsh
   zgenom ohmyzsh lib/functions.zsh
   zgenom ohmyzsh lib/termsupport.zsh
+  zgenom ohmyzsh plugins/eza
   zgenom ohmyzsh plugins/git
   zgenom ohmyzsh plugins/gitignore
 
