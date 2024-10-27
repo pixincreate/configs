@@ -195,6 +195,7 @@ function Install-Packages {
 
         # Terminal Tools
         "ajeetdsouza.zoxide",
+        "BurntSushi.ripgrep.MSVC",
         "dandavison.delta",
         "Debian.Debian",
         "direnv.direnv",
@@ -204,6 +205,7 @@ function Install-Packages {
         "Microsoft.WindowsTerminal",
         "Neovim.Neovim",
         "openssl",
+        "sharkdp.bat",
         "Starship.Starship",
         "topgrade-rs.topgrade",
         "zyedidia.micro"
