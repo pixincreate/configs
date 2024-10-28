@@ -32,16 +32,6 @@ function Write-Prompt($question) {
 # Function to test internet connectivity
 function Test-InternetConnection {
     try {
-        Test-Connection -ComputerName www.duck.com -Count 1 -ErrorAction Stop
-        return $true
-    } catch {
-        Show-Warning "Internet connection is required but not available. Please check your connection."
-        return $false
-    }
-}
-
-function Test-InternetConnection {
-    try {
         $webClient = New-Object System.Net.WebClient
         $webClient.DownloadString("http://duck.com") | Out-Null
         return $true
@@ -401,15 +391,16 @@ function main {
             & $executor  # Call the function
         } else {
             Show-Error "Function $executor does not exist!"
-            Write-Host @"Available functions:
-                Get-Configs
-                Install-Font
-                Install-Packages
-                Disable-Ads
-                Restore-Data
-                Set-DeveloperEnvironment
-                Install-WSL
-            "@
+            Write-Host @"
+Available functions:
+Get-Configs
+Install-Font
+Install-Packages
+Disable-Ads
+Restore-Data
+Set-DeveloperEnvironment
+Install-WSL
+"@
         }
     }
 }
