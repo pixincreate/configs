@@ -33,7 +33,7 @@ function Update-Profile {
     try {
         $profileUpdated = $false
         $url = "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1"
-        
+
         $profilePaths = @()
         if ($PSVersionTable.PSEdition -eq "Core") {
             $profilePaths += "$env:userprofile\Documents\PowerShell"
@@ -60,7 +60,7 @@ function Update-Profile {
                 $profileUpdated = $true
             }
         }
-        
+
         if (-not $profileUpdated) {
             Write-Host "`rProfile is up to date!".PadRight(100, " ") -ForegroundColor Green
         }
@@ -169,7 +169,7 @@ function winutil() {
 }
 
 function Update-Applications {
-    winget update --all --accept-source-agreements --accept-package-agreements 
+    winget update --all --accept-source-agreements --accept-package-agreements --source winget
 }
 Set-Alias -Name winup -Value Update-Applications
 
@@ -862,7 +862,7 @@ $PSReadLineOptions = @{
     PredictionViewStyle = 'ListView'
     MaximumHistoryCount = 9999999
     BellStyle = 'None'  # Consider changing to 'Sound' or 'Visual'
-    AddToHistoryHandler = @{
+    AddToHistoryHandler = {
         param($line)
         $sensitive = @('password', 'secret', 'token', 'apikey', 'connectionstring')
         $hasSensitive = $sensitive | Where-Object { $line -match [regex]::Escape($_) }
@@ -903,7 +903,7 @@ $scriptblock = {
         'npm' = @('install', 'start', 'run', 'test', 'build')
         'cargo' = @('r', 'b', 'clippy', 'fmt')
     }
-    
+
     $command = $commandAst.CommandElements[0].Value
     if ($customCompletions.ContainsKey($command)) {
         $customCompletions[$command] | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {

@@ -1,8 +1,12 @@
 #Requires -RunAsAdministrator
 
+param (
+    [string[]]$setupParams
+)
+
 # DECLARATIONS
 # These values can be overrided by exporting them in the shell as environment variables
-$REPO_URL="https://github.com/pixincreate/configs.git"
+$REPO_URL="https://github.com/pixincreate/configs"
 
 $GITCONFIG_EMAIL="69745008+pixincreate@users.noreply.github.com"
 $GITCONFIG_USERNAME="PiX"
@@ -32,6 +36,16 @@ function Test-InternetConnection {
         return $true
     } catch {
         Show-Warning "Internet connection is required but not available. Please check your connection."
+        return $false
+    }
+}
+
+function Test-InternetConnection {
+    try {
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadString("http://duck.com") | Out-Null
+        return $true
+    } catch {
         return $false
     }
 }
@@ -66,21 +80,23 @@ function Disable-Ads {
 function Install-Font {
     try {
         [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-        $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
+        $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families | Select-Object -ExpandProperty Name
 
         if ($fontFamilies -notcontains "FiraCode Nerd Font") {
             Show-Line "Installing FiraCode Nerd Font..."
 
             # Download and install FiraCode NerdFont
+            $zipPath = ".\FiraCode.zip"
             $webClient = New-Object System.Net.WebClient
-            $webClient.DownloadFileAsync((New-Object System.Uri("https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip")), ".\FiraCode.zip")
+            $webClient.DownloadFileAsync((New-Object System.Uri("https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip")), $zipPath)
 
             while ($webClient.IsBusy) {
                 Start-Sleep -Seconds 2
             }
 
-            Expand-Archive -Path ".\FiraCode.zip" -DestinationPath ".\FiraCode" -Force
+            Expand-Archive -Path $zipPath -DestinationPath ".\FiraCode" -Force
             $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
+
             Get-ChildItem -Path ".\FiraCode" -Recurse -Filter "*.ttf" | ForEach-Object {
                 If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {
                     $destination.CopyHere($_.FullName, 0x10)
@@ -89,10 +105,15 @@ function Install-Font {
 
             # Clean up
             Remove-Item -Path ".\FiraCode" -Recurse -Force
-            Remove-Item -Path ".\FiraCode.zip" -Force
+            Remove-Item -Path $zipPath -Force
+        } else {
+            Show-Line "FiraCode Nerd Font is already installed."
         }
     } catch {
         Show-Error "Failed to download or install the FiraCode Nerd font. Error: $_"
+        if (Test-Path $zipPath) {
+            Remove-Item -Path $zipPath -Force
+        }
     }
 }
 
@@ -125,7 +146,7 @@ function Install-Package {
     foreach ($packageName in $packageNames) {
         try {
             Show-Line "Installing package '$packageName'..."
-            winget install $packageName --accept-source-agreements --accept-package-agreements
+            winget install $packageName --accept-source-agreements --accept-package-agreements --source winget
         } catch {
             Show-Error "Failed to install package '$packageName'. Error: $_"
         }
@@ -139,7 +160,7 @@ function Install-Packages {
         "Terminal-Icons",
         "WslInterop"
     )
-    $packages = @(  
+    $packages = @(
         # Applications
         "Giorgiotani.Peazip",
         "Bitwarden.Bitwarden",
@@ -215,7 +236,7 @@ function Install-Packages {
 
 function Get-Configs {
     Show-Line "Downloading the configs..."
-    git clone "$REPO_URL" "$env:userprofile\Desktop\configs"
+    git clone "$REPO_URL.git" "$env:userprofile\Desktop\configs"
     Set-Location "$env:userprofile\Desktop\configs"
 
     Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
@@ -223,12 +244,12 @@ function Get-Configs {
 
 function Restore-Data {
     Show-Line "Restoring developer data..."
-    
-    Copy-Item -Path ".home\.config\*" -Destination "$HOME\.config" -Recurse -Force
-    Copy-Item -Path ".home\.ssh\*" -Destination "$HOME\.ssh" -Recurse -Force
-    Copy-Item -Path ".home\Code\*" -Destination "$env:APPDATA\Code\User" -Recurse -Force
-    
-    Copy-Item -Path ".home\.gitconfig" -Destination "$HOME\.gitconfig" -Force
+
+    Copy-Item -Path "./home/.config/*" -Destination "$HOME\.config" -Recurse -Force
+    Copy-Item -Path "./home/.ssh/*" -Destination "$HOME\.ssh" -Recurse -Force
+    Copy-Item -Path "./home/Code/*" -Destination "$env:APPDATA\Code\User" -Recurse -Force
+
+    Copy-Item -Path "./home/.gitconfig" -Destination "$HOME\.gitconfig" -Force
 }
 
 
@@ -253,7 +274,7 @@ function Restore-Profile {
             }
 
             # Download PowerShell profile from GitHub
-            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1" -OutFile "$PROFILE"
+            Invoke-RestMethod "$REPO_URL/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1" -OutFile "$PROFILE"
             Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1"
 
             Show-Line "The profile @ [$PROFILE] has been created."
@@ -269,9 +290,9 @@ function Restore-Profile {
                 New-Item -Path "$profilePath\Modules" -ItemType "directory"
             }
 
-            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard.ps1" -OutFile "$profilePath\Modules\vanguard.ps1"
-            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/modules/vanguard_scheduler.ps1" -OutFile "$profilePath\Modules\vanguard_scheduler.ps1"
-            
+            Invoke-RestMethod "$REPO_URL/raw/main/windows/powershell/modules/vanguard.ps1" -OutFile "$profilePath\Modules\vanguard.ps1"
+            Invoke-RestMethod "$REPO_URL/raw/main/windows/powershell/modules/vanguard_scheduler.ps1" -OutFile "$profilePath\Modules\vanguard_scheduler.ps1"
+
             Show-Line "Installation of Rootkit (Vanguard) controller completed."
 
             $setupScheduler = Write-Prompt "Do you want to set up a scheduler task to disable Vanguard after gameplay"
@@ -289,7 +310,7 @@ function Restore-Profile {
         # Backup the old profile and update the profile forcefully if it exist already
         try {
             Get-Item -Path $PROFILE | Move-Item -Destination "oldProfile.ps1" -Force
-            Invoke-RestMethod "https://github.com/pixincreate/configs/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1" -OutFile "$PROFILE"
+            Invoke-RestMethod "$REPO_URL/raw/main/windows/powershell/Microsoft.PowerShell_profile.ps1" -OutFile "$PROFILE"
             Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1"
 
             Show-Line "The profile @ [$PROFILE] has been created and old profile backed up."
@@ -363,19 +384,34 @@ function Install-WSL {
 }
 
 function main {
-    
     # Check for internet connectivity before proceeding
     if (-not (Test-InternetConnection)) {
-        break
+        Show-Line "No internet connection. Exiting."
+        return
     }
 
-    Install-Font
-    Install-Packages
-    Get-Configs
-    Disable-Ads
-    Restore-Data
-    Set-DeveloperEnvironment
-    Install-WSL
+    # If no specific functions are provided, run all
+    if (-not $setupParams) {
+        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Disable-Ads", "Restore-Data", "Set-DeveloperEnvironment", "Install-WSL")
+    }
+
+    foreach ($executor in $setupParams) {
+        if (Get-Command $executor -ErrorAction SilentlyContinue) {
+            Show-Line "Running $executor..."
+            & $executor  # Call the function
+        } else {
+            Show-Error "Function $executor does not exist!"
+            Show-Line @"Available functions:
+                Get-Configs
+                Install-Font
+                Install-Packages
+                Disable-Ads
+                Restore-Data
+                Set-DeveloperEnvironment
+                Install-WSL
+            "@
+        }
+    }
 }
 
 # Call the main function
