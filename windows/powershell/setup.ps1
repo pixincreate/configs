@@ -401,7 +401,7 @@ function main {
             & $executor  # Call the function
         } else {
             Show-Error "Function $executor does not exist!"
-            Show-Line @"Available functions:
+            Write-Host @"Available functions:
                 Get-Configs
                 Install-Font
                 Install-Packages
