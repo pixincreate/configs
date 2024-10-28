@@ -9,7 +9,7 @@ filemode = true
 [user]
 email = example@email.com
 name = username
-signingkey = "~/.ssh/signingkey"
+signingkey = ~/.ssh/signingkey
 
 [color]
 ui = true

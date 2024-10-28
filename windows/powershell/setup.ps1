@@ -10,7 +10,9 @@ $REPO_URL="https://github.com/pixincreate/configs"
 
 $GITCONFIG_EMAIL="69745008+pixincreate@users.noreply.github.com"
 $GITCONFIG_USERNAME="PiX"
-$GITCONFIG_SIGNGING_KEY="~/.ssh/id_ed25519_sign.pub"
+$GITCONFIG_SIGNING_KEY="~/.ssh/id_ed25519_sign.pub"
+
+$RESTORE_DATA = $false
 
 # Functions to print a message with a timestamp
 function Show-Error {
@@ -29,6 +31,14 @@ function Write-Prompt($question) {
     Read-Host -Prompt $question"? (y/n). Default (y)"
 }
 
+function Check-PWD {
+    if ( -not (Split-Path -Leaf (Get-Location).Path) -eq "configs" ) {
+        Show-Error "Please run the script from the 'configs' directory."
+        exit
+    }
+
+}
+
 # Function to test internet connectivity
 function Test-InternetConnection {
     try {
@@ -42,6 +52,8 @@ function Test-InternetConnection {
 
 # Disable Ads and Trackers in Windows
 function Disable-Ads {
+    Check-PWD
+
     $disableAds = Write-Prompt "Do you want to disable ads in Windows 11 with OFGB (Oh Frick Go Back)"
     if (-not ($disableAds -eq "n")) {
         # Download and run OFGB
@@ -188,7 +200,7 @@ function Install-Packages {
         "Google.AndroidStudio",
         "JetBrains.IntelliJIDEA.Community",
         "JetBrains.PyCharm.Community",
-        "Microsoft.VisualStudioCode.Insiders",
+        "Microsoft.VisualStudioCode",
 
         # Languages
         "Microsoft.VisualStudio.2022.BuildTools",
@@ -207,7 +219,6 @@ function Install-Packages {
         "ajeetdsouza.zoxide",
         "BurntSushi.ripgrep.MSVC",
         "dandavison.delta",
-        "Debian.Debian",
         "direnv.direnv",
         "eza-community.eza",
         "gerardog.gsudo",
@@ -219,6 +230,10 @@ function Install-Packages {
         "Starship.Starship",
         "topgrade-rs.topgrade",
         "zyedidia.micro"
+
+        # WSL
+        "Debian.Debian",
+        "Microsoft.WSL"
     )
 
     Install-Module -moduleNames $modules
@@ -234,6 +249,8 @@ function Get-Configs {
 }
 
 function Restore-Data {
+    Check-PWD
+
     Show-Line "Restoring developer data..."
 
     Copy-Item -Path "./home/.config/*" -Destination "$HOME\.config" -Recurse -Force
@@ -241,6 +258,9 @@ function Restore-Data {
     Copy-Item -Path "./home/Code/*" -Destination "$env:APPDATA\Code\User" -Recurse -Force
 
     Copy-Item -Path "./home/.gitconfig" -Destination "$HOME\.gitconfig" -Force
+
+    Show-Line "Developer data restored."
+    $RESTORE_DATA = $true
 }
 
 
@@ -322,7 +342,7 @@ function Update-GitConfigData {
     # Update the email and username in the Git config
     $gitConfigContent = $gitConfigContent -replace 'email = example@email.com', "email = $GITCONFIG_EMAIL"
     $gitConfigContent = $gitConfigContent -replace 'name = username', "name = $GITCONFIG_USERNAME"
-    $gitConfigContent = $gitConfigContent -replace 'signingkey = ~/.ssh/signingkey', "signingkey = $GITCONFIG_SIGNGING_KEY"
+    $gitConfigContent = $gitConfigContent -replace 'signingkey = ~/.ssh/signingkey', "signingkey = $GITCONFIG_SIGNING_KEY"
 
     # Write the updated content back to the Git config file
     $gitConfigContent | Set-Content -Path $gitConfigPath
@@ -332,11 +352,18 @@ function Update-GitConfigData {
 }
 
 function Set-DeveloperEnvironment {
+    Check-PWD
+
+    if (-not $RESTORE_DATA) {
+        Show-Warning "Developer data has not been restored. Restoring data prior to setting up the developer environment."
+        Restore-Data
+    }
+
     # Terminal Setup
     Show-Line "Setting up the terminal..."
-    & ".\windows\powershell\modules\file_copy.ps1" -sourceDirectory ".\home\.config\wt\LocalState\" -destinationBaseDirectory "$env:userprofile\AppData\Local\Packages\" -pattern "Microsoft.WindowsTerminal_*" -fileName "settings.json"
+    Copy-Item -Path "./home/.config/wt/LocalState/settings.json" -Destination "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json" -Force
 
-    # Create the .config directory if it doesn't exist
+# Create the .config directory if it doesn't exist
     Show-Line "Creating configs..."
     if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
         New-Item -Path "$env:userprofile\.config" -ItemType Directory
@@ -367,8 +394,8 @@ function Set-DeveloperEnvironment {
     Restore-Profile
 }
 
-function Install-WSL {
-    Show-Line "Installing Debian WSL..."
+function Setup-WSL {
+    Show-Line "Setting up Debian WSL..."
 
     # Directly call `debian` wsl because winget has already installed wsl and Debian
     debian
@@ -383,7 +410,7 @@ function main {
 
     # If no specific functions are provided, run all
     if (-not $setupParams) {
-        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Disable-Ads", "Restore-Data", "Set-DeveloperEnvironment", "Install-WSL")
+        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Disable-Ads", "Restore-Data", "Set-DeveloperEnvironment", "Setup-WSL")
     }
 
     foreach ($executor in $setupParams) {
@@ -400,7 +427,7 @@ Install-Packages
 Disable-Ads
 Restore-Data
 Set-DeveloperEnvironment
-Install-WSL
+Setup-WSL
 "@
         }
     }
