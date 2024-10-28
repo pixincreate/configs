@@ -242,8 +242,8 @@ function Install-Packages {
 
 function Get-Configs {
     Show-Line "Downloading the configs..."
-    git clone "$REPO_URL.git" "$env:userprofile\Desktop\configs"
-    Set-Location "$env:userprofile\Desktop\configs"
+    git clone "$REPO_URL.git" "$env:userprofile\Downloads\configs"
+    Set-Location "$env:userprofile\Downloads\configs"
 
     Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
 }
