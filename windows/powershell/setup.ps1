@@ -177,6 +177,7 @@ function Install-Packages {
         "Git.Git",
         "Hugo.Hugo.Extended",
         "Kitware.CMake",
+        "Microsoft.DotNet.DesktopRuntime.8",
         "OpenJS.NodeJS.LTS",
         "Microsoft.PowerToys",
 
