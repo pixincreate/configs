@@ -361,7 +361,11 @@ function Set-DeveloperEnvironment {
 
     # Terminal Setup
     Show-Line "Setting up the terminal..."
-    Copy-Item -Path "./home/.config/wt/LocalState/settings.json" -Destination "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json" -Force
+    if ($RESTORE_DATA) {
+        Move-Item -Path "$env:userprofile/.config/wt/LocalState/settings.json" -Destination "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json" -Force
+    } else {
+        Copy-Item -Path "./home/.config/wt/LocalState/settings.json" -Destination "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json" -Force
+    }
 
 # Create the .config directory if it doesn't exist
     Show-Line "Creating configs..."
