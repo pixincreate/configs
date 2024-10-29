@@ -44,7 +44,7 @@ function Update-Profile {
 
         foreach ($profilePath in $profilePaths) {
             $profileFile = Join-Path $profilePath "Microsoft.Powershell_profile.ps1"
-            $oldHash = Get-ValidatedFileHash - filePath $profileFile
+            $oldHash = Get-ValidatedFileHash -filePath $profileFile
 
             $newFileName = $(Split-Path -Leaf $url)
             Invoke-RestMethod $url -OutFile "$env:temp/$newFileName"
@@ -53,8 +53,8 @@ function Update-Profile {
             if ($newHash.Hash -ne $oldHash.Hash) {
                 Copy-Item -Path "$env:temp/$newFileName" -Destination $oldHash.Path -Force
 
-                if ($oldHash.Path -eq $PROFILE) {
-                    Copy-Item -Path "$PROFILE" -Destination "$profilePath\Microsoft.VSCode_profile.ps1" -Force
+                if ($profileFile -eq $PROFILE) {
+                    Copy-Item -Path $PROFILE -Destination "$profilePath\Microsoft.VSCode_profile.ps1" -Force
                 }
                 Write-Host -NoNewLine "`rPlease restart your shell to reflect changes".PadRight(100, " ") -ForegroundColor Magenta
                 $profileUpdated = $true
