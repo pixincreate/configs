@@ -96,7 +96,15 @@ function Grant-AdminAccess {
 # Set UNIX-like aliases for the admin command, so sudo <command> will run the command with elevated rights.
 Set-Alias -Name su -Value Grant-AdminAccess
 
-# Editor Configuration
+### Editor Configuration
+
+# Check for existence of command
+function Test-CommandExists {
+    param($command)
+    $exists = $null -ne (Get-Command $command -ErrorAction SilentlyContinue)
+    return $exists
+}
+
 $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
           elseif (Test-CommandExists pvim) { 'pvim' }
           elseif (Test-CommandExists vim) { 'vim' }
@@ -111,11 +119,6 @@ Set-Alias -Name code -Value "code-insiders"
 Set-Alias -Name vi -Value $EDITOR
 
 # Utility Functions
-function Test-CommandExists {
-    param($command)
-    $exists = $null -ne (Get-Command $command -ErrorAction SilentlyContinue)
-    return $exists
-}
 
 function Edit-Profile {
     vim $PROFILE.CurrentUserAllHosts

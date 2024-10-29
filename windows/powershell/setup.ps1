@@ -130,6 +130,7 @@ function Install-Module {
             if (-not(Get-Module -Name $moduleName -ListAvailable)) {
                 Show-Line "Installing module '$moduleName'..."
                 Install-Module -Name $moduleName -Repository PSGallery -Force -ErrorAction Stop
+                Show-Line "Module '$moduleName' installed successfully."
             } else {
                 Show-Line "Module '$moduleName' is already installed."
             }
@@ -148,6 +149,8 @@ function Install-Package {
     foreach ($packageName in $packageNames) {
         try {
             Show-Line "Installing package '$packageName'..."
+            # If `time and region` is set to world during initial setup, `msstore` does not work.
+            # winget first looks at `msstore` and fails installing. Hence, we hard code the `source`
             winget install $packageName --accept-source-agreements --accept-package-agreements --source winget
         } catch {
             Show-Error "Failed to install package '$packageName'. Error: $_"
@@ -230,10 +233,6 @@ function Install-Packages {
         "Starship.Starship",
         "topgrade-rs.topgrade",
         "zyedidia.micro"
-
-        # WSL
-        "Debian.Debian",
-        "Microsoft.WSL"
     )
 
     Install-Module -moduleNames $modules
@@ -253,16 +252,42 @@ function Restore-Data {
 
     Show-Line "Restoring developer data..."
 
-    Copy-Item -Path "./home/.config/*" -Destination "$HOME\.config" -Recurse -Force
-    Copy-Item -Path "./home/.ssh/*" -Destination "$HOME\.ssh" -Recurse -Force
-    Copy-Item -Path "./home/Code/*" -Destination "$env:APPDATA\Code\User" -Recurse -Force
+    # Define paths
+    $configSrc = "./home/.config"
+    $sshSrc = "./home/.ssh"
+    $codeSrc = "./home/Code"
+    $gitConfigSrc = "./home/.gitconfig"
 
-    Copy-Item -Path "./home/.gitconfig" -Destination "$HOME\.gitconfig" -Force
+    # Copy .config if it doesn't exist
+    if (-not (Test-Path "$HOME\.config")) {
+        Copy-Item -Path $configSrc -Destination "$HOME\.config" -Recurse -Force
+    } else {
+        Show-Line "Handling individual `config` files and directories..."
+        Copy-Item -Path "$configSrc/*" -Destination "$HOME\.config" -Recurse -Force
+    }
+
+    # Copy .ssh if it doesn't exist
+    if (-not (Test-Path "$HOME\.ssh")) {
+        Copy-Item -Path $sshSrc -Destination "$HOME\.ssh" -Recurse -Force
+    } else {
+        Show-Line "Handling individual `ssh` files and directories..."
+        Copy-Item -Path "$sshSrc/*" -Destination "$HOME\.ssh" -Recurse -Force
+    }
+
+    # Copy Code User settings
+    if (-not (Test-Path "$env:APPDATA\Code\User")) {
+        Copy-Item -Path $codeSrc -Destination "$env:APPDATA\Code\User" -Recurse -Force
+    } else {
+        Show-Line "Handling individual `Code` files and directories..."
+        Copy-Item -Path "$codeSrc/*" -Destination "$env:APPDATA\Code\User" -Recurse -Force
+    }
+
+    # Copy .gitconfig
+    Copy-Item -Path $gitConfigSrc -Destination "$HOME\.gitconfig" -Force
 
     Show-Line "Developer data restored."
     $RESTORE_DATA = $true
 }
-
 
 function Restore-Profile {
     # Powershell 7 is recommended to be the default. Execute Winutil to set Powershell 7 as default in a click
@@ -367,7 +392,7 @@ function Set-DeveloperEnvironment {
         Copy-Item -Path "./home/.config/wt/LocalState/settings.json" -Destination "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json" -Force
     }
 
-# Create the .config directory if it doesn't exist
+    # Create the .config directory if it doesn't exist
     Show-Line "Creating configs..."
     if (-not (Test-Path -Path "$env:userprofile\.config" -PathType Container)) {
         New-Item -Path "$env:userprofile\.config" -ItemType Directory
@@ -398,11 +423,15 @@ function Set-DeveloperEnvironment {
     Restore-Profile
 }
 
-function Setup-WSL {
-    Show-Line "Setting up Debian WSL..."
+# Function to install LSW (Linux Subsystem for Windows it is.)
+function Setup-LSW {
+    Show-Line "Setting up Debian LSW (Linux Subsystem for Windows)..."
 
-    # Directly call `debian` wsl because winget has already installed wsl and Debian
-    debian
+    wsl --install -d Debian
+    wsl --set-default Debian
+
+    Show-Line "Set up your LSW by executing dotfiles.sh to set up Debian:"
+    Show-Line "sudo apt-get update && sudo apt-get install -y curl git wget zsh && curl -sSL https://github.com/pixincreate/configs/blob/main/unix/setup.sh | bash"
 }
 
 function main {
