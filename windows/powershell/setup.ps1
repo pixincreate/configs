@@ -151,7 +151,12 @@ function Install-Package {
             Show-Line "Installing package '$packageName'..."
             # If `time and region` is set to world during initial setup, `msstore` does not work.
             # winget first looks at `msstore` and fails installing. Hence, we hard code the `source`
-            winget install $packageName --accept-source-agreements --accept-package-agreements --source winget
+            if ($packageName -eq "Microsoft.VisualStudioCode") {
+                Show-Line "Installing VSCode to `machine` while ensuring Path and Shell integration"
+                winget install --id=$packageName -e --accept-source-agreements --accept-package-agreements --source winget --override '/VERYSILENT /SP- /MERGETASKS="!runcode,!desktopicon,addcontextmenufiles,addcontextmenufolders,associatewithfiles,addtopath"'
+            } else {
+                winget install --id=$packageName -e --accept-source-agreements --accept-package-agreements --source winget
+            }
         } catch {
             Show-Error "Failed to install package '$packageName'. Error: $_"
         }
@@ -213,6 +218,7 @@ function Install-Packages {
         "zig.zig",
 
         # Networking tools
+        "NTKERNEL.WireSockVPNClient",
         "Safing.Portmaster",
 
         # Terminal

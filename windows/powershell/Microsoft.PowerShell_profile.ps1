@@ -115,7 +115,6 @@ $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
           elseif (Test-CommandExists sublime_text) { 'sublime_text' }
           else { 'notepad' }
 
-Set-Alias -Name code -Value "code-insiders"
 Set-Alias -Name vi -Value $EDITOR
 
 # Utility Functions
