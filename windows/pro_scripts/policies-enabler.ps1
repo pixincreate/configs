@@ -1,14 +1,17 @@
+# Retrieve the relevant .mum files and install them using DISM
 Get-ChildItem @(
-     "C:\Windows\servicing\Packages\Microsoft-Windows-GroupPolicy-ClientTools-Package*.mum",
-     "C:\Windows\servicing\Packages\Microsoft-Windows-GroupPolicy-ClientExtensions-Package*.mum",
-     "C:\Windows\servicing\Packages\*Hyper-V*.mum"
-) | ForEach-Object { 
-    DISM.exe /online /norestart /add-package:"$_" 
+    "C:\Windows\servicing\Packages\Microsoft-Windows-GroupPolicy-ClientTools-Package*.mum",
+    "C:\Windows\servicing\Packages\Microsoft-Windows-GroupPolicy-ClientExtensions-Package*.mum",
+    "C:\Windows\servicing\Packages\*Hyper-V*.mum"
+) | ForEach-Object {
+    DISM.exe /online /norestart /add-package:"$($_.FullName)"
 }
 
-DISM.exe /online /add-capability /CapabilityName:Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0
-DISM.exe /online /enable-feature /featurename:Microsoft-Hyper-V -All /LimitAccess /ALL
+# Enable Hyper-V Feature
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
-Get-WindowsCapability -Name RSAT* -Online | where State -EQ NotPresent | Add-WindowsCapability –Online
+# Add RSAT capabilities
+Add-WindowsCapability -Online -Name Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0
 
-pause
+# Pause for output
+Pause
