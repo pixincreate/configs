@@ -31,7 +31,7 @@ function Write-Prompt($question) {
     Read-Host -Prompt $question"? (y/n). Default (y)"
 }
 
-function Check-PWD {
+function Test-PWD {
     if ( -not (Split-Path -Leaf (Get-Location).Path) -eq "configs" ) {
         Show-Error "Please run the script from the 'configs' directory."
         exit
@@ -51,8 +51,8 @@ function Test-InternetConnection {
 }
 
 # Disable Ads and Trackers in Windows
-function Debloat-Windows {
-    Check-PWD
+function Debloat {
+    Test-PWD
 
     $disableAds = Write-Prompt "Do you want to disable ads in Windows 11 with OFGB (Oh Frick Go Back)"
     if (-not ($disableAds -eq "n")) {
@@ -264,7 +264,7 @@ function Get-Configs {
 }
 
 function Restore-Data {
-    Check-PWD
+    Test-PWD
 
     Show-Line "Restoring developer data..."
 
@@ -393,7 +393,7 @@ function Update-GitConfigData {
 }
 
 function Set-DeveloperEnvironment {
-    Check-PWD
+    Test-PWD
 
     if (-not $RESTORE_DATA) {
         Show-Warning "Developer data has not been restored. Restoring data prior to setting up the developer environment."
@@ -440,7 +440,7 @@ function Set-DeveloperEnvironment {
 }
 
 # Function to install LSW (Linux Subsystem for Windows it is.)
-function Setup-LSW {
+function Install-LSW {
     Show-Line "Setting up Debian LSW (Linux Subsystem for Windows)..."
 
     wsl --install -d Debian
@@ -459,7 +459,7 @@ function main {
 
     # If no specific functions are provided, run all
     if (-not $setupParams) {
-        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Debloat-Windows", "Restore-Data", "Set-DeveloperEnvironment", "Setup-WSL")
+        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Debloat", "Restore-Data", "Set-DeveloperEnvironment", "Install-LSW")
     }
 
     foreach ($executor in $setupParams) {
@@ -473,10 +473,10 @@ Available functions:
 Get-Configs
 Install-Font
 Install-Packages
-Debloat-Windows
+Debloat
 Restore-Data
 Set-DeveloperEnvironment
-Setup-WSL
+Install-LSW
 "@
         }
     }
