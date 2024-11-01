@@ -6,11 +6,11 @@ param (
 
 # DECLARATIONS
 # These values can be overrided by exporting them in the shell as environment variables
-$REPO_URL="https://github.com/pixincreate/configs"
+$REPO_URL = "https://github.com/pixincreate/configs"
 
-$GITCONFIG_EMAIL="69745008+pixincreate@users.noreply.github.com"
-$GITCONFIG_USERNAME="PiX"
-$GITCONFIG_SIGNING_KEY="~/.ssh/id_ed25519_sign.pub"
+$GITCONFIG_EMAIL = "69745008+pixincreate@users.noreply.github.com"
+$GITCONFIG_USERNAME = "PiX"
+$GITCONFIG_SIGNING_KEY = "~/.ssh/id_ed25519_sign.pub"
 
 $RESTORE_DATA = $false
 
@@ -184,6 +184,7 @@ function Install-Packages {
         "Giorgiotani.Peazip",
         "Bitwarden.Bitwarden",
         "LocalSend.LocalSend",
+        "Nvidia.GeForceExperience", # There exist no open source alternative for this
         "Obsidian.Obsidian",
         "OBSProject.OBSStudio",
         "ONLYOFFICE.DesktopEditors",

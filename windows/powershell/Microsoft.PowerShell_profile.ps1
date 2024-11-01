@@ -106,14 +106,14 @@ function Test-CommandExists {
 }
 
 $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
-          elseif (Test-CommandExists pvim) { 'pvim' }
-          elseif (Test-CommandExists vim) { 'vim' }
-          elseif (Test-CommandExists vi) { 'vi' }
-          elseif (Test-CommandExists code) { 'code' }
-          elseif (Test-CommandExists code-insiders) { 'code' }
-          elseif (Test-CommandExists notepad++) { 'notepad++' }
-          elseif (Test-CommandExists sublime_text) { 'sublime_text' }
-          else { 'notepad' }
+elseif (Test-CommandExists pvim) { 'pvim' }
+elseif (Test-CommandExists vim) { 'vim' }
+elseif (Test-CommandExists vi) { 'vi' }
+elseif (Test-CommandExists code) { 'code' }
+elseif (Test-CommandExists code-insiders) { 'code' }
+elseif (Test-CommandExists notepad++) { 'notepad++' }
+elseif (Test-CommandExists sublime_text) { 'sublime_text' }
+else { 'notepad' }
 
 Set-Alias -Name vi -Value $EDITOR
 
@@ -151,8 +151,8 @@ function sysinfo { Get-ComputerInfo }
 
 # Networking Utilities
 function flushdns {
-	Clear-DnsClientCache
-	Write-Host "DNS has been flushed!"
+    Clear-DnsClientCache
+    Write-Host "DNS has been flushed!"
 }
 
 # Clipboard Utilities
@@ -191,7 +191,7 @@ function reload {
 
 function uptime {
     if ($PSVersionTable.PSVersion.Major -eq 5) {
-        Get-WmiObject win32_operatingsystem | Select-Object @{Name='LastBootUpTime'; Expression={$_.ConverttoDateTime($_.lastbootuptime)}} | Format-Table -HideTableHeaders
+        Get-WmiObject win32_operatingsystem | Select-Object @{Name = 'LastBootUpTime'; Expression = { $_.ConverttoDateTime($_.lastbootuptime) } } | Format-Table -HideTableHeaders
     } else {
         net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
     }
@@ -233,7 +233,7 @@ function which($name) {
 }
 
 function export($name, $value) {
-    set-item -force -path "env:$name" -value $value;
+    set-item -force -path "env:$name" -value $value
 }
 
 function pkill($name) {
@@ -245,13 +245,13 @@ function pgrep($name) {
 }
 
 function head {
-  param($Path, $n = 10)
-  Get-Content $Path -Head $n
+    param($Path, $n = 10)
+    Get-Content $Path -Head $n
 }
 
 function tail {
-  param($Path, $n = 10, [switch]$f = $false)
-  Get-Content $Path -Tail $n -Wait:$f
+    param($Path, $n = 10, [switch]$f = $false)
+    Get-Content $Path -Tail $n -Wait:$f
 }
 
 function mkdir {
@@ -283,7 +283,7 @@ function rmdir {
 }
 
 # Fucntion to show show hidden folders like .git
-function ls-hidden {
+function lsh {
     Get-ChildItem -Force | Where-Object { $_.Attributes -match 'Hidden' }
 }
 
@@ -321,7 +321,6 @@ function unhide {
 
     if (-not [string]::IsNullOrEmpty($name)) {
         # Unhide specific file or folder by searching for hidden items
-        $itemPath = Join-Path -Path (Get-Location) -ChildPath $name
         $item = Get-ChildItem -Path (Get-Location) -Filter $name -Force -ErrorAction SilentlyContinue
         if ($item) {
             # Remove attributes to unhide
@@ -701,10 +700,10 @@ if (-not $env:VSCODE) {
 
 function vsc {
     param (
-        [string[]]$args
+        [string[]]$vsc_args
     )
-    if ($args) {
-        & $env:VSCODE @args
+    if ($vsc_args) {
+        & $env:VSCODE @vsc_args
     } else {
         & $env:VSCODE .
     }
@@ -727,7 +726,7 @@ Set-Alias vscl "$env:VSCODE --log"
 Set-Alias vscde "$env:VSCODE --disable-extensions"
 
 ### fzf specific usecases
-$env:FZF_DEFAULT_OPTS=@"
+$env:FZF_DEFAULT_OPTS = @"
 --layout=reverse
 --cycle
 --scroll-off=5
@@ -743,77 +742,69 @@ $env:FZF_DEFAULT_OPTS=@"
 --bind ctrl-e:toggle-preview
 "@
 
-function _fzf_open_path
-{
-  param (
-    [Parameter(Mandatory=$true)]
-    [string]$input_path
-  )
-  if ($input_path -match "^.*:\d+:.*$")
-  {
-    $input_path = ($input_path -split ":")[0]
-  }
-  if (-not (Test-Path $input_path))
-  {
-    return
-  }
-  $cmds = @{
-    'bat' = { bat $input_path }
-    'cat' = { Get-Content $input_path }
-    'cd' = {
-      if (Test-Path $input_path -PathType Leaf)
-      {
-        $input_path = Split-Path $input_path -Parent
-      }
-      Set-Location $input_path
+function _fzf_open_path {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$input_path
+    )
+    if ($input_path -match "^.*:\d+:.*$") {
+        $input_path = ($input_path -split ":")[0]
     }
-    'nvim' = { nvim $input_path }
-    'remove' = { Remove-Item -Recurse -Force $input_path }
-    'echo' = { Write-Output $input_path }
-  }
-  $cmd = $cmds.Keys | fzf --prompt 'Select command> '
-  & $cmds[$cmd]
+    if (-not (Test-Path $input_path)) {
+        return
+    }
+    $cmds = @{
+        'bat'    = { bat $input_path }
+        'cat'    = { Get-Content $input_path }
+        'cd'     = {
+            if (Test-Path $input_path -PathType Leaf) {
+                $input_path = Split-Path $input_path -Parent
+            }
+            Set-Location $input_path
+        }
+        'nvim'   = { nvim $input_path }
+        'remove' = { Remove-Item -Recurse -Force $input_path }
+        'echo'   = { Write-Output $input_path }
+    }
+    $cmd = $cmds.Keys | fzf --prompt 'Select command> '
+    & $cmds[$cmd]
 }
 
-function _fzf_get_path_using_fd
-{
-  $input_path = fd --type file --follow --hidden --exclude .git |
+function _fzf_get_path_using_fd {
+    $input_path = fd --type file --follow --hidden --exclude .git |
     fzf --prompt 'Files> ' `
-      --header-first `
-      --header 'CTRL-S: Switch between Files/Directories' `
-      --bind 'ctrl-s:transform:if not "%FZF_PROMPT%"=="Files> " (echo ^change-prompt^(Files^> ^)^+^reload^(fd --type file^)) else (echo ^change-prompt^(Directory^> ^)^+^reload^(fd --type directory^))' `
-      --preview 'if "%FZF_PROMPT%"=="Files> " (bat --color=always {} --style=plain) else (eza -T --colour=always --icons=always {})'
-  return $input_path
+        --header-first `
+        --header 'CTRL-S: Switch between Files/Directories' `
+        --bind 'ctrl-s:transform:if not "%FZF_PROMPT%"=="Files> " (echo ^change-prompt^(Files^> ^)^+^reload^(fd --type file^)) else (echo ^change-prompt^(Directory^> ^)^+^reload^(fd --type directory^))' `
+        --preview 'if "%FZF_PROMPT%"=="Files> " (bat --color=always {} --style=plain) else (eza -T --colour=always --icons=always {})'
+    return $input_path
 }
 
-function _fzf_get_path_using_rg
-{
-  $INITIAL_QUERY = "${*:-}"
-  $RG_PREFIX = "rg --column --line-number --no-heading --color=always --smart-case"
-  $input_path = "" |
+function _fzf_get_path_using_rg {
+    $INITIAL_QUERY = "${*:-}"
+    $RG_PREFIX = "rg --column --line-number --no-heading --color=always --smart-case"
+    $input_path = "" |
     fzf --ansi --disabled --query "$INITIAL_QUERY" `
-      --bind "start:reload:$RG_PREFIX {q}" `
-      --bind "change:reload:sleep 0.1 & $RG_PREFIX {q} || rem" `
-      --bind 'ctrl-s:transform:if not "%FZF_PROMPT%" == "1. ripgrep> " (echo ^rebind^(change^)^+^change-prompt^(1. ripgrep^> ^)^+^disable-search^+^transform-query:echo ^{q^} ^> %TEMP%\rg-fzf-f ^& type %TEMP%\rg-fzf-r) else (echo ^unbind^(change^)^+^change-prompt^(2. fzf^> ^)^+^enable-search^+^transform-query:echo ^{q^} ^> %TEMP%\rg-fzf-r ^& type %TEMP%\rg-fzf-f)' `
-      --color 'hl:-1:underline,hl+:-1:underline:reverse' `
-      --delimiter ':' `
-      --prompt '1. ripgrep> ' `
-      --preview-label 'Preview' `
-      --header 'CTRL-S: Switch between ripgrep/fzf' `
-      --header-first `
-      --preview 'bat --color=always {1} --highlight-line {2} --style=plain' `
-      --preview-window 'up,60%,border-bottom,+{2}+3/3'
-  return $input_path
+        --bind "start:reload:$RG_PREFIX {q}" `
+        --bind "change:reload:sleep 0.1 & $RG_PREFIX {q} || rem" `
+        --bind 'ctrl-s:transform:if not "%FZF_PROMPT%" == "1. ripgrep> " (echo ^rebind^(change^)^+^change-prompt^(1. ripgrep^> ^)^+^disable-search^+^transform-query:echo ^{q^} ^> %TEMP%\rg-fzf-f ^& type %TEMP%\rg-fzf-r) else (echo ^unbind^(change^)^+^change-prompt^(2. fzf^> ^)^+^enable-search^+^transform-query:echo ^{q^} ^> %TEMP%\rg-fzf-r ^& type %TEMP%\rg-fzf-f)' `
+        --color 'hl:-1:underline,hl+:-1:underline:reverse' `
+        --delimiter ':' `
+        --prompt '1. ripgrep> ' `
+        --preview-label 'Preview' `
+        --header 'CTRL-S: Switch between ripgrep/fzf' `
+        --header-first `
+        --preview 'bat --color=always {1} --highlight-line {2} --style=plain' `
+        --preview-window 'up,60%,border-bottom,+{2}+3/3'
+    return $input_path
 }
 
-function fdg
-{
-  _fzf_open_path $(_fzf_get_path_using_fd)
+function fdg {
+    _fzf_open_path $(_fzf_get_path_using_fd)
 }
 
-function rgg
-{
-  _fzf_open_path $(_fzf_get_path_using_rg)
+function rgg {
+    _fzf_open_path $(_fzf_get_path_using_rg)
 }
 
 ### Vanguard Anti-Cheat Controller
@@ -845,29 +836,29 @@ function vanguard_scheduler($action) {
 ### Enhanced PowerShell Experience
 # Enhanced PSReadLine Configuration
 $PSReadLineOptions = @{
-    ContinuationPrompt  = '  '
-    EditMode = 'Windows'
-    HistoryNoDuplicates = $true
+    ContinuationPrompt            = '  '
+    EditMode                      = 'Windows'
+    HistoryNoDuplicates           = $true
     HistorySearchCursorMovesToEnd = $true
-    Colors = @{
-        Command = '#87CEEB'  # SkyBlue (pastel)
-        Parameter = '#98FB98'  # PaleGreen (pastel)
-        Operator = '#FFB6C1'  # LightPink (pastel)
-        Variable = '#DDA0DD'  # Plum (pastel)
-        String = '#FFDAB9'  # PeachPuff (pastel)
-        Number = '#B0E0E6'  # PowderBlue (pastel)
-        Type = '#F0E68C'  # Khaki (pastel)
-        Comment = '#D3D3D3'  # LightGray (pastel)
-        Keyword = '#8367c7'  # Violet (pastel)
-        Error = '#FF6347'  # Tomato
-        Selection = $PSStyle.Background.Black
+    Colors                        = @{
+        Command          = '#87CEEB'  # SkyBlue (pastel)
+        Parameter        = '#98FB98'  # PaleGreen (pastel)
+        Operator         = '#FFB6C1'  # LightPink (pastel)
+        Variable         = '#DDA0DD'  # Plum (pastel)
+        String           = '#FFDAB9'  # PeachPuff (pastel)
+        Number           = '#B0E0E6'  # PowderBlue (pastel)
+        Type             = '#F0E68C'  # Khaki (pastel)
+        Comment          = '#D3D3D3'  # LightGray (pastel)
+        Keyword          = '#8367c7'  # Violet (pastel)
+        Error            = '#FF6347'  # Tomato
+        Selection        = $PSStyle.Background.Black
         InLinePrediction = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
     }
-    PredictionSource = 'HistoryAndPlugin'
-    PredictionViewStyle = 'ListView'
-    MaximumHistoryCount = 9999999
-    BellStyle = 'None'  # Consider changing to 'Sound' or 'Visual'
-    AddToHistoryHandler = {
+    PredictionSource              = 'HistoryAndPlugin'
+    PredictionViewStyle           = 'ListView'
+    MaximumHistoryCount           = 9999999
+    BellStyle                     = 'None'  # Consider changing to 'Sound' or 'Visual'
+    AddToHistoryHandler           = {
         param($line)
         $sensitive = @('password', 'secret', 'token', 'apikey', 'connectionstring')
         $hasSensitive = $sensitive | Where-Object { $line -match [regex]::Escape($_) }
@@ -889,23 +880,23 @@ Set-PSReadLineKeyHandler -Chord 'Ctrl+z' -Function Undo
 Set-PSReadLineKeyHandler -Chord 'Ctrl+y' -Function Redo
 Set-PSReadLineKeyHandler -Chord 'Enter' -Function ValidateAndAcceptLine
 Set-PSReadLineKeyHandler -Key "Ctrl+f" -ScriptBlock {
-  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("fdg")
-  [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("fdg")
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
 }
 
 Set-PSReadLineKeyHandler -Key "Ctrl+g" -ScriptBlock {
-  [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-  [Microsoft.PowerShell.PSConsoleReadLine]::Insert("rgg")
-  [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("rgg")
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
 }
 
 # Custom completion for common commands
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
     $customCompletions = @{
-        'git' = @('status', 'add', 'commit', 'push', 'pull', 'clone', 'checkout')
-        'npm' = @('install', 'start', 'run', 'test', 'build')
+        'git'   = @('status', 'add', 'commit', 'push', 'pull', 'clone', 'checkout')
+        'npm'   = @('install', 'start', 'run', 'test', 'build')
         'cargo' = @('r', 'b', 'clippy', 'fmt')
     }
 
@@ -919,7 +910,7 @@ $scriptblock = {
 Register-ArgumentCompleter -Native -CommandName git, npm, cargo -ScriptBlock $scriptblock
 
 function Invoke-Starship-TransientFunction {
-  &starship module character
+    &starship module character
 }
 
 ### Invoke Expressions
