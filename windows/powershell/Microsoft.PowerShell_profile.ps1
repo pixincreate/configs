@@ -474,7 +474,7 @@ function gcl { git clone $args }
 # PowerShell points `gp` to Get-ItemProperty by default, we're changing that
 Remove-Item -Force Alias:gp -ErrorAction SilentlyContinue
 Set-Alias gip Get-ItemProperty
-function gp { git push }
+function gp { git push $args }
 
 function gco { git checkout $args }
 

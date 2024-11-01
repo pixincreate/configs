@@ -69,13 +69,21 @@ This repo contains all of my development configs. I never had a backup of these 
 
 ### If you're using a Windows PC, execute below command in [powershell](https://github.com/PowerShell/PowerShell)
 
+If this is a fresh Windows installation, it is recommended to re-do the Windows installation with `MicroWin`:
+
+1. Download the latest Windows 11 (recommended) ISO (international edition)
+2. Open winutil (in elevated powershell, execute the following command: `irm "christitus.com/win" | iex`) and go to `MicroWin` tab
+3. Follow the instructions (do not select any drivers or inject them)
+4. Wait until ISO is created. Use `Rufus` to make a bootable drive
+5. Re-do the installation by booting from USB (Change boot priority in `UEFI` menu)
+
 ```pwsh
 irm "https://github.com/pixincreate/configs/raw/main/windows/powershell/setup.ps1" | iex
 ```
 
-#### If you're using unix based OS, execute below in terminal (kitty, alacritty, iterm2 or any other terminal except the default one)
+### If you're using unix based OS, execute below in terminal (kitty, alacritty, iterm2 or any other terminal except the default one)
 
-By unix based OS I mean, WSL, Debian, or macOS
+Unix based OS here means, `WSL`, `Debian`, or `macOS`
 
 ```sh
 sudo apt-get update && sudo apt-get install -y curl git wget zsh && \

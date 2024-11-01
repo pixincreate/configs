@@ -51,7 +51,7 @@ function Test-InternetConnection {
 }
 
 # Disable Ads and Trackers in Windows
-function Disable-Ads {
+function Debloat-Windows {
     Check-PWD
 
     $disableAds = Write-Prompt "Do you want to disable ads in Windows 11 with OFGB (Oh Frick Go Back)"
@@ -75,6 +75,15 @@ function Disable-Ads {
         Show-Line "You can also run WinUtil from terminal directly by typing 'winutil' and pressing enter."
     } else {
         Show-Line "WinUtil execution skipped."
+    }
+
+    $debloat = Write-Prompt "Do you want to remove Phone Link app"
+
+    if (-not ($debloat -eq "n")) {
+        Show-Line "(requires elevation) Debloating your windows..."
+        Get-AppxPackage Microsoft.YourPhone -AllUsers | Remove-AppxPackage
+    } else {
+        Show-Line "Phone Link app is intact and untouched."
     }
 }
 
@@ -449,7 +458,7 @@ function main {
 
     # If no specific functions are provided, run all
     if (-not $setupParams) {
-        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Disable-Ads", "Restore-Data", "Set-DeveloperEnvironment", "Setup-WSL")
+        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Debloat-Windows", "Restore-Data", "Set-DeveloperEnvironment", "Setup-WSL")
     }
 
     foreach ($executor in $setupParams) {
@@ -463,7 +472,7 @@ Available functions:
 Get-Configs
 Install-Font
 Install-Packages
-Disable-Ads
+Debloat-Windows
 Restore-Data
 Set-DeveloperEnvironment
 Setup-WSL
