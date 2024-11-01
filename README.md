@@ -4,66 +4,7 @@ This repo contains all of my development configs. I never had a backup of these 
 
 ## Contents
 
-```txt
-.
-├── .gitignore                                      # git ignore file
-├── .gitmodules                                     # git submodules
-├── LICENSE                                         # license for this repo
-├── README.md                                       # this file
-├── docs
-│   └── vanguard.md                                 # vanguard controller documentation
-├── home
-│   ├── .config
-│   │   ├── alacritty
-│   │   │   └── alacritty.toml                      # my alacritty terminal settings
-│   │   ├── micro
-│   │   │   └── settings.json                       # my micro editor settings
-│   │   ├── tmux
-│   │   │   └── .tmux.conf                          # my tmux config
-│   │   └── wt
-│   │       └── LocalState
-│   │           └── settings.json                   # my windows terminal settings
-│   ├── .gitconfig
-│   ├── .ssh
-│   │   └── config                                  # my ssh config
-│   └── Code
-│       └── User
-│           └── settings.json                       # my vs_code settings
-├── unix
-│   ├── .zsh
-│   │   ├── .p10k.zsh                               # powerlevel10k zsh theme
-│   │   ├── .zshenv                                 # zsh environment file
-│   │   └── .zshrc                                  # zsh run commands file
-│   ├── .zshenv                                     # zsh environment file that exposes.zsh directory
-│   └── setup.sh                                    # automated environment setup that targets linux, android and mac
-└── windows
-    ├── powershell
-    │   ├── Microsoft.PowerShell_profile.ps1        # my powershell_profile configuration
-    │   ├── modules
-    │   │   ├── file_copy.ps1                       # a function to copy contents, especially terminal configs
-    │   │   ├── vanguard.ps1                        # a function to control vanguard execution
-    │   │   ├── vanguard_scheduler.ps1              # a function to schedule the disabling vanguard execution
-    │   │   └── wsl_install.cmd                     # this file is automatically run on restart to install Debian, deleted once installed
-    │   └── setup.ps1                               # powershell setup script
-    ├── pro_scripts
-    │   ├── gpedit-enabler.bat                      # enables group policy editor in windows_home
-    │   └── hyper-v-enabler.bat                     # enables hyper-v in windows_home
-    ├── registry_edits
-    │   └── folders-to-ThisPC
-    │       ├── add-folders-to-ThisPC.reg           # registry to add default folders at the top of `ThisPC`
-    │       └── remove-folders-from-ThisPC.reg      # registry to remove default folders from the top of `ThisPC`
-    ├── theme
-    │   └── pix-dynamc-theme.deskthemepack          # my desktop theme with added wallpaper
-    └── tools
-        ├── ofgb                                    # oh frick! go back! a tool to disable ads in windows, downloaded by setup.ps1
-        │   └── placeholder
-        └── winutil
-            ├── build.ps1                           # winutil builder script
-            ├── windows.ico                         # winutil icon
-            ├── winutil.exe                         # winutil executable
-            └── winutil.ps1                         # winutil powershell script
-
-```
+Check repo [tree](./docs/TREE.md) to get list of file contents.
 
 ## One line installer
 
@@ -104,7 +45,7 @@ pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
 
 #### Vanguard Controller
 
-To learn about what Vanguard controller is and how to use it, refer to [Vanguard Controller](./docs/vanguard.md)
+To learn about what Vanguard controller is and how to use it, refer to [Vanguard Controller](./docs/VANGUARD.md)
 
 ## Credits
 
