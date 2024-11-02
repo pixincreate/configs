@@ -162,7 +162,7 @@ additional_zshrc() {
         $(brew --prefix)/opt/gnu-getopt/bin
         $(brew --prefix)/opt/gnu-indent/libexec/gnubin
         $(brew --prefix)/opt/gnu-tar/libexec/gnubin
-        $(brew --prefix))/opt/binutils/bin
+        $(brew --prefix)/opt/binutils/bin
       )
 
       # Source init for Docker
@@ -184,8 +184,8 @@ additional_zshrc() {
         # WSL configurations
         export WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C '\''echo %USERPROFILE%'\'' | tr -d '\''\r'\'')")
 
-          export LDFLAGS="-L/$(brew --prefix)/opt/binutils/lib"
-          export CPPFLAGS="-I/$(brew --prefix)/opt/binutils/include"
+        export LDFLAGS="-L/$(brew --prefix)/opt/binutils/lib"
+        export CPPFLAGS="-I/$(brew --prefix)/opt/binutils/include"
         ' >> ~/.zsh/.additionals.zsh
         echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/.additionals.zsh
       fi
