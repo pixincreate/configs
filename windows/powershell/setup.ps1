@@ -444,7 +444,6 @@ function Install-LSW {
     Show-Line "Setting up Debian LSW (Linux Subsystem for Windows)..."
 
     wsl --install -d Debian
-    wsl --set-default Debian
 
     Show-Line "Set up your LSW by executing dotfiles.sh to set up Debian:"
     Show-Line "sudo apt-get update && sudo apt-get install -y curl git wget zsh && curl -sSL https://github.com/pixincreate/configs/blob/main/unix/setup.sh | bash"
