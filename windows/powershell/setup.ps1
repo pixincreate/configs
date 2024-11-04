@@ -136,9 +136,9 @@ function Install-Module {
 
     foreach ($moduleName in $moduleNames) {
         try {
-            if (-not(Get-Module -Name $moduleName -ListAvailable)) {
+            if (-not (Get-Module -Name $moduleName -ListAvailable)) {
                 Show-Line "Installing module '$moduleName'..."
-                Install-Module -Name $moduleName -Repository PSGallery -Force -ErrorAction Stop
+                & PowerShell -Command "Install-Module -Name '$moduleName' -Repository PSGallery -Force -ErrorAction Stop"
                 Show-Line "Module '$moduleName' installed successfully."
             } else {
                 Show-Line "Module '$moduleName' is already installed."
@@ -259,8 +259,6 @@ function Get-Configs {
     Show-Line "Downloading the configs..."
     git clone "$REPO_URL.git" "$env:userprofile\Downloads\configs"
     Set-Location "$env:userprofile\Downloads\configs"
-
-    Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1
 }
 
 function Restore-Data {
@@ -350,7 +348,7 @@ function Restore-Profile {
             $setupScheduler = Write-Prompt "Do you want to set up a scheduler task to disable Vanguard after gameplay"
             if (-not ($setupScheduler -eq "n")) {
                 try {
-                    Install-ScheduledTask $profilePath
+                    Import-Module .\windows\powershell\modules\vanguard_scheduler.ps1 -ArgumentList 'Install-ScheduledTask', $profilePath
                 } catch {
                     Show-Error "Failed to set up the scheduler task. Error: $_"
                 }

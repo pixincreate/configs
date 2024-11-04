@@ -1,18 +1,31 @@
-
 [CmdletBinding()]
 param (
-    $action
+    [string]$action = 'help'  # Default action
 )
 
 function Install-ScheduledTask {
+    param (
+        [string]$path  # Optional parameter for the path
+    )
+
+    if (-not $path) {
+        # Set paths depending on the version of PowerShell
+        if ($PSVersionTable.PSEdition -eq "Core") {
+            $path = "$env:userprofile\Documents\PowerShell\Modules"
+        } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+            $path = "$env:userprofile\Documents\WindowsPowerShell\Modules"
+        }
+    }
+
     Write-Host "Installing Scheduled Task..."
+
     # Create a new task action
     $taskName = 'VanguardController'
     $taskDescription = 'Control Vanguard Execution'
     $taskAction = New-ScheduledTaskAction `
         -Execute 'PowerShell' `
-        -Argument "C:\Users\${env:UserName}\Documents\PowerShell\Modules\vanguard.ps1 disable -isScheduledTask" `
-        -WorkingDirectory "C:\Users\${env:UserName}\Documents\PowerShell\Modules"
+        -Argument "$path\vanguard.ps1 disable -isScheduledTask" `
+        -WorkingDirectory $path
     $taskSettings = New-ScheduledTaskSettingsSet `
         -AllowStartIfOnBatteries `
         -DontStopIfGoingOnBatteries `
@@ -46,7 +59,6 @@ function Unregister-SchedulerTask {
     Unregister-ScheduledTask -TaskName 'VanguardController' -Confirm:$false
 }
 
-# Function to get the last n event logs
 function Get-EventLogs {
     param(
         [Parameter(Mandatory = $true)]
@@ -58,7 +70,7 @@ function Get-EventLogs {
 function help {
     Write-Host "Scheduler Module"
     Write-Host "----------------"
-    Write-Host "Install-ScheduledTask: Installs a scheduled task to disable Vanguard at 8PM and at logon (With a pop-up of course)."
+    Write-Host "Install-ScheduledTask: Installs a scheduled task to disable Vanguard at 8PM and at logon."
     Write-Host "Backup-SchedulerTask: Backs up the VanguardController scheduled task as `xml` in Module directory."
     Write-Host "Restore-SchedulerTask: Restores the VanguardController scheduled task."
     Write-Host "Unregister-SchedulerTask: Unregisters the VanguardController scheduled task."
@@ -73,7 +85,7 @@ function main {
 
     switch ($action) {
         'Install-ScheduledTask' {
-            Install-ScheduledTask
+            Install-ScheduledTask -path $path
         }
         'Backup-SchedulerTask' {
             Backup-SchedulerTask
