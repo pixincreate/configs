@@ -50,6 +50,7 @@ lose = !git reset --hard HEAD
 no-edit-force-push = !git add . && git commit --amend --no-edit && git push --force-with-lease
 undo = reset --soft HEAD^
 gfom = !git fomo
+unfuck = !git reset HEAD~1 --soft
 
 [delta]
 line-numbers = true
