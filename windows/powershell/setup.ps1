@@ -50,6 +50,36 @@ function Test-InternetConnection {
     }
 }
 
+function Disable-WindowsAIFeatures {
+    param (
+        [switch]$DisableWindowsCopilot,
+        [switch]$DisableWindowsAI
+    )
+
+    if ($DisableWindowsCopilot) {
+        # Create WindowsCopilot registry key and set the value if it doesn't exist
+        $copilotKeyPath = "HKLM:\Software\Policies\Microsoft\Windows\WindowsCopilot"
+        if (-not (Test-Path $copilotKeyPath)) {
+            New-Item -Path $copilotKeyPath -Force
+        }
+        New-ItemProperty -Path $copilotKeyPath -Name "TurnOffWindowsCopilot" -Value 1 -PropertyType DWord -Force
+        Show-Line "Windows Copilot has been disabled."
+    }
+    if ($DisableWindowsAI) {
+        # Create WindowsAI registry key and set the value if it doesn't exist
+        $aiKeyPath = "HKLM:\Software\Policies\Microsoft\Windows\WindowsAI"
+        if (-not (Test-Path $aiKeyPath)) {
+            New-Item -Path $aiKeyPath -Force
+        }
+        New-ItemProperty -Path $aiKeyPath -Name "DisableAIDataAnalysis" -Value 1 -PropertyType DWord -Force
+        Show-Line "Windows AI analysis has been disabled."
+    }
+
+    if (-not $DisableWindowsCopilot -and -not $DisableWindowsAI) {
+        Show-Line "No features were specified to disable."
+    }
+}
+
 # Disable Ads and Trackers in Windows
 function Debloat {
     Test-PWD
@@ -67,6 +97,9 @@ function Debloat {
 
     Show-Line "Disabling powerhell telemetry..."
     [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 1, 'Machine')
+
+    Show-Line "Disabling Copilot and Windows AI..."
+    Disable-WindowsAIFeatures -DisableWindowsAI -DisableWindowsCopilot
 
     $executeWinutil = Write-Prompt "Do you want to run WinUtil to disable all Microsoft tracking services"
     if (-not ($executeWinutil -eq "n")) {
