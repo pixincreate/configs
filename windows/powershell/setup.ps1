@@ -87,41 +87,43 @@ function Debloat {
     }
 }
 
-# Function to install a FiraCode Nerd Font
+# Function to install a Nerd Font
 function Install-Font {
+    $fontName = "JetBrainsMono"
+
     try {
         [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
         $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families | Select-Object -ExpandProperty Name
 
-        if ($fontFamilies -notcontains "FiraCode Nerd Font") {
-            Show-Line "Installing FiraCode Nerd Font..."
+        if ($fontFamilies -notcontains "$fontName Nerd Font") {
+            Show-Line "Installing $fontName Nerd Font..."
 
-            # Download and install FiraCode NerdFont
-            $zipPath = ".\FiraCode.zip"
+            # Download and install NerdFont
+            $zipPath = ".\$fontName.zip"
             $webClient = New-Object System.Net.WebClient
-            $webClient.DownloadFileAsync((New-Object System.Uri("https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip")), $zipPath)
+            $webClient.DownloadFileAsync((New-Object System.Uri("https://github.com/ryanoasis/nerd-fonts/releases/latest/download/$fontName.zip")), $zipPath)
 
             while ($webClient.IsBusy) {
                 Start-Sleep -Seconds 2
             }
 
-            Expand-Archive -Path $zipPath -DestinationPath ".\FiraCode" -Force
+            Expand-Archive -Path $zipPath -DestinationPath ".\$fontName" -Force
             $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
 
-            Get-ChildItem -Path ".\FiraCode" -Recurse -Filter "*.ttf" | ForEach-Object {
+            Get-ChildItem -Path ".\$fontName" -Recurse -Filter "*.ttf" | ForEach-Object {
                 If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {
                     $destination.CopyHere($_.FullName, 0x10)
                 }
             }
 
             # Clean up
-            Remove-Item -Path ".\FiraCode" -Recurse -Force
+            Remove-Item -Path ".\$fontName" -Recurse -Force
             Remove-Item -Path $zipPath -Force
         } else {
-            Show-Line "FiraCode Nerd Font is already installed."
+            Show-Line "$fontName Nerd Font is already installed."
         }
     } catch {
-        Show-Error "Failed to download or install the FiraCode Nerd font. Error: $_"
+        Show-Error "Failed to download or install the $fontName Nerd font. Error: $_"
         if (Test-Path $zipPath) {
             Remove-Item -Path $zipPath -Force
         }
