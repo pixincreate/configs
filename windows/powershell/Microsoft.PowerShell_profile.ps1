@@ -415,7 +415,7 @@ function docs { Set-Location -Path $HOME\Documents }
 function dtop { Set-Location -Path $HOME\Desktop }
 
 # Quick Access to Editing the Profile
-function ep { vim $PROFILE }
+Set-Alias -Name ep -Value Edit-Profile
 
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
@@ -472,7 +472,8 @@ function gcl { git clone $args }
 
 # PowerShell points `gp` to Get-ItemProperty by default, we're changing that
 Remove-Item -Force Alias:gp -ErrorAction SilentlyContinue
-Set-Alias gip Get-ItemProperty
+Set-Alias -Name gip -Value Get-ItemProperty
+
 function gp { git push $args }
 
 function gco { git checkout $args }
@@ -710,20 +711,20 @@ function vsc {
 }
 
 # Aliases
-Set-Alias vsca "$env:VSCODE --add"
-Set-Alias vscd "$env:VSCODE --diff"
-Set-Alias vscg "$env:VSCODE --goto"
-Set-Alias vscn "$env:VSCODE --new-window"
-Set-Alias vscr "$env:VSCODE --reuse-window"
-Set-Alias vscw "$env:VSCODE --wait"
-Set-Alias vscu "$env:VSCODE --user-data-dir"
-Set-Alias vscp "$env:VSCODE --profile"
-Set-Alias vsced "$env:VSCODE --extensions-dir"
-Set-Alias vscie "$env:VSCODE --install-extension"
-Set-Alias vscue "$env:VSCODE --uninstall-extension"
-Set-Alias vscv "$env:VSCODE --verbose"
-Set-Alias vscl "$env:VSCODE --log"
-Set-Alias vscde "$env:VSCODE --disable-extensions"
+Set-Alias -Name vsca -Value "$env:VSCODE --add"
+Set-Alias -Name vscd -Value "$env:VSCODE --diff"
+Set-Alias -Name vscg -Value "$env:VSCODE --goto"
+Set-Alias -Name vscn -Value "$env:VSCODE --new-window"
+Set-Alias -Name vscr -Value "$env:VSCODE --reuse-window"
+Set-Alias -Name vscw -Value "$env:VSCODE --wait"
+Set-Alias -Name vscu -Value "$env:VSCODE --user-data-dir"
+Set-Alias -Name vscp -Value "$env:VSCODE --profile"
+Set-Alias -Name vsced -Value "$env:VSCODE --extensions-dir"
+Set-Alias -Name vscie -Value "$env:VSCODE --install-extension"
+Set-Alias -Name vscue -Value "$env:VSCODE --uninstall-extension"
+Set-Alias -Name vscv -Value "$env:VSCODE --verbose"
+Set-Alias -Name vscl -Value "$env:VSCODE --log"
+Set-Alias -Name vscde -Value "$env:VSCODE --disable-extensions"
 
 ### fzf specific usecases
 $env:FZF_DEFAULT_OPTS = @"
