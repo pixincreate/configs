@@ -4,3 +4,6 @@ url = https://github.com/alacritty/alacritty-theme.git
 [submodule "home/.config/tmux/plugins/tpm"]
 	path = home/.config/tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm.git
+[submodule "home/.config/wezterm"]
+	path = home/.config/wezterm
+	url = https://github.com/NishantJoshi00/wez-config.git
