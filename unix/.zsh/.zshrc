@@ -176,6 +176,9 @@ alias untar='tar -xvf'
 alias unbz2='tar -xvjf'
 alias ungz='tar -xvzf'
 
+## Git specific aliases
+alias gs='git status'
+
 ## SHA1
 alias sha1='openssl sha1'
 

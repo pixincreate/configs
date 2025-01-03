@@ -1,3 +1,9 @@
-tmux.log
+# MacOS
 .DS_Store
+
+## Logs files
 *.logs
+*.log
+
+## Environment variables
+.envrc
