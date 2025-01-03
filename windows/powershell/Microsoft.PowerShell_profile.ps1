@@ -454,6 +454,8 @@ function git_develop_branch {
 
 function gs { git status }
 
+function gss { git status --short }
+
 function ga { git add $args }
 
 function gaa { git add --all }
