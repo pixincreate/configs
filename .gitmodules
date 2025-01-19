@@ -7,3 +7,6 @@ url = https://github.com/alacritty/alacritty-theme.git
 [submodule "home/.config/wezterm"]
 	path = home/.config/wezterm
 	url = https://github.com/NishantJoshi00/wez-config.git
+[submodule "home/.config/nvim"]
+	path = home/.config/nvim
+	url = https://github.com/NishantJoshi00/nvim-config.git
