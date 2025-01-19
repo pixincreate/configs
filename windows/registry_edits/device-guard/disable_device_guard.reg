@@ -1,0 +1,4 @@
+Windows Registry Editor Version 5.0
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\SystemGuard]
+"Enabled"=dword:00000000
