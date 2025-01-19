@@ -2,14 +2,18 @@
 
 # DECLARATIONS
 # These values can be overrided by exporting them in the shell as environment variables
-REPO_URL="https://github.com/pixincreate/configs.git"
 
-LOCAL_PATH="${HOME}/Dev/scripts/configs"
-RISH_PATH="/storage/emulated/0/Documents/Dev/Shizuku"
+readonly REPO_URL="https://github.com/pixincreate/configs.git"
 
-GITCONFIG_EMAIL="69745008+pixincreate@users.noreply.github.com"
-GITCONFIG_USERNAME="PiX"
-GITCONFIG_SIGNGING_KEY="~/.ssh/id_ed25519_sign.pub"
+readonly LOCAL_PATH="$HOME/Dev/scripts/.configs"
+readonly RISH_PATH="/storage/emulated/0/Documents/Dev/Shizuku"
+
+readonly GITCONFIG_EMAIL="69745008+pixincreate@users.noreply.github.com"
+readonly GITCONFIG_USERNAME="PiX"
+readonly GITCONFIG_SIGNGING_KEY="~/.ssh/id_ed25519_sign.pub"
+
+readonly DEFAULT_SSH_PERMS=0600
+readonly SUPPORTED_PLATFORMS=("darwin" "gnu" "android")
 
 # Helper functions
 print() {
@@ -25,37 +29,37 @@ print() {
 
 git_checkup() {
   case "$OSTYPE" in
-    linux-gnu)
-      # Check if running in WSL, if yes, copy the keys
-      if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
-        print "Setting up git for WSL..." true
-        WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C 'echo %USERPROFILE%' | tr -d '\r')")
+  linux-gnu)
+    # Check if running in WSL, if yes, copy the keys
+    if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
+      print "Setting up git for WSL..." true
+      WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C 'echo %USERPROFILE%' | tr -d '\r')")
 
-        files="id_ed25519_auth id_ed25519_auth.pub id_ed25519_sign id_ed25519_sign.pub"
-        for file in $files; do
-          src="$WINHOME/.ssh/$file"
-          dest="$HOME/.ssh/$file"
+      files="id_ed25519_auth id_ed25519_auth.pub id_ed25519_sign id_ed25519_sign.pub"
+      for file in $files; do
+        src="$WINHOME/.ssh/$file"
+        dest="$HOME/.ssh/$file"
 
-          if [ -f "$src" ]; then
-            cp "$src" "$dest"
-          else
-            print "File not found: $src"
-          fi
-        done
-        chmod 0600 .ssh/*
+        if [ -f "$src" ]; then
+          cp "$src" "$dest"
+        else
+          print "File not found: $src"
+        fi
+      done
+      chmod $DEFAULT_SSH_PERMS .ssh/*
 
-        print "WSL setup completed!"
-      fi
-      ;;
-    linux-android)
-      print "Setting up git for Android..." true
-      cp -a /storage/emulated/0/Documents/Dev/.ssh/. $HOME/.ssh/
-      chmod 0600 .ssh/*
-      print "Android setup completed!"
-      ;;
-    *)
-      print "unsupported platform: $OSTYPE"
-      ;;
+      print "WSL setup completed!"
+    fi
+    ;;
+  linux-android)
+    print "Setting up git for Android..." true
+    cp -a /storage/emulated/0/Documents/Dev/.ssh/. $HOME/.ssh/
+    chmod $DEFAULT_SSH_PERMS .ssh/*
+    print "Android setup completed!"
+    ;;
+  *)
+    print "unsupported platform: $OSTYPE"
+    ;;
   esac
 }
 
@@ -92,10 +96,10 @@ copy_and_update_keys() {
 
   print "You have 3 minutes each to visit https://github.com/settings/keys and update keys on GitHub." true
   sleep 4
-  pbcopy < "$auth_path"
+  pbcopy <"$auth_path"
   print "Update the Authentication key" true
   sleep 180
-  pbcopy < "$sign_path"
+  pbcopy <"$sign_path"
   echo "Update the Signature key" true
   sleep 180
 
@@ -107,7 +111,7 @@ install_brew() {
   print "Installing Homebrew..." true
 
   # Check if Homebrew is installed
-  if ! command -v brew &> /dev/null; then
+  if ! command -v brew &>/dev/null; then
     yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
     # Add Homebrew to PATH
@@ -116,11 +120,11 @@ install_brew() {
       (
         echo
         echo -e 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
-      ) >> ~/.bashrc
+      ) >>~/.bashrc
       (
         echo
         echo -e 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
-      ) >> ~/.zsh/.zprofile
+      ) >>~/.zsh/.zprofile
       eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
       # Install the necessities for brew
@@ -130,7 +134,7 @@ install_brew() {
       (
         echo
         echo -e 'eval "$(/opt/homebrew/bin/brew shellenv)"'
-      ) >> ~/.zsh/.zprofile
+      ) >>~/.zsh/.zprofile
       eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
 
@@ -149,8 +153,8 @@ additional_zshrc() {
   local platform="$1"
 
   case "$platform" in
-    darwin* | gnu)
-      echo '
+  darwin* | gnu)
+    echo '
       # Dev env variables
       typeset -U PATH path
       path=(
@@ -177,33 +181,46 @@ additional_zshrc() {
       export ADBLOCK=1
 
       PQ_LIB_DIR="$(brew --prefix libpq)/lib"
-    ' >> ~/.zsh/.additionals.zsh
+    ' >>~/.zsh/.additionals.zsh
 
-      if [[ "$WSL_DISTRO_NAME" == "Debian" ]] || [[ "$WSL_DISTRO_NAME" == "Fedora" ]]; then
-        echo '
+    if [[ "$WSL_DISTRO_NAME" == "Debian" ]] || [[ "$WSL_DISTRO_NAME" == "Fedora" ]]; then
+      echo '
         # WSL configurations
         export WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C '\''echo %USERPROFILE%'\'' | tr -d '\''\r'\'')")
 
         export LDFLAGS="-L/$(brew --prefix)/opt/binutils/lib"
         export CPPFLAGS="-I/$(brew --prefix)/opt/binutils/include"
-        ' >> ~/.zsh/.additionals.zsh
-        echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >> ~/.zsh/.additionals.zsh
-      fi
-      ;;
-    android)
-      (
-        echo
-        echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
-        echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
-      ) >> ~/.zsh/.additionals.zsh
-      ;;
-    *)
-      print "Unsupported platform: $platform"
-      ;;
+        ' >>~/.zsh/.additionals.zsh
+      echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >>~/.zsh/.additionals.zsh
+    fi
+    ;;
+  android)
+    (
+      echo
+      echo -e "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
+      echo -e "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
+    ) >>~/.zsh/.additionals.zsh
+    ;;
+  *)
+    print "Unsupported platform: $platform"
+    ;;
   esac
 }
 
-# Functions
+# Logging Functions
+log_error() { echo "[ERROR] $*" >&2; }
+log_info() { echo "[INFO] $*"; }
+log_debug() { [[ $DEBUG ]] && echo "[DEBUG] $*"; }
+
+check_requirements() {
+  local -a required_cmds=("curl" "git" "ssh-keygen" "wget" "zsh")
+  for cmd in "${required_cmds[@]}"; do
+    command -v "$cmd" >/dev/null 2>&1 || {
+      log_error "Required command not found: $cmd"
+      return 1
+    }
+  done
+}
 
 help() {
   print "Usage: setup.sh [options]"
@@ -252,57 +269,63 @@ change_shopt() {
   fi
 }
 
+validate_config() {
+  [[ -z "$REPO_URL" ]] && return 1
+  [[ -z "$LOCAL_PATH" ]] && return 1
+  return 0
+}
+
 git_setup() {
   print "Fresh setup Git or restore existing configuration?"
   select confirm in "Fresh setup" "Restore existing" "exit"; do
     case $confirm in
-      "Fresh setup")
-        # Fresh setup (if selected)
-        print "Performing fresh Git setup..." true
+    "Fresh setup")
+      # Fresh setup (if selected)
+      print "Performing fresh Git setup..." true
 
-        # Prompt for user details (single loop)
-        while [[ -z "$user_name" || -z "$user_email" || -z "$private_email" ]]; do
+      # Prompt for user details (single loop)
+      while [[ -z "$user_name" || -z "$user_email" || -z "$private_email" ]]; do
 
-          read -p "Enter your user name for configuring git: " user_name
-          # Validate non-empty and non-whitespace
-          if [[ -z "$user_name" || "$user_name" =~ ^[[:space:]]*$ ]]; then
-            print "Username cannot be empty or whitespace." true
-          fi
+        read -p "Enter your user name for configuring git: " user_name
+        # Validate non-empty and non-whitespace
+        if [[ -z "$user_name" || "$user_name" =~ ^[[:space:]]*$ ]]; then
+          print "Username cannot be empty or whitespace." true
+        fi
 
-          read -p "Enter your email for configuring git: " user_email
-          # Validate non-empty and non-whitespace
-          if [[ -z "$user_email" || "$user_email" =~ ^[[:space:]]*$ ]]; then
-            print "Email cannot be empty or whitespace." true
-          fi
+        read -p "Enter your email for configuring git: " user_email
+        # Validate non-empty and non-whitespace
+        if [[ -z "$user_email" || "$user_email" =~ ^[[:space:]]*$ ]]; then
+          print "Email cannot be empty or whitespace." true
+        fi
 
-          read -p "Enter your no-reply email for configuring git: " private_email
-          # Validate non-empty and non-whitespace
-          if [[ -z "$private_email" || "$private_email" =~ ^[[:space:]]*$ ]]; then
-            print "No-reply email cannot be empty or whitespace." true
-          fi
-        done
+        read -p "Enter your no-reply email for configuring git: " private_email
+        # Validate non-empty and non-whitespace
+        if [[ -z "$private_email" || "$private_email" =~ ^[[:space:]]*$ ]]; then
+          print "No-reply email cannot be empty or whitespace." true
+        fi
+      done
 
-        GITCONFIG_USERNAME="$user_name"
-        GITCONFIG_EMAIL="$private_email"
+      GITCONFIG_USERNAME="$user_name"
+      GITCONFIG_EMAIL="$private_email"
 
-        update_gitconfig_data
-        generate_ssh_keys "$user_email"
-        copy_and_update_keys
-        break
-        ;;
-      "Restore existing")
-        # Restore existing configuration
-        print "Restoring existing Git configuration..." true
-        update_gitconfig_data
-        print "Existing Git configuration restored!"
-        break
-        ;;
-      "exit")
-        break
-        ;;
-      *)
-        print "Invalid selection. Please choose '1' for fresh setup or '2' to restore existing git configuration."
-        ;;
+      update_gitconfig_data
+      generate_ssh_keys "$user_email"
+      copy_and_update_keys
+      break
+      ;;
+    "Restore existing")
+      # Restore existing configuration
+      print "Restoring existing Git configuration..." true
+      update_gitconfig_data
+      print "Existing Git configuration restored!"
+      break
+      ;;
+    "exit")
+      break
+      ;;
+    *)
+      print "Invalid selection. Please choose '1' for fresh setup or '2' to restore existing git configuration."
+      ;;
     esac
   done
 }
@@ -312,6 +335,11 @@ install_apps() {
 
   local platform="$1"
 
+  [[ -z "$platform" ]] && {
+    print "Platform parameter required.\nSupported platforms: ${SUPPORTED_PLATFORMS[*]}"
+    return 1
+  }
+
   if [[ "$platform" != "android" ]]; then
     install_brew
   fi
@@ -320,14 +348,14 @@ install_apps() {
   android_specific=("termux-api" "termux-tools" "tsu")
   applications=(
     "alacritty" "alt-tab" "android-studio" "bitwarden" "brave-browser@beta"
-    "firefox@dev" "localsend" "maccy" "obsidian" "rectangle" "signal@beta"
-    "tar" "visual-studio-code@insiders"
+    "firefox@dev" "zen" "localsend" "maccy" "obsidian" "rectangle" "signal@beta"
+    "visual-studio-code"
   )
   dev_applications=("docker" "kubectl" "nextdns/tap/nextdns" "node")
   languages=("gcc" "python" "rustup" "sqlite")
   terminal_additions=(
     "bat" "direnv" "eza" "fastfetch" "fzf" "git-delta" "jq" "lazygit"
-    "pipx" "ripgrep" "tmux" "topgrade" "tree" "xclip" "zoxide"
+    "pipx" "ripgrep" "tar" "tmux" "topgrade" "tree" "xclip" "zoxide"
   )
   tools=(
     "android-platform-tools" "android-tools" "binutils" "coreutils"
@@ -336,63 +364,68 @@ install_apps() {
 
   # Install applications based on the platform
   case "$platform" in
-    darwin)
-      apps_category=(
-        "${applications[@]}" "${dev_applications[@]}" "${languages[@]}"
-        "${terminal_additions[@]}" "${tools[@]}"
-      )
-      for app in "${apps_category[@]}"; do
-        exclude_list=("android-tools")
-        [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
-        if command -v $app &> /dev/null; then
-          echo "$app is already installed. Trying to upgrade..."
-          brew upgrade "$app"
-        else
-          echo "Installing $app..."
-          brew install "$app"
-        fi
-      done
-      ;;
-    gnu)
-      apps_category=(
-        "${dev_applications[@]}" "${languages[@]}"
-        "${terminal_additions[@]}" "${tools[@]}"
-      )
-      for app in "${apps_category[@]}"; do
-        exclude_list=("android-tools")
-        [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
-        if command -v $app &> /dev/null; then
-          echo "$app is already installed. Trying to upgrade..."
-          brew upgrade "$app"
-        else
-          echo "Installing $app..."
-          brew install "$app"
-        fi
-      done
-      ;;
-    android)
-      apps_category=(
-        "${android_specific[@]}"
-        "${languages[@]}" "${terminal_additions[@]}" "${tools[@]}"
-      )
-      for app in "${apps_category[@]}"; do
-        exclude_list=("android-platform-tools" "gcc" "xclip")
-        [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
-        if command -v $app &> /dev/null; then
-          echo "$app is already installed. Trying to upgrade..."
-          pkg upgrade "$app" || echo "Failed to upgrade $app"
-        else
-          echo "Installing $app..."
-          pkg install "$app" || echo "Failed to install $app"
-        fi
-      done
-      ;;
-    *)
-      print "Unsupported platform: $platform"
-      ;;
+  darwin)
+    apps_category=(
+      "${applications[@]}" "${dev_applications[@]}" "${languages[@]}"
+      "${terminal_additions[@]}" "${tools[@]}"
+    )
+    for app in "${apps_category[@]}"; do
+      exclude_list=("android-tools")
+      [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
+      if command -v $app &>/dev/null; then
+        echo "$app is already installed. Trying to upgrade..."
+        brew upgrade "$app"
+      else
+        echo "Installing $app..."
+        brew install "$app"
+      fi
+    done
+    ;;
+  gnu)
+    apps_category=(
+      "${dev_applications[@]}" "${languages[@]}"
+      "${terminal_additions[@]}" "${tools[@]}"
+    )
+    echo "Assuming you are using APT package manager..."
+    echo "Updating package list..."
+    sudo apt-get update -y
+
+    for app in "${apps_category[@]}"; do
+      exclude_list=("android-tools")
+      [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
+      if command -v $app &>/dev/null; then
+        echo "$app is already installed. Trying to upgrade..."
+        sudo apt-get upgrade "$app"
+      else
+        echo "Installing $app..."
+        sudo apt-get install "$app" -y
+      fi
+    done
+    ;;
+  android)
+    apps_category=(
+      "${android_specific[@]}"
+      "${languages[@]}" "${terminal_additions[@]}" "${tools[@]}"
+    )
+    for app in "${apps_category[@]}"; do
+      exclude_list=("android-platform-tools" "gcc" "xclip")
+      [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
+      if command -v $app &>/dev/null; then
+        echo "$app is already installed. Trying to upgrade..."
+        pkg upgrade "$app" || echo "Failed to upgrade $app"
+      else
+        echo "Installing $app..."
+        pkg install "$app" || echo "Failed to install $app"
+      fi
+    done
+    ;;
+  *)
+    print "Unsupported platform: $platform\nSupported platforms: ${SUPPORTED_PLATFORMS[*]}"
+    ;;
   esac
 
   print "Installing trash-cli..." true
+  pipx ensurepath
   pipx install "trash-cli"
 
   # Setup crontab to auto empty trash after 60 days
@@ -404,6 +437,7 @@ install_apps() {
   crontab -l
 
   print "Application installation completed!"
+  return $? # Return the exit status of the last command
 }
 
 config_setup() {
@@ -431,8 +465,13 @@ config_setup() {
   else
     # Clone the repository if it does not exist
     if [ ! -d "${LOCAL_PATH}" ]; then
-      git clone --recurse-submodules "${REPO_URL}" "${LOCAL_PATH}"
+      git clone --recurse-submodules "${REPO_URL}" "${LOCAL_PATH}" || {
+        print "Failed to clone repository"
+        exit 1
+      }
     fi
+
+    validate_config
 
     cp -r ${LOCAL_PATH}/home/. $HOME
     cp -r ${LOCAL_PATH}/unix/. $HOME
@@ -441,26 +480,26 @@ config_setup() {
     additional_zshrc $platform
 
     case "$platform" in
-      "android")
-        termux-setup-storage
-        sleep 10
+    "android")
+      termux-setup-storage
+      sleep 10
 
-        cp -a ${RISH_PATH}/. $HOME/.rish/
-        ln -sfn $HOME/.rish/rish $PATH/rish
-        ln -sfn $HOME/.rish/rish_shizuku.dex $PATH/rish_shizuku.dex
-        ;;
-      "darwin")
-        mv $HOME/Code "$HOME/Library/Application\ Support/Code"
-        ;;
-      "gnu")
-        if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
-          code
-        fi
-        mv $HOME/Code $HOME/.config/Code
-        ;;
-      *)
-        print "Unsupported platform: $platform"
-        ;;
+      cp -a ${RISH_PATH}/. $HOME/.rish/
+      ln -sfn $HOME/.rish/rish $PATH/rish
+      ln -sfn $HOME/.rish/rish_shizuku.dex $PATH/rish_shizuku.dex
+      ;;
+    "darwin")
+      mv "$HOME/Code" "$HOME/Library/Application Support/Code"
+      ;;
+    "gnu")
+      if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
+        code
+      fi
+      mv "$HOME/Code" "$HOME/.config/Code"
+      ;;
+    *)
+      print "Unsupported platform: $platform\nSupported platforms: ${SUPPORTED_PLATFORMS[*]}"
+      ;;
     esac
 
     print "Setting up zshell..." true
@@ -486,20 +525,22 @@ main() {
     exit 1
   fi
 
+  check_requirements
+
   while [[ "$#" -gt 0 ]]; do
     case $1 in
-      -s | --setup) setup=true ;;
-      -g | --setup-git) git_setup=true ;;
-      -c | --setup-config) config_setup=true ;;
-      -i | --install) install=true ;;
-      -u | --upgrade) upgrade=true ;;
-      -h | --help)
-        help
-        ;;
-      *)
-        echo "Unknown parameter passed: $1"
-        exit 1
-        ;;
+    -s | --setup) setup=true ;;
+    -g | --setup-git) git_setup=true ;;
+    -c | --setup-config) config_setup=true ;;
+    -i | --install) install=true ;;
+    -u | --upgrade) upgrade=true ;;
+    -h | --help)
+      help
+      ;;
+    *)
+      echo "Unknown parameter passed: $1"
+      exit 1
+      ;;
     esac
     shift
   done
@@ -509,18 +550,18 @@ main() {
   # Conditional execution based on flags
   if [[ "$setup" == true ]]; then
     case "$OSTYPE" in
-      darwin*)
-        setup_platform="darwin"
-        ;;
-      linux-gnu)
-        setup_platform="gnu"
-        ;;
-      linux-android)
-        setup_platform="android"
-        ;;
-      *)
-        echo "unsupported platform: $OSTYPE"
-        ;;
+    darwin*)
+      setup_platform="darwin"
+      ;;
+    linux-gnu)
+      setup_platform="gnu"
+      ;;
+    linux-android)
+      setup_platform="android"
+      ;;
+    *)
+      echo "unsupported platform: $OSTYPE\nSupported platforms: ${SUPPORTED_PLATFORMS[*]}"
+      ;;
     esac
 
     install_apps $setup_platform
