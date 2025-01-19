@@ -243,6 +243,7 @@ function Install-Packages {
         # Browser
         "Brave.Brave.Beta",
         "Mozilla.Firefox.DeveloperEdition",
+        "Zen-Team.Zen-Browser"
 
         # Cloud
         "FilenCloud.FilenSync",
