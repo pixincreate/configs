@@ -48,7 +48,7 @@ fomo = !git fetch origin main && git rebase origin/main
 lose-all = !git fetch origin main && git reset --hard origin/main
 lose = !git reset --hard HEAD
 no-edit-force-push = !git add . && git commit --amend --no-edit && git push --force-with-lease
-undo = reset --soft HEAD^
+undo = !git reset --soft HEAD^
 gfom = !git fomo
 unfuck = !git reset HEAD~1 --soft
 
