@@ -96,7 +96,13 @@ function Debloat {
     }
 
     Show-Line "Disabling powerhell telemetry..."
-    [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 1, 'Machine')
+    @{
+        DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+        POWERSHELL_TELEMETRY_OPTOUT = '1'
+    }.GetEnumerator() | ForEach-Object {
+        [System.Environment]::SetEnvironmentVariable(
+            $_.Name, $_.Value, [System.EnvironmentVariableTarget]::Machine)
+    }
 
     Show-Line "Disabling Copilot and Windows AI..."
     Disable-WindowsAIFeatures -DisableWindowsAI -DisableWindowsCopilot
@@ -343,7 +349,9 @@ function Restore-Data {
     Copy-Item -Path $gitConfigSrc -Destination "$HOME\.gitconfig" -Force
 
     Show-Line "Developer data restored."
-    $RESTORE_DATA = $true
+
+    # Set RESTORE_DATA to true after successful restoration
+    $script:RESTORE_DATA = $true
 }
 
 function Restore-Profile {
@@ -476,6 +484,10 @@ function Set-DeveloperEnvironment {
     # Restore VSCode settings.json
     Show-Line "Restoring VSCode settings.json..."
     Copy-Item -Path "./home/Code/User/settings.json" -Destination "$env:APPDATA\Code\User\settings.json"
+
+    # Restore NVIM configs
+    Show-Line "Restoring NeoVim configs..."
+    Copy-Item -Path "./home/.config/nvim" -Destination "$env:LOCALAPPDATA\nvim" -Recurse -Force
 
     Restore-Profile
 }
