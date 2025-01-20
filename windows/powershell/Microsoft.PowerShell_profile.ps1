@@ -676,6 +676,27 @@ function du { eza --du @args }
 # Custom command to show a tree view
 function tree { eza --tree @args }
 
+# Symlink and Hardlink
+function ln {
+    if ($args.Count -eq 3) {
+        $linkType = $args[0]
+        $link = $args[1]
+        $linkTarget = $args[2]
+
+        if ($args[0] -eq "sym") {
+            $linkType = "SymbolicLink"
+        } elseif ($args[0] -eq "hard") {
+            $linkType = "HardLink"
+        } elseif ($args[0] -eq "junc") {
+            $linkType = "Junction"
+        }
+
+        New-Item -ItemType $linkType -Path $link -Target $linkTarget
+    } else {
+        Write-Host "Requires elevation\nUsage: ln <linkType: sym / hard> <link> <target>"
+    }
+}
+
 ### VS Code (stable / insiders) / VSCodium PowerShell functions
 # Original zsh Authors:
 #   https://github.com/MarsiBarsi (original author)
