@@ -269,10 +269,11 @@
     // "vscode-neovim.useWSL": true,
     "vscode-neovim.wslDistribution": "Debian",
     "vscode-neovim.neovimWidth": 300,
+    "vscode-neovim.neovimExecutablePaths.darwin": "/opt/homebrew/bin/nvim",
+    "vscode-neovim.neovimInitVimPaths.darwin" : "$HOME/.config/nvim/init.lua",
     "vscode-neovim.neovimExecutablePaths.linux" : "/usr/bin/nvim",
     "vscode-neovim.neovimInitVimPaths.linux" : "$HOME/.config/nvim/init.lua",
-    "vscode-neovim.neovimExecutablePaths.darwin" : "/usr/local/bin/nvim",
-    "vscode-neovim.neovimInitVimPaths.darwin" : "$HOME/.config/nvim/init.lua",
+    "vscode-neovim.neovimExecutablePaths.win32" : "C:\\Program Files\\Neovim\\bin\\nvim.exe",
     "vscode-neovim.neovimInitVimPaths.win32" : "$HOME\\AppData\\Local\\nvim\\init.lua",
 
     // Powershell
