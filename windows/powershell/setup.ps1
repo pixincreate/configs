@@ -254,6 +254,7 @@ function Install-Packages {
         "OpenWhisperSystems.Signal",
 
         # Developer Tools
+        "ezwinports.make",
         "Git.Git",
         "Hugo.Hugo.Extended",
         "Kitware.CMake",
