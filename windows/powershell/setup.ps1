@@ -438,7 +438,7 @@ function Update-GitConfigData {
     # Write the updated content back to the Git config file
     $gitConfigContent | Set-Content -Path $gitConfigPath
 
-    # Optionally, you can create a backup if needed
+    # Optionally, create a backup if needed
     Copy-Item -Path $gitConfigPath -Destination "$gitConfigPath.bak" -Force
 }
 

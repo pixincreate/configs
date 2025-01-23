@@ -10,3 +10,6 @@
 
 # Rust
 /target
+
+# Generated files
+/generated
