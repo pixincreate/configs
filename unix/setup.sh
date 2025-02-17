@@ -181,6 +181,9 @@ additional_zshrc() {
       export ADBLOCK=1
 
       PQ_LIB_DIR="$(brew --prefix libpq)/lib"
+      
+      export CONFIGS=${HOME}/Dev/scripts/configs
+      alias zed=zed-preview
     ' >>~/.zsh/.additionals.zsh
 
     if [[ "$WSL_DISTRO_NAME" == "Debian" ]] || [[ "$WSL_DISTRO_NAME" == "Fedora" ]]; then

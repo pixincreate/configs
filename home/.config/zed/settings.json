@@ -1,0 +1,271 @@
+// Zed settings
+//
+// Documentation: https://zed.dev/docs/configuring-zed
+// To see defaults, run `zed: open default settings` from the command palette
+{
+  // AI Assistant Settings
+  "features": {
+    "edit_prediction_provider": "copilot"
+  },
+  "assistant": {
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "claude-3-5-sonnet"
+    },
+    "version": "2"
+  },
+
+  // Core Editor Settings
+  "autosave": {
+    "after_delay": {
+      "milliseconds": 1000
+    }
+  },
+  "base_keymap": "VSCode",
+  "enable_language_server": true,
+  "format_on_save": "on",
+  "relative_line_numbers": true,
+  "restore_on_startup": "last_session",
+  "soft_wrap": "editor_width",
+  "vim_mode": true,
+
+  // Font & Typography
+  "buffer_font_family": "FiraCode Nerd Font",
+  "buffer_font_size": 12.0,
+  "buffer_font_weight": 400,
+  "ui_font_family": "Geist Mono",
+  "ui_font_size": 16,
+  "ui_font_weight": 500,
+
+  // UI Configuration
+  "centered_layout": {
+    "left_padding": 0.15,
+    "right_padding": 0.15
+  },
+  "cursor_blink": true,
+  "cursor_shape": "bar",
+  "file_icons": true,
+  "folder_icons": true,
+  "indent_guides": {
+    "enabled": true,
+    "coloring": "indent_aware"
+  },
+  "inlay_hints": {
+    "enabled": true
+  },
+
+  // Panel Configuration
+  "chat_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "notification_panel": {
+    "dock": "right"
+  },
+  "outline_panel": {
+    "dock": "left",
+    "button": true,
+    "default_width": 240,
+    "file_icons": true,
+    "folder_icons": true,
+    "git_status": true,
+    "indent_size": 20,
+    "auto_reveal_entries": true,
+    "auto_fold_dirs": true,
+    "indent_guides": {
+      "show": "always"
+    },
+    "scrollbar": {
+      "show": null
+    }
+  },
+  "project_panel": {
+    "button": true,
+    "dock": "left",
+    "git_status": true
+  },
+
+  // Tab Settings
+  "tabs": {
+    "close_position": "right",
+    "file_icons": true,
+    "git_status": true,
+    "activate_on_close": "history",
+    "always_show_close_button": false
+  },
+
+  // Theme Settings
+  "theme": {
+    "mode": "system",
+    "light": "Catppuccin Frappé",
+    "dark": "Kanagawa Dragon"
+  },
+
+  // Git Integration
+  "git": {
+    "git_gutter": "tracked_files",
+    "git_status": true,
+    "inline_blame": {
+      "enabled": true,
+      "show_commit_summary": true,
+      "min_column": 80
+    }
+  },
+
+  // Privacy Settings
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+
+  // Auto-Install Extensions
+  "auto_install_extension": {
+    "catppuccin": true,
+    "catppuccin-blur": true,
+    "csv": true,
+    "docker-compose": true,
+    "dockerfile": true,
+    "env": true,
+    "git-firefly": true,
+    "groovy": true,
+    "html": true,
+    "java": true,
+    "kotlin": true,
+    "latex": true,
+    "lua": true,
+    "make": true,
+    "nix": true,
+    "ruff": true,
+    "sql": true,
+    "toml": true,
+    "xml": true,
+    "zig": true
+  },
+
+  // Language Server Configuration
+  "lsp": {
+    // Rust Configuration
+    "rust-analyzer": {
+      "initialization_options": {
+        "cargo": {
+          "features": "all"
+        },
+        "check": {
+          "allTargets": true,
+          "command": "clippy",
+          "features": "all"
+        },
+        "checkOnSave": true,
+        "completion": {
+          "autoimport": {
+            "enable": true,
+            "privateeditable": true
+          }
+        },
+        "rust": {
+          "analyzerTargetDir": true
+        },
+        "trace": {
+          "server": "verbose"
+        },
+        "inlayHints": {
+          "maxLength": null,
+          "lifetimeElisionHints": {
+            "enable": "skip_trivial",
+            "useParameterNames": true
+          },
+          "closureReturnTypeHints": {
+            "enable": "always"
+          }
+        }
+      }
+    },
+    // Python Configuration
+    "pyright": {
+      "enable": true,
+      "settings": {
+        "python.analysis": {
+          "diagnosticMode": "workspace",
+          "typeCheckingMode": "standard",
+          "useLibraryCodeForTypes": true,
+          "autoImportCompletions": true,
+          "reportMissingImports": true,
+          "reportMissingTypeStubs": true
+        },
+        "python": {
+          "pythonPath": "./venv/bin/python",
+          "venvPath": "./venv"
+        }
+      }
+    },
+    // TypeScript Configuration
+    "typescript-language-server": {
+      "enable": true,
+      "initialization_options": {
+        "preferences": {
+          "importModuleSpecifier": "relative",
+          "importModuleSpecifierEnding": "minimal",
+          "includeCompletionsForModuleExports": true,
+          "includeCompletionsWithSnippetText": true
+        },
+        "suggestions": {
+          "completeFunctionCalls": true,
+          "includeAutomaticOptionalChainCompletions": true
+        },
+        "format": {
+          "enable": true
+        }
+      }
+    },
+    // ESLint Configuration
+    "eslint": {
+      "enable": true,
+      "settings": {
+        "rulesCustomizations": [
+          {
+            "rule": "*",
+            "severity": "warn"
+          }
+        ],
+        "format.enable": true,
+        "workingDirectory": "./frontend"
+      }
+    },
+    // Prettier Configuration
+    "prettier": {
+      "enable": true,
+      "settings": {
+        "singleQuote": true,
+        "semi": true,
+        "trailingComma": "es5"
+      }
+    }
+  },
+
+  // Terminal Configuration
+  "terminal": {
+    "alternate_scroll": "off",
+    "blinking": "on",
+    "copy_on_select": false,
+    "dock": "bottom",
+    "detect_venv": {
+      "on": {
+        "directories": [".env", "env", ".venv", "venv"],
+        "activate_script": "default"
+      }
+    },
+    "env": {},
+    "font_size": 16,
+    "font_features": null,
+    "line_height": "comfortable",
+    "option_as_meta": false,
+    "button": false,
+    "shell": "system",
+    "toolbar": {
+      "breadcrumbs": true
+    },
+    "working_directory": "current_project_directory"
+  }
+}
