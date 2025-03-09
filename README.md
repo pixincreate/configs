@@ -28,7 +28,7 @@ irm "https://github.com/pixincreate/configs/raw/main/windows/powershell/setup.ps
 > [!NOTE]
 > Unix based OS here means, `WSL`, `Debian`, or `macOS`
 
-If the machine is Windows that have networking tool like [Portmaster](https://safing.io) installed, `WSL` will have hard time establishing networking connection.  Hence, it is recommended to execute the below command in `WSL` terminal before calling `setup` script:
+If the machine is Windows that have networking tool like [Portmaster](https://safing.io) installed, `WSL` will have hard time establishing networking connection. Hence, it is recommended to execute the below command in `WSL` terminal before calling `setup` script:
 
 ```sh
 echo 'nameserver 9.9.9.9' | sudo tee -a /etc/resolv.conf
