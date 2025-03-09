@@ -181,7 +181,7 @@ additional_zshrc() {
       export ADBLOCK=1
 
       PQ_LIB_DIR="$(brew --prefix libpq)/lib"
-      
+
       export CONFIGS=${HOME}/Dev/scripts/configs
       alias zed=zed-preview
     ' >>~/.zsh/.additionals.zsh
@@ -454,10 +454,24 @@ config_setup() {
       print "Configs are unmodified, pulling latest changes from main..." true
       git -C "${LOCAL_PATH}" pull
 
-      git sumodule update --init --recursive
+      git submodule update --init --recursive
 
-      cp -r ${LOCAL_PATH}/home/.config $HOME/.config
-      cp -r ${LOCAL_PATH}/unix/. $HOME
+      for item in "${LOCAL_PATH}/home/.config"/*; do
+        base=$(basename "$item")
+        ln -sf "$item" "${HOME}/.config/$base"
+      done
+
+      # Loop including hidden ones
+      for item in "${LOCAL_PATH}/unix/"* "${LOCAL_PATH}/unix/".[!.]* "${LOCAL_PATH}/unix/".??*; do
+        # Skip if the pattern doesn't match any files
+        [ -e "$item" ] || continue
+        base=$(basename "$item")
+        ln -sf "$item" "${HOME}/$base"
+      done
+
+      if [[ -d "${XDG_CONFIG_HOME}/tmux" ]]; then
+        tmux source ${XDG_CONFIG_HOME}/tmux/tmux.conf
+      fi
 
       update_gitconfig_data
       additional_zshrc $platform
@@ -476,8 +490,18 @@ config_setup() {
 
     validate_config
 
-    cp -r ${LOCAL_PATH}/home/. $HOME
-    cp -r ${LOCAL_PATH}/unix/. $HOME
+    for item in "${LOCAL_PATH}/home/"* "${LOCAL_PATH}/home/".[!.]* "${LOCAL_PATH}/home/".??*; do
+      base=$(basename "$item")
+      ln -sf "$item" "${HOME}/$base"
+    done
+
+    # Loop including hidden ones
+    for item in "${LOCAL_PATH}/unix/"* "${LOCAL_PATH}/unix/".[!.]* "${LOCAL_PATH}/unix/".??*; do
+      # Skip if the pattern doesn't match any files
+      [ -e "$item" ] || continue
+      base=$(basename "$item")
+      ln -sf "$item" "${HOME}/$base"
+    done
 
     update_gitconfig_data
     additional_zshrc $platform
