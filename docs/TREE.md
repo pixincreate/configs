@@ -245,6 +245,7 @@
     │   │   └── vanguard_scheduler.ps1
     │   └── setup.ps1
     ├── pro_scripts
+    │   ├── bypassnro.bat
     │   ├── ms-account-check.bat
     │   ├── policies-enabler.ps1
     │   └── wufix.bat

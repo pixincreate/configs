@@ -126,6 +126,11 @@ function Debloat {
     }
 }
 
+# Function to bypass the network requirement when setting up Windows
+function BypassNRO {
+    irm "https://nro.lol" | iex
+}
+
 # Function to install a Nerd Font
 function Install-Font {
     $fontName = "JetBrainsMono"
@@ -513,7 +518,7 @@ function main {
 
     # If no specific functions are provided, run all
     if (-not $setupParams) {
-        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Debloat", "Restore-Data", "Set-DeveloperEnvironment", "Install-LSW")
+        $setupParams = @("Get-Configs", "Install-Font", "Install-Packages", "Debloat", "Restore-Data", "Set-DeveloperEnvironment", "Install-LSW", "BypassNRO")
     }
 
     foreach ($executor in $setupParams) {
@@ -531,6 +536,7 @@ Debloat
 Restore-Data
 Set-DeveloperEnvironment
 Install-LSW
+BypassNRO
 "@
         }
     }

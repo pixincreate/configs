@@ -12,5 +12,6 @@
 /target
 
 # Generated files
-/generated
+generated
 \%APPDATA\%
+buffers
