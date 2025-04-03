@@ -128,7 +128,8 @@ function Debloat {
 
 # Function to bypass the network requirement when setting up Windows
 function BypassNRO {
-    irm "https://nro.lol" | iex
+    # irm "https://nro.lol" | iex
+    start ms-cxh:localonly
 }
 
 # Function to install a Nerd Font
