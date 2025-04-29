@@ -216,7 +216,7 @@ update_zshrc() {
     force_update=true
   fi
 
-  if wget -q --spider http://duck.com; then
+  if wget -q --spider --connect-timeout=3 http://duck.com; then
     local url="https://github.com/pixincreate/configs/raw/main/unix/.zsh/.zshrc"
     local zshrc_file="${HOME}/.zsh/.zshrc"
     local temp_file=$(mktemp)
