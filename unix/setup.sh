@@ -10,7 +10,7 @@ readonly RISH_PATH="/storage/emulated/0/Documents/Dev/Shizuku"
 
 readonly GITCONFIG_EMAIL="69745008+pixincreate@users.noreply.github.com"
 readonly GITCONFIG_USERNAME="PiX"
-readonly GITCONFIG_SIGNGING_KEY="~/.ssh/id_ed25519_sign.pub"
+readonly GITCONFIG_SIGNGING_KEY="$HOME/.ssh/id_ed25519_sign.pub"
 
 readonly DEFAULT_SSH_PERMS=0600
 readonly SUPPORTED_PLATFORMS=("darwin" "gnu" "android")
@@ -74,8 +74,8 @@ update_gitconfig_data() {
 # Function to generate SSH keys (DRY principle)
 generate_ssh_keys() {
   local email="$1"
-  local auth_path="~/.ssh/id_ed25519_auth"
-  local sign_path="~/.ssh/id_ed25519_sign"
+  local auth_path="$HOME/.ssh/id_ed25519_auth"
+  local sign_path="$HOME/.ssh/id_ed25519_sign"
 
   print "Path to authentication file: ${auth_path}"
   print "Path to signature file: ${sign_path}"
@@ -91,8 +91,8 @@ generate_ssh_keys() {
 
 # Function to copy keys and prompt (DRY principle)
 copy_and_update_keys() {
-  local auth_path="~/.ssh/id_ed25519_auth"
-  local sign_path="~/.ssh/id_ed25519_sign"
+  local auth_path="$HOME/.ssh/id_ed25519_auth"
+  local sign_path="$HOME/.ssh/id_ed25519_sign"
 
   print "You have 3 minutes each to visit https://github.com/settings/keys and update keys on GitHub." true
   sleep 4
@@ -375,7 +375,7 @@ install_apps() {
     for app in "${apps_category[@]}"; do
       exclude_list=("android-tools")
       [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
-      if command -v $app &>/dev/null; then
+      if command -v "${app}" &>/dev/null; then
         echo "$app is already installed. Trying to upgrade..."
         brew upgrade "$app"
       else
@@ -396,7 +396,7 @@ install_apps() {
     for app in "${apps_category[@]}"; do
       exclude_list=("android-tools")
       [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
-      if command -v $app &>/dev/null; then
+      if command -v "${app}" &>/dev/null; then
         echo "$app is already installed. Trying to upgrade..."
         sudo apt-get upgrade "$app"
       else
@@ -413,7 +413,7 @@ install_apps() {
     for app in "${apps_category[@]}"; do
       exclude_list=("android-platform-tools" "gcc" "xclip")
       [[ " ${exclude_list[*]} " =~ " ${app} " ]] && echo "Skipping unsupported application: $app" && continue
-      if command -v $app &>/dev/null; then
+      if command -v "${app}" &>/dev/null; then
         echo "$app is already installed. Trying to upgrade..."
         pkg upgrade "$app" || echo "Failed to upgrade $app"
       else
@@ -533,7 +533,7 @@ config_setup() {
     if [[ "$platform" == "android" ]]; then
       chsh -s zsh
     else
-      sudo chsh -s $(which zsh) $(whoami)
+      sudo chsh -s "$(which zsh) $(whoami)"
     fi
   fi
   print "Configurations setup completed!"
