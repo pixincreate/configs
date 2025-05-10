@@ -22,7 +22,7 @@ export EDITOR=nvim
 export VISUAL=nvim
 
 # Source env from cargo
-. "$HOME/.cargo/env"
+# . "$HOME/.cargo/env"
 
 # Set mux to run
 export MUX='zellij'
