@@ -151,6 +151,9 @@
     "terminal.external.windowsExec": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\PowerShell\\PowerShell 7 (x64).lnk",
 
     // Privacy (Telemetry) Settings
+    "docker.lsp.telemetry": "off",
+    "gitlens.telemetry.enabled": false,
+    "telemetry.feedback.enabled": false,
     "telemetry.telemetryLevel": "off",
 
     // Debugger
@@ -273,8 +276,8 @@
     "vscode-neovim.neovimInitVimPaths.darwin" : "$HOME/.config/nvim/init.lua",
     "vscode-neovim.neovimExecutablePaths.linux" : "/usr/bin/nvim",
     "vscode-neovim.neovimInitVimPaths.linux" : "$HOME/.config/nvim/init.lua",
-    "vscode-neovim.neovimExecutablePaths.win32" : "C:\\Program Files\\Neovim\\bin\\nvim.exe",
-    "vscode-neovim.neovimInitVimPaths.win32" : "$HOME\\AppData\\Local\\nvim\\init.lua",
+    // "vscode-neovim.neovimExecutablePaths.win32" : "C:\\Program Files\\Neovim\\bin\\nvim.exe",
+    // "vscode-neovim.neovimInitVimPaths.win32" : "$HOME\\AppData\\Local\\nvim\\init.lua",
 
     // Powershell
     "powershell.codeFormatting.preset": "OTBS",

@@ -533,7 +533,7 @@ config_setup() {
     if [[ "$platform" == "android" ]]; then
       chsh -s zsh
     else
-      sudo chsh -s "$(which zsh) $(whoami)"
+      chsh -s "$(which zsh) $(whoami)"
     fi
   fi
   print "Configurations setup completed!"
