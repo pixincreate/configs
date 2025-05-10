@@ -1,12 +1,12 @@
-[submodule "home/.config/alacritty/themes"]
-path = home/.config/alacritty/themes
-url = https://github.com/alacritty/alacritty-theme.git
-[submodule "home/.config/tmux/plugins/tpm"]
-	path = home/.config/tmux/plugins/tpm
+[submodule "home/config/.config/alacritty/themes"]
+    path = home/config/.config/alacritty/themes
+    url = https://github.com/alacritty/alacritty-theme.git
+[submodule "home/config/.config/tmux/plugins/tpm"]
+	path = home/config/.config/tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm.git
-[submodule "home/.config/wezterm"]
-	path = home/.config/wezterm
+[submodule "home/config/.config/wezterm"]
+	path = home/config/.config/wezterm
 	url = https://github.com/NishantJoshi00/wez-config.git
-[submodule "home/.config/nvim"]
-	path = home/.config/nvim
+[submodule "home/config/.config/nvim"]
+	path = home/config/.config/nvim
 	url = https://github.com/NishantJoshi00/nvim-config.git

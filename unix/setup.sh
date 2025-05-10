@@ -14,6 +14,7 @@ readonly GITCONFIG_SIGNGING_KEY="$HOME/.ssh/id_ed25519_sign.pub"
 
 readonly DEFAULT_SSH_PERMS=0600
 readonly SUPPORTED_PLATFORMS=("darwin" "gnu" "android")
+readonly STOW_PACKAGES=("config" "git" "ssh" "vscode" "zsh")
 
 # Helper functions
 print() {
@@ -223,22 +224,57 @@ check_requirements() {
       return 1
     }
   done
+  
+  # Check for stow and install if not present
+  if ! command -v stow &>/dev/null; then
+    log_info "GNU Stow not found. Installing..."
+    case "$OSTYPE" in
+      darwin*)
+        brew install stow
+        ;;
+      linux-gnu*)
+        if command -v apt-get &>/dev/null; then
+          sudo apt-get update && sudo apt-get install -y stow
+        elif command -v dnf &>/dev/null; then
+          sudo dnf install -y stow
+        elif command -v pacman &>/dev/null; then
+          sudo pacman -S --noconfirm stow
+        else
+          log_error "Could not install stow. Please install it manually."
+          return 1
+        fi
+        ;;
+      linux-android)
+        pkg install stow
+        ;;
+      *)
+        log_error "Unsupported platform for stow installation: $OSTYPE"
+        return 1
+        ;;
+    esac
+  fi
 }
 
 help() {
   print "Usage: setup.sh [options]"
   print "Options:"
-  print "  --upgrade      Upgrade configurations"
-  print "  --setup        Setup the environment"
-  print "  --git-setup    Setup Git configuration"
-  print "  --config-setup Setup configurations"
-  print "  --install      Install applications"
-  print "  --help         Display this help message"
+  print "  --upgrade              Upgrade configurations"
+  print "  --setup                Setup the environment"
+  print "  --git-setup            Setup Git configuration"
+  print "  --config-setup         Setup configurations"
+  print "  --install              Install applications"
+  print "  --stow [PACKAGE]       Stow specific package (${STOW_PACKAGES[*]})"
+  print "  --stow-all             Stow all packages"
+  print "  --unstow [PACKAGE]     Unstow specific package"
+  print "  --unstow-all           Unstow all packages"
+  print "  --help                 Display this help message"
   print "Example:"
   print "- Initial setup:"
   print "  \`setup.sh --setup\`"
   print "- Upgrade configs:"
   print "  \`setup.sh --upgrade --config-setup\`"
+  print "- Stow only zsh config:"
+  print "  \`setup.sh --stow zsh\`"
   exit 0
 }
 
@@ -362,7 +398,7 @@ install_apps() {
   )
   tools=(
     "android-platform-tools" "android-tools" "binutils" "coreutils"
-    "croc" "micro" "multitail" "neovim" "openssh"
+    "croc" "micro" "multitail" "neovim" "openssh" "stow"
   )
 
   # Install applications based on the platform
@@ -443,6 +479,78 @@ install_apps() {
   return $? # Return the exit status of the last command
 }
 
+# Function to handle stowing packages
+stow_package() {
+  local package="$1"
+  local target="${2:-$HOME}"
+  local stow_dir="${3:-${LOCAL_PATH}/home}"
+  
+  if [ ! -d "$stow_dir/$package" ]; then
+    log_error "Package directory not found: $stow_dir/$package"
+    return 1
+  fi
+  
+  log_info "Stowing $package to $target..."
+  
+  # Use --no-folding to ensure stow doesn't try to fold directories
+  # Use --restow to handle any existing links
+  stow --no-folding --restow --dir="$stow_dir" --target="$target" "$package"
+  
+  if [ $? -eq 0 ]; then
+    log_info "Successfully stowed $package"
+  else
+    log_error "Failed to stow $package"
+    return 1
+  fi
+}
+
+# Function to handle unstowing packages
+unstow_package() {
+  local package="$1"
+  local target="${2:-$HOME}"
+  local stow_dir="${3:-${LOCAL_PATH}/home}"
+  
+  if [ ! -d "$stow_dir/$package" ]; then
+    log_error "Package directory not found: $stow_dir/$package"
+    return 1
+  fi
+  
+  log_info "Unstowing $package from $target..."
+  
+  stow --delete --dir="$stow_dir" --target="$target" "$package"
+  
+  if [ $? -eq 0 ]; then
+    log_info "Successfully unstowed $package"
+  else
+    log_error "Failed to unstow $package"
+    return 1
+  fi
+}
+
+# Function to handle stowing all packages
+stow_all_packages() {
+  local target="${1:-$HOME}"
+  local stow_dir="${2:-${LOCAL_PATH}/home}"
+  
+  log_info "Stowing all packages to $target..."
+  
+  for package in "${STOW_PACKAGES[@]}"; do
+    stow_package "$package" "$target" "$stow_dir"
+  done
+}
+
+# Function to handle unstowing all packages
+unstow_all_packages() {
+  local target="${1:-$HOME}"
+  local stow_dir="${2:-${LOCAL_PATH}/home}"
+  
+  log_info "Unstowing all packages from $target..."
+  
+  for package in "${STOW_PACKAGES[@]}"; do
+    unstow_package "$package" "$target" "$stow_dir"
+  done
+}
+
 config_setup() {
   print "Setting up configurations..." true
 
@@ -454,21 +562,11 @@ config_setup() {
       print "Configs are unmodified, pulling latest changes from main..." true
       git -C "${LOCAL_PATH}" pull
 
-      git submodule update --init --recursive
+      git -C "${LOCAL_PATH}" submodule update --init --recursive
 
-      for item in "${LOCAL_PATH}/home/.config"/*; do
-        base=$(basename "$item")
-        ln -sf "$item" "${HOME}/.config/$base"
-      done
-
-      # Loop including hidden ones
-      for item in "${LOCAL_PATH}/unix/"* "${LOCAL_PATH}/unix/".[!.]* "${LOCAL_PATH}/unix/".??*; do
-        # Skip if the pattern doesn't match any files
-        [ -e "$item" ] || continue
-        base=$(basename "$item")
-        ln -sf "$item" "${HOME}/$base"
-      done
-
+      # Use stow to manage dotfiles
+      stow_all_packages "$HOME" "${LOCAL_PATH}/home"
+      
       if [[ -d "${XDG_CONFIG_HOME}/tmux" ]]; then
         tmux source ${XDG_CONFIG_HOME}/tmux/tmux.conf
       fi
@@ -490,18 +588,8 @@ config_setup() {
 
     validate_config
 
-    for item in "${LOCAL_PATH}/home/"* "${LOCAL_PATH}/home/".[!.]* "${LOCAL_PATH}/home/".??*; do
-      base=$(basename "$item")
-      ln -sf "$item" "${HOME}/$base"
-    done
-
-    # Loop including hidden ones
-    for item in "${LOCAL_PATH}/unix/"* "${LOCAL_PATH}/unix/".[!.]* "${LOCAL_PATH}/unix/".??*; do
-      # Skip if the pattern doesn't match any files
-      [ -e "$item" ] || continue
-      base=$(basename "$item")
-      ln -sf "$item" "${HOME}/$base"
-    done
+    # Use stow to manage dotfiles
+    stow_all_packages "$HOME" "${LOCAL_PATH}/home"
 
     update_gitconfig_data
     additional_zshrc $platform
@@ -516,13 +604,17 @@ config_setup() {
       ln -sfn $HOME/.rish/rish_shizuku.dex $PATH/rish_shizuku.dex
       ;;
     "darwin")
-      mv "$HOME/Code" "$HOME/Library/Application Support/Code"
+      if [ -d "$HOME/Code" ]; then
+        mv "$HOME/Code" "$HOME/Library/Application Support/Code"
+      fi
       ;;
     "gnu")
       if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
-        code
+        command -v code &>/dev/null && code
       fi
-      mv "$HOME/Code" "$HOME/.config/Code"
+      if [ -d "$HOME/Code" ]; then
+        mv "$HOME/Code" "$HOME/.config/Code"
+      fi
       ;;
     *)
       print "Unsupported platform: $platform\nSupported platforms: ${SUPPORTED_PLATFORMS[*]}"
@@ -554,6 +646,9 @@ main() {
 
   check_requirements
 
+  local stow_pkg=""
+  local unstow_pkg=""
+
   while [[ "$#" -gt 0 ]]; do
     case $1 in
     -s | --setup) setup=true ;;
@@ -561,6 +656,26 @@ main() {
     -c | --setup-config) config_setup=true ;;
     -i | --install) install=true ;;
     -u | --upgrade) upgrade=true ;;
+    --stow)
+      if [[ -n "$2" && "$2" != -* ]]; then
+        stow_pkg="$2"
+        shift
+      else
+        log_error "No package specified for stowing"
+        exit 1
+      fi
+      ;;
+    --stow-all) stow_all=true ;;
+    --unstow)
+      if [[ -n "$2" && "$2" != -* ]]; then
+        unstow_pkg="$2"
+        shift
+      else
+        log_error "No package specified for unstowing"
+        exit 1
+      fi
+      ;;
+    --unstow-all) unstow_all=true ;;
     -h | --help)
       help
       ;;
@@ -574,23 +689,41 @@ main() {
 
   dir_setup
 
+  # Determine platform
+  case "$OSTYPE" in
+  darwin*)
+    setup_platform="darwin"
+    ;;
+  linux-gnu)
+    setup_platform="gnu"
+    ;;
+  linux-android)
+    setup_platform="android"
+    ;;
+  *)
+    echo "unsupported platform: $OSTYPE\nSupported platforms: ${SUPPORTED_PLATFORMS[*]}"
+    ;;
+  esac
+
+  # Handle stow/unstow requests
+  if [[ -n "$stow_pkg" ]]; then
+    stow_package "$stow_pkg" "$HOME" "${LOCAL_PATH}/home"
+  fi
+
+  if [[ -n "$unstow_pkg" ]]; then
+    unstow_package "$unstow_pkg" "$HOME" "${LOCAL_PATH}/home"
+  fi
+
+  if [[ "$stow_all" == true ]]; then
+    stow_all_packages "$HOME" "${LOCAL_PATH}/home"
+  fi
+
+  if [[ "$unstow_all" == true ]]; then
+    unstow_all_packages "$HOME" "${LOCAL_PATH}/home"
+  fi
+
   # Conditional execution based on flags
   if [[ "$setup" == true ]]; then
-    case "$OSTYPE" in
-    darwin*)
-      setup_platform="darwin"
-      ;;
-    linux-gnu)
-      setup_platform="gnu"
-      ;;
-    linux-android)
-      setup_platform="android"
-      ;;
-    *)
-      echo "unsupported platform: $OSTYPE\nSupported platforms: ${SUPPORTED_PLATFORMS[*]}"
-      ;;
-    esac
-
     install_apps $setup_platform
     config_setup $setup_platform
     git_setup
