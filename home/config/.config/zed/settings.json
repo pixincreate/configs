@@ -1,4 +1,5 @@
 // Zed settings
+
 //
 // Documentation: https://zed.dev/docs/configuring-zed
 // To see defaults, run `zed: open default settings` from the command palette
@@ -7,12 +8,59 @@
   "features": {
     "edit_prediction_provider": "copilot"
   },
-  "assistant": {
+  "agent": {
+    "profiles": {
+      "ask": {
+        "name": "Ask",
+        "tools": {
+          "terminal": true,
+          "move_path": true,
+          "edit_file": true,
+          "delete_path": true,
+          "create_directory": true,
+          "contents": true,
+          "diagnostics": true,
+          "fetch": true,
+          "list_directory": true,
+          "now": true,
+          "find_path": true,
+          "read_file": true,
+          "open": true,
+          "grep": true,
+          "thinking": true,
+          "web_search": true,
+          "copy_path": true
+        },
+        "enable_all_context_servers": false,
+        "context_servers": {}
+      },
+      "minimal": {
+        "name": "Minimal",
+        "tools": {
+          "grep": true
+        },
+        "enable_all_context_servers": false,
+        "context_servers": {}
+      }
+    },
+    "default_profile": "minimal",
     "default_model": {
       "provider": "copilot_chat",
-      "model": "claude-3-5-sonnet"
+      "model": "claude-sonnet-4"
     },
     "version": "2"
+  },
+  "language_models": {
+    "ollama": {
+      "api_url": "http://localhost:11434",
+      "available_models": [
+        {
+          "name": "gemma3:12b",
+          "display_name": "Gemini 3 12B",
+          "max_tokens": 1000000
+        }
+      ]
+    }
   },
 
   // Core Editor Settings
@@ -31,9 +79,9 @@
 
   // Font & Typography
   "buffer_font_family": "FiraCode Nerd Font",
-  "buffer_font_size": 12.0,
+  "buffer_font_size": 11.0,
   "buffer_font_weight": 400,
-  "ui_font_family": "Geist Mono",
+  "ui_font_family": "GeistMono Nerd Font Mono",
   "ui_font_size": 16,
   "ui_font_weight": 500,
 
@@ -93,7 +141,7 @@
     "file_icons": true,
     "git_status": true,
     "activate_on_close": "history",
-    "always_show_close_button": false
+    "show_close_button": "hover"
   },
 
   // Theme Settings
@@ -102,6 +150,7 @@
     "light": "Catppuccin Frappé",
     "dark": "Kanagawa Dragon"
   },
+  "icon_theme": "Catppuccin Mocha",
 
   // Git Integration
   "git": {
@@ -116,7 +165,7 @@
 
   // Privacy Settings
   "telemetry": {
-    "diagnostics": false,
+    "diagnostics": true,
     "metrics": false
   },
 
@@ -148,16 +197,23 @@
   "lsp": {
     // Rust Configuration
     "rust-analyzer": {
+      "enable_lsp_tasks": true,
       "initialization_options": {
-        "cargo": {
-          "features": "all"
+        "diagnostics": {
+          "experimental": {
+            "enable": true
+          }
         },
+        // "cargo": {
+        //   "features": "all"
+        // },
         "check": {
           "allTargets": true,
-          "command": "clippy",
-          "features": "all"
+          "command": "clippy"
+          // ,
+          // "features": "all"
         },
-        "checkOnSave": true,
+        "checkOnSave": false,
         "completion": {
           "autoimport": {
             "enable": true,
@@ -257,7 +313,7 @@
       }
     },
     "env": {},
-    "font_size": 16,
+    "font_size": 14,
     "font_features": null,
     "line_height": "comfortable",
     "option_as_meta": false,
