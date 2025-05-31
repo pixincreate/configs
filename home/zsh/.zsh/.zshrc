@@ -42,13 +42,6 @@ if [[ "$TERM" = "alacritty" ]]; then
   fi
 fi
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zsh/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 if type brew &>/dev/null; then
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
     autoload -Uz compinit
@@ -402,9 +395,6 @@ if ! zgenom saved; then
   zgenom ohmyzsh plugins/git
   zgenom ohmyzsh plugins/gitignore
 
-  # Powerlevel10k
-  zgenom load romkatv/powerlevel10k powerlevel10k
-
   # LS_COLORS
   zgenom load trapd00r/LS_COLORS lscolors.sh
 
@@ -429,8 +419,8 @@ eval "$(direnv hook zsh)"
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
-# Source Powerlevel10k configuration
-source "${ZDOTDIR}/.p10k.zsh"
+# Initialize Starship
+eval "$(starship init zsh)"
 
 # Load application aliases
 [[ -f ~/.zsh/.additionals.zsh ]] && source ~/.zsh/.additionals.zsh

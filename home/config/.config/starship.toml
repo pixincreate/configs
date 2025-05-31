@@ -1,189 +1,286 @@
-# Credits: https://github.com/starship/starship/pull/5961
-
-# Get editor completions based on the config schema
-"$schema" = 'https://starship.rs/config-schema.json'
-
-# Inserts a blank line between shell prompts:
-add_newline = true
-continuation_prompt = "[▶▶ ](dimmed white)"
+# Starship Configuration - P10K Inspired with Catppuccin Colors
+# Using Catppuccin Mocha palette with yellow accents
 
 format = """
-[](surface0)\
+[╭─](dimmed #313244) \
 $os\
-$username\
-[](bg:peach fg:surface0)\
 $directory\
-[](fg:peach bg:green)\
 $git_branch\
-$git_status\
-[](fg:green bg:teal)\
-$c\
+$python\
+$nodejs\
 $rust\
 $golang\
-$nodejs\
-$php\
 $java\
+$ruby\
+$php\
+$lua\
+$swift\
 $kotlin\
-$haskell\
-$python\
-[](fg:teal bg:blue)\
-$docker_context\
-[](fg:blue bg:purple)\
-$time\
-[ ](fg:purple)\
-$line_break$character"""
+$dotnet\
+$git_status\
+$fill\
+$battery\
+$cmd_duration\
+$time
+[╰─](dimmed #313244)$character"""
 
-# move the rest of the prompt to the right
-right_format = """
-[$localip]($style)"""
-
-# Color Palette
-palette = "catppuccin_mocha"
-
-[palettes.catppuccin_mocha]
-rosewater = "#f5e0dc"
-flamingo = "#f2cdcd"
-pink = "#f5c2e7"
-orange = "#cba6f7"
-red = "#f38ba8"
-maroon = "#eba0ac"
-peach = "#fab387"
-yellow = "#f9e2af"
-green = "#a6e3a1"
-teal = "#94e2d5"
-sky = "#89dceb"
-sapphire = "#74c7ec"
-blue = "#89b4fa"
-lavender = "#b4befe"
-text = "#cdd6f4"
-subtext1 = "#bac2de"
-subtext0 = "#a6adc8"
-overlay2 = "#9399b2"
-overlay1 = "#7f849c"
-overlay0 = "#6c7086"
-surface2 = "#585b70"
-surface1 = "#45475a"
-surface0 = "#313244"
-base = "#1e1e2e"
-mantle = "#181825"
-crust = "#11111b"
+# No blank line between prompts for compact look
+add_newline = false
 
 [os]
 disabled = false
+format = "[$symbol]($style) "
+style = "bold #f9e2af"        # Catppuccin Yellow
 
 [os.symbols]
-Windows = ""
-Ubuntu = "󰕈"
-SUSE = ""
-Raspbian = "󰐿"
-Mint = "󰣭"
-Macos = ""
-Manjaro = ""
-Linux = "󰌽"
-Gentoo = "󰣨"
-Fedora = "󰣛"
-Alpine = ""
-Amazon = ""
-Android = ""
-Arch = "󰣇"
-Artix = "󰣇"
-CentOS = ""
-Debian = "󰣚"
-Redhat = "󱄛"
-RedHatEnterprise = "󱄛"
-
-[username]
-show_always = true
-style_user = "bg:surface0 fg:text"
-style_root = "bg:surface0 fg:text"
-format = '[ $user ]($style)'
+Alpine = " "
+Amazon = " "
+Android = " "
+Arch = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+Emscripten = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
+Garuda = "﯑ "
+Gentoo = " "
+HardenedBSD = "ﲊ "
+Illumos = " "
+Linux = " "
+Macos = " "
+Manjaro = " "
+Mariner = " "
+MidnightBSD = " "
+Mint = " "
+NetBSD = " "
+NixOS = " "
+OpenBSD = " "
+openSUSE = " "
+OracleLinux = " "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+Redox = " "
+Solus = "ﴱ "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Windows = " "
 
 [directory]
-style = "fg:mantle bg:peach"
-format = "[ $path ]($style)"
-truncation_length = 3
+format = "[$read_only]($read_only_style)  [$path]($style)"
+style = "dimmed #6c7086"                                                                                                                        # Catppuccin Overlay0 (dimmed)
+read_only_style = "#f38ba8"                                                                                                                     # Catppuccin Red
+read_only = "󰌾"
+truncation_length = 0                                                                                                                           # Show full path
+truncate_to_repo = false
 truncation_symbol = "…/"
-
-[directory.substitutions]
-"Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = "󰝚 "
-"Pictures" = " "
-"Developer" = "󰲋 "
+home_symbol = "~"
+repo_root_style = "bold #f9e2af"                                                                                                                # Catppuccin Yellow (highlighted)
+repo_root_format = "[$read_only]($read_only_style)  [$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)"
+before_repo_root_style = "dimmed #6c7086"
+fish_style_pwd_dir_length = 0
 
 [git_branch]
-symbol = ""
-style = "bg:teal"
-format = '[[ $symbol $branch ](fg:base bg:green)]($style)'
+format = " on [$symbol$branch(:$remote_branch)]($style) "
+symbol = ""
+style = "bold #f9e2af"                                    # Catppuccin Yellow
+truncation_length = 20
+truncation_symbol = "…"
 
 [git_status]
-style = "bg:teal"
-format = '[[($all_status$ahead_behind )](fg:base bg:green)]($style)'
+format = '([$all_status$ahead_behind]($style) )'
+style = "bold #fab387"                           # Catppuccin Peach
+conflicted = "="
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = ""
+untracked = "?${count}"
+stashed = "󰏗 ${count}"
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "✘${count}"
 
-[nodejs]
-symbol = ""
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
+[fill]
+symbol = "─"
+style = "dimmed #313244" # Catppuccin Surface0
 
-[c]
-symbol = " "
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
+[battery]
+disabled = false
+format = " [$symbol$percentage]($style) "
+full_symbol = "󰁹 "
+charging_symbol = "󰂄 "
+discharging_symbol = "󰂃 "
+unknown_symbol = "󰁽 "
+empty_symbol = "󰂎 "
 
-[rust]
-symbol = ""
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
+[[battery.display]]
+threshold = 10
+style = "bold #f38ba8" # Catppuccin Red
 
-[golang]
-symbol = ""
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
+[[battery.display]]
+threshold = 30
+style = "bold #fab387" # Catppuccin Peach
 
-[php]
-symbol = ""
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
-
-[java]
-symbol = " "
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
-
-[kotlin]
-symbol = ""
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
-
-[haskell]
-symbol = ""
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
-
-[python]
-symbol = ""
-style = "bg:teal"
-format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
-
-[docker_context]
-symbol = ""
-style = "bg:mantle"
-format = '[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)'
+[[battery.display]]
+threshold = 100
+style = "dimmed #a6adc8" # Catppuccin Subtext0
 
 [time]
 disabled = false
-time_format = "%R"
-style = "bg:peach"
-format = '[[  $time ](fg:mantle bg:purple)]($style)'
+format = "at [$time]($style)"
+style = "#f9e2af"             # Catppuccin Yellow
+time_format = "%H:%M:%S"
+utc_time_offset = "local"
 
-[line_break]
-disabled = false
+[cmd_duration]
+min_time = 2_000
+format = "[$duration]($style) "
+style = "dimmed #a6adc8"        # Catppuccin Subtext0
+show_milliseconds = false
+show_notifications = false
 
 [character]
-disabled = false
-success_symbol = '[❯](bold fg:green)'
-error_symbol = '[❯](bold fg:red)'
-vimcmd_symbol = '[❮](bold fg:creen)'
-vimcmd_replace_one_symbol = '[❮](bold fg:purple)'
-vimcmd_replace_symbol = '[❮](bold fg:purple)'
-vimcmd_visual_symbol = '[❮](bold fg:lavender)'
+success_symbol = "[❯](bold #a6e3a1)" # Catppuccin Green
+error_symbol = "[❯](bold #f38ba8)"   # Catppuccin Red
+vimcmd_symbol = "[❮](bold #cba6f7)"  # Catppuccin Mauve
+
+# Language-specific modules that show next to git branch when in those project types
+[python]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #89b4fa" # Catppuccin Blue
+detect_extensions = ["py"]
+detect_files = [
+    ".python-version",
+    "Pipfile",
+    "__pycache__",
+    "pyproject.toml",
+    "requirements.txt",
+    "setup.py",
+    "tox.ini",
+]
+
+[nodejs]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #a6e3a1"                                     # Catppuccin Green
+detect_extensions = ["js", "mjs", "cjs", "ts", "mts", "cts"]
+detect_files = ["package.json", ".node-version", ".nvmrc"]
+
+[rust]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #fab387"                    # Catppuccin Peach
+detect_extensions = ["rs"]
+detect_files = ["Cargo.toml", "Cargo.lock"]
+
+[golang]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #74c7ec"                           # Catppuccin Sapphire
+detect_extensions = ["go"]
+detect_files = ["go.mod", "go.sum", ".go-version"]
+
+[java]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #f38ba8"                                                     # Catppuccin Red
+detect_extensions = ["java", "class", "gradle", "jar"]
+detect_files = ["pom.xml", "build.gradle.kts", "build.sbt", ".java-version"]
+
+[ruby]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #f38ba8"                    # Catppuccin Red
+detect_extensions = ["rb"]
+detect_files = ["Gemfile", ".ruby-version"]
+
+[docker_context]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #89b4fa"                                                   # Catppuccin Blue
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+
+[package]
+format = '[$symbol $version]($style) '
+symbol = "󰏗"
+style = "dimmed #94e2d5"               # Catppuccin Teal
+display_private = false
+
+[lua]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #89b4fa"     # Catppuccin Blue
+detect_extensions = ["lua"]
+
+[swift]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #fab387"      # Catppuccin Peach
+detect_extensions = ["swift"]
+
+[c]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #89dceb"       # Catppuccin Sky
+detect_extensions = ["c", "h"]
+
+[cpp]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #89dceb"                                    # Catppuccin Sky
+detect_extensions = ["cpp", "cxx", "cc", "h", "hpp", "hxx"]
+
+[php]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #cba6f7"     # Catppuccin Mauve
+detect_extensions = ["php"]
+
+[kotlin]
+format = '[$symbol]($style)'
+symbol = ""
+style = "dimmed #b4befe"          # Catppuccin Lavender
+detect_extensions = ["kt", "kts"]
+
+[dotnet]
+format = '[$symbol]($style)'
+symbol = "󰪮"
+style = "dimmed #b4befe" # Catppuccin Lavender
+detect_extensions = ["csproj", "fsproj", "xproj"]
+detect_files = [
+    "global.json",
+    "project.json",
+    "Directory.Build.props",
+    "Directory.Build.targets",
+    "Packages.props",
+]
+
+# Disable modules we don't want
+[username]
+disabled = true
+
+[hostname]
+disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[azure]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[memory_usage]
+disabled = true
