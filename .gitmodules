@@ -1,6 +1,6 @@
 [submodule "home/config/.config/alacritty/themes"]
-    path = home/config/.config/alacritty/themes
-    url = https://github.com/alacritty/alacritty-theme.git
+	path = home/config/.config/alacritty/themes
+	url = https://github.com/alacritty/alacritty-theme.git
 [submodule "home/config/.config/tmux/plugins/tpm"]
 	path = home/config/.config/tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm.git
