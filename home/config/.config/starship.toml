@@ -6,6 +6,7 @@ format = """
 $os\
 $directory\
 $git_branch\
+$git_state\
 $python\
 $nodejs\
 $rust\
@@ -72,7 +73,7 @@ Windows = " "
 
 [directory]
 format = "[$read_only]($read_only_style)  [$path]($style)"
-style = "dimmed #6c7086"                                                                                                                        # Catppuccin Overlay0 (dimmed)
+style = "dimmed #585b70"                                                                                                                        # Catppuccin Surface2 (dimmed)
 read_only_style = "#f38ba8"                                                                                                                     # Catppuccin Red
 read_only = "󰌾"
 truncation_length = 0                                                                                                                           # Show full path
@@ -81,30 +82,40 @@ truncation_symbol = "…/"
 home_symbol = "~"
 repo_root_style = "bold #f9e2af"                                                                                                                # Catppuccin Yellow (highlighted)
 repo_root_format = "[$read_only]($read_only_style)  [$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)"
-before_repo_root_style = "dimmed #6c7086"
+before_repo_root_style = "dimmed #585b70"
 fish_style_pwd_dir_length = 0
 
 [git_branch]
 format = " on [$symbol$branch(:$remote_branch)]($style) "
-symbol = ""
-style = "bold #f9e2af"                                    # Catppuccin Yellow
-truncation_length = 20
+symbol = " "
+style = "bold #eba0ac"                                    # Catppuccin Maroon
 truncation_symbol = "…"
+
+[git_state]
+format = '( [$state( $progress_current/$progress_total)]($style)) '
+style = "bold #f38ba8"                                              # Catppuccin Red
+cherry_pick = "🍒 picking"
+rebase = "⚠️ rebasing"
+merge = "🔀 merging"
+revert = "⏪ reverting"
+bisect = "🔍 bisecting"
+am = "📧 am"
+am_or_rebase = "📧 am/rebase"
 
 [git_status]
 format = '([$all_status$ahead_behind]($style) )'
-style = "bold #fab387"                           # Catppuccin Peach
-conflicted = "="
-ahead = "⇡${count}"
-behind = "⇣${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+style = "bold #fab387"                              # Catppuccin Peach
+conflicted = '\[✖ ${count}\]'
+ahead = '\[⬆ ${count}\]'
+behind = '\[⬇ ${count}\]'
+diverged = '\[⬆ ${ahead_count} ⬇ ${behind_count}\]'
 up_to_date = ""
-untracked = "?${count}"
-stashed = "󰏗 ${count}"
-modified = "!${count}"
-staged = "+${count}"
-renamed = "»${count}"
-deleted = "✘${count}"
+untracked = '\[? ${count}\]'
+stashed = '\[󰏗 ${count}\]'
+modified = '\[! ${count}\]'
+staged = '\[+ ${count}\]'
+renamed = '\[» ${count}\]'
+deleted = '\[ ${count}\]'
 
 [fill]
 symbol = "─"
