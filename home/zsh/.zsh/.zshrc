@@ -419,8 +419,8 @@ eval "$(direnv hook zsh)"
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
-# Initialize Starship
-eval "$(starship init zsh)"
+# Load Starship and transient prompt
+[[ -f ~/.zsh/.starship.zsh ]] && source ~/.zsh/.starship.zsh
 
 # Load application aliases
 [[ -f ~/.zsh/.additionals.zsh ]] && source ~/.zsh/.additionals.zsh

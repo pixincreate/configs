@@ -24,8 +24,8 @@ $cmd_duration\
 $time
 [╰─](dimmed #313244)$character"""
 
-# No blank line between prompts for compact look
-add_newline = false
+# Add blank line before prompt for better separation
+add_newline = true
 
 [os]
 disabled = false
