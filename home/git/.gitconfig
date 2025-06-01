@@ -1,10 +1,13 @@
 [core]
 abbrev = 12
 autocrlf = input
+compression = 9
 editor = nvim
-pager = delta --diff-so-fancy
 ignorecase = false
 filemode = true
+pager = delta --diff-so-fancy
+preloadIndex = true
+whitespace = error
 
 [user]
 email = example@email.com
@@ -19,6 +22,8 @@ gpgsign = true
 
 [diff]
 colorMoved = default
+renames = copies
+interHunkContext = 10
 
 [gpg]
 format = ssh

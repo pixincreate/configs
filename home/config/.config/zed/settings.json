@@ -45,8 +45,8 @@
     },
     "default_profile": "minimal",
     "default_model": {
-      "provider": "copilot_chat",
-      "model": "claude-sonnet-4"
+      "provider": "google",
+      "model": "gemini-2.5-pro-preview-03-25"
     },
     "version": "2"
   },
