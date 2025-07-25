@@ -5,50 +5,23 @@
 // To see defaults, run `zed: open default settings` from the command palette
 {
   // AI Assistant Settings
+  "context_servers": {
+    "browser-tools-context-server": {
+      "source": "extension",
+      "enabled": true,
+      "settings": {}
+    }
+  },
   "features": {
     "edit_prediction_provider": "copilot"
   },
   "agent": {
-    "profiles": {
-      "ask": {
-        "name": "Ask",
-        "tools": {
-          "terminal": true,
-          "move_path": true,
-          "edit_file": true,
-          "delete_path": true,
-          "create_directory": true,
-          "contents": true,
-          "diagnostics": true,
-          "fetch": true,
-          "list_directory": true,
-          "now": true,
-          "find_path": true,
-          "read_file": true,
-          "open": true,
-          "grep": true,
-          "thinking": true,
-          "web_search": true,
-          "copy_path": true
-        },
-        "enable_all_context_servers": false,
-        "context_servers": {}
-      },
-      "minimal": {
-        "name": "Minimal",
-        "tools": {
-          "grep": true
-        },
-        "enable_all_context_servers": false,
-        "context_servers": {}
-      }
-    },
-    "default_profile": "minimal",
+    "single_file_review": true,
+    "default_profile": "ask",
     "default_model": {
       "provider": "google",
-      "model": "gemini-2.5-pro-preview-03-25"
+      "model": "gemini-2.5-pro"
     },
-    "version": "2"
   },
   "language_models": {
     "ollama": {
@@ -150,7 +123,7 @@
     "light": "Catppuccin Frappé",
     "dark": "Kanagawa Dragon"
   },
-  "icon_theme": "Catppuccin Mocha",
+  "icon_theme": "Material Icon Theme",
 
   // Git Integration
   "git": {
