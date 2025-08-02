@@ -17,11 +17,11 @@
   },
   "agent": {
     "single_file_review": true,
-    "default_profile": "ask",
+    "default_profile": "minimal",
     "default_model": {
-      "provider": "google",
-      "model": "gemini-2.5-pro"
-    },
+      "provider": "copilot_chat",
+      "model": "gpt-4.1"
+    }
   },
   "language_models": {
     "ollama": {

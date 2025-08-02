@@ -168,6 +168,9 @@ additional_zshrc() {
         $(brew --prefix)/opt/gnu-indent/libexec/gnubin
         $(brew --prefix)/opt/gnu-tar/libexec/gnubin
         $(brew --prefix)/opt/binutils/bin
+        $(brew --prefix)/opt/homebrew/opt/openjdk@21/bin
+        $(brew --prefix)/opt/homebrew/opt/openjdk@17/bin
+	      $(brew --prefix)/opt/llvm/bin
       )
 
       # Source init for Docker
@@ -183,7 +186,13 @@ additional_zshrc() {
 
       PQ_LIB_DIR="$(brew --prefix libpq)/lib"
 
-      export CONFIGS=${HOME}/Dev/scripts/configs
+      export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+      export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+
+      export CC="$(brew --prefix)/opt/llvm/bin/clang"
+
+      export CONFIGS=${HOME}/Dev/scripts/.configs
+
       alias zed=zed-preview
     ' >>~/.zsh/.additionals.zsh
 
@@ -224,7 +233,7 @@ check_requirements() {
       return 1
     }
   done
-  
+
   # Check for stow and install if not present
   if ! command -v stow &>/dev/null; then
     log_info "GNU Stow not found. Installing..."
@@ -484,18 +493,18 @@ stow_package() {
   local package="$1"
   local target="${2:-$HOME}"
   local stow_dir="${3:-${LOCAL_PATH}/home}"
-  
+
   if [ ! -d "$stow_dir/$package" ]; then
     log_error "Package directory not found: $stow_dir/$package"
     return 1
   fi
-  
+
   log_info "Stowing $package to $target..."
-  
+
   # Use --no-folding to ensure stow doesn't try to fold directories
   # Use --restow to handle any existing links
   stow --no-folding --restow --dir="$stow_dir" --target="$target" "$package"
-  
+
   if [ $? -eq 0 ]; then
     log_info "Successfully stowed $package"
   else
@@ -509,16 +518,16 @@ unstow_package() {
   local package="$1"
   local target="${2:-$HOME}"
   local stow_dir="${3:-${LOCAL_PATH}/home}"
-  
+
   if [ ! -d "$stow_dir/$package" ]; then
     log_error "Package directory not found: $stow_dir/$package"
     return 1
   fi
-  
+
   log_info "Unstowing $package from $target..."
-  
+
   stow --delete --dir="$stow_dir" --target="$target" "$package"
-  
+
   if [ $? -eq 0 ]; then
     log_info "Successfully unstowed $package"
   else
@@ -531,9 +540,9 @@ unstow_package() {
 stow_all_packages() {
   local target="${1:-$HOME}"
   local stow_dir="${2:-${LOCAL_PATH}/home}"
-  
+
   log_info "Stowing all packages to $target..."
-  
+
   for package in "${STOW_PACKAGES[@]}"; do
     stow_package "$package" "$target" "$stow_dir"
   done
@@ -543,9 +552,9 @@ stow_all_packages() {
 unstow_all_packages() {
   local target="${1:-$HOME}"
   local stow_dir="${2:-${LOCAL_PATH}/home}"
-  
+
   log_info "Unstowing all packages from $target..."
-  
+
   for package in "${STOW_PACKAGES[@]}"; do
     unstow_package "$package" "$target" "$stow_dir"
   done
@@ -566,7 +575,7 @@ config_setup() {
 
       # Use stow to manage dotfiles
       stow_all_packages "$HOME" "${LOCAL_PATH}/home"
-      
+
       if [[ -d "${XDG_CONFIG_HOME}/tmux" ]]; then
         tmux source ${XDG_CONFIG_HOME}/tmux/tmux.conf
       fi
