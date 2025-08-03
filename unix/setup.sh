@@ -607,14 +607,6 @@ config_setup() {
       exit 1
     fi
   else
-    # Clone the repository if it does not exist
-    if [ ! -d "${LOCAL_PATH}" ]; then
-      git clone --recurse-submodules "${REPO_URL}" "${LOCAL_PATH}" || {
-        print "Failed to clone repository"
-        exit 1
-      }
-    fi
-
     validate_config
 
     # Use stow to manage dotfiles
@@ -670,6 +662,14 @@ main() {
   print "Running setup script..." true
 
   change_shopt true
+
+  # Clone the repository if it does not exist
+  if [ ! -d "${LOCAL_PATH}" ]; then
+    git clone --recurse-submodules "${REPO_URL}" "${LOCAL_PATH}" || {
+      print "Failed to clone repository"
+      exit 1
+    }
+  fi
 
   # Parse command line arguments
   if [[ "$#" -eq 0 ]]; then
