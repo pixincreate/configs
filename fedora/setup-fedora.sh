@@ -44,9 +44,10 @@ enable_copr_repos() {
     log_step "Enabling COPR repositories..."
 
     local copr_repos=(
+        "atim/starship"
         "lilay/topgrade"
-        "wezfurlong/wezterm-nightly"
         "lukenukem/asus-linux"
+        "wezfurlong/wezterm-nightly"
     )
 
     for repo in "${copr_repos[@]}"; do
@@ -361,6 +362,7 @@ btrfs-assistant
 lm_sensors
 dnf-plugins-core
 dpkg
+starship
 EOF
     fi
 
