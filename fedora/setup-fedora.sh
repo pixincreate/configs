@@ -360,6 +360,7 @@ topgrade
 btrfs-assistant
 lm_sensors
 dnf-plugins-core
+dpkg
 EOF
     fi
 

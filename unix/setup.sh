@@ -210,8 +210,8 @@ additional_zshrc() {
     if [[ "$platform" == "fedora" ]]; then
       echo '
         # Fedora specific configurations
-        export SYS_HEALTH="$HOME/Dev/scripts/fedora/health-check.sh"
-        alias cleanup='sudo dnf autoremove && flatpak uninstall --unused'
+        export SYS_HEALTH="${HOME}/Dev/scripts/.configs/fedora/health-check.sh"
+        alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
 
       ' >>~/.zsh/.additionals.zsh
     fi
