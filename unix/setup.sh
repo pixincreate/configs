@@ -13,7 +13,7 @@ readonly GITCONFIG_USERNAME="PiX"
 readonly GITCONFIG_SIGNGING_KEY="$HOME/.ssh/id_ed25519_sign.pub"
 
 readonly DEFAULT_SSH_PERMS=0600
-readonly SUPPORTED_PLATFORMS=("darwin" "gnu" "android")
+readonly SUPPORTED_PLATFORMS=("darwin" "gnu" "android" "fedora")
 readonly STOW_PACKAGES=("config" "git" "ssh" "vscode" "zsh")
 
 # Helper functions
@@ -154,7 +154,7 @@ additional_zshrc() {
   local platform="$1"
 
   case "$platform" in
-  darwin* | gnu)
+  darwin* | gnu | fedora)
     echo '
       # Dev env variables
       typeset -U PATH path
@@ -205,6 +205,15 @@ additional_zshrc() {
         export CPPFLAGS="-I/$(brew --prefix)/opt/binutils/include"
         ' >>~/.zsh/.additionals.zsh
       echo "alias studio='/mnt/d/Program\ Files/IDE/Android\ Studio/bin/studio64.exe'" >>~/.zsh/.additionals.zsh
+    fi
+
+    if [[ "$platform" == "fedora" ]]; then
+      echo '
+        # Fedora specific configurations
+        export SYS_HEALTH="$HOME/Dev/scripts/fedora/health-check.sh"
+        alias cleanup='sudo dnf autoremove && flatpak uninstall --unused'
+
+      ' >>~/.zsh/.additionals.zsh
     fi
     ;;
   android)
@@ -402,12 +411,12 @@ install_apps() {
   dev_applications=("docker" "kubectl" "nextdns/tap/nextdns" "node")
   languages=("gcc" "python" "rustup" "sqlite")
   terminal_additions=(
-    "bat" "direnv" "eza" "fastfetch" "fzf" "git-delta" "jq" "lazygit"
-    "pipx" "ripgrep" "tar" "tmux" "topgrade" "tree" "xclip" "zoxide"
+    "bat" "binutils" "coreutils" "croc" "direnv" "eza" "fastfetch" "fzf" "git-delta"
+    "jq" "lazygit" "micro" "multitail" "neovim" "pipx" "ripgrep"  "stow" "tar" "tmux"
+    "topgrade" "tree" "xclip" "zoxide"
   )
   tools=(
-    "android-platform-tools" "android-tools" "binutils" "coreutils"
-    "croc" "micro" "multitail" "neovim" "openssh" "stow"
+    "android-platform-tools" "android-tools" "openssh"
   )
 
   # Install applications based on the platform
@@ -429,10 +438,21 @@ install_apps() {
       fi
     done
     ;;
+  fedora)
+    print "Running Fedora-specific setup..." true
+    if [[ -f "${LOCAL_PATH}/fedora/setup-fedora.sh" ]]; then
+      cd "${LOCAL_PATH}"
+      chmod +x "${LOCAL_PATH}/fedora/setup-fedora.sh"
+      "${LOCAL_PATH}/fedora/setup-fedora.sh"
+    else
+      print "Fedora setup script not found. Please ensure the repository is properly cloned."
+      return 1
+    fi
+    ;;
   gnu)
     apps_category=(
       "${dev_applications[@]}" "${languages[@]}"
-      "${terminal_additions[@]}" "${tools[@]}"
+      "${terminal_additions[@]}"
     )
     echo "Assuming you are using APT package manager..."
     echo "Updating package list..."
@@ -453,7 +473,7 @@ install_apps() {
   android)
     apps_category=(
       "${android_specific[@]}"
-      "${languages[@]}" "${terminal_additions[@]}" "${tools[@]}"
+      "${languages[@]}" "${terminal_additions[@]}"
     )
     for app in "${apps_category[@]}"; do
       exclude_list=("android-platform-tools" "gcc" "xclip")
@@ -617,6 +637,12 @@ config_setup() {
         mv "$HOME/Code" "$HOME/Library/Application Support/Code"
       fi
       ;;
+    "fedora")
+      print "Fedora platform detected - using fedora-specific setup" true
+      if [ -d "$HOME/Code" ]; then
+        mv "$HOME/Code" "$HOME/.config/Code"
+      fi
+      ;;
     "gnu")
       if [[ "$WSL_DISTRO_NAME" == "Debian" ]]; then
         command -v code &>/dev/null && code
@@ -704,7 +730,12 @@ main() {
     setup_platform="darwin"
     ;;
   linux-gnu)
-    setup_platform="gnu"
+    # Check if it's Fedora
+    if [[ -f /etc/fedora-release ]]; then
+      setup_platform="fedora"
+    else
+      setup_platform="gnu"
+    fi
     ;;
   linux-android)
     setup_platform="android"
