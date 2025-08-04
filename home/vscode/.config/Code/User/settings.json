@@ -1,4 +1,7 @@
 {
+    // update settings
+    "update.mode": "manual",
+
     // Editor & Workbench Settings
     "workbench.colorTheme": "Kanagawa Dragon",
     "workbench.iconTheme": "material-icon-theme",
@@ -6,7 +9,6 @@
 
     // Windows specific settings
     "window.commandCenter": true,
-    "window.customTitleBarVisibility": "never",
 
     // Editor settings
     "editor.acceptSuggestionOnEnter": "off",
@@ -387,7 +389,7 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[markdown]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one",
         "editor.renderFinalNewline": "on",
         "editor.rulers": [
             80
