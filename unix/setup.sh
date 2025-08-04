@@ -14,7 +14,7 @@ readonly GITCONFIG_SIGNGING_KEY="$HOME/.ssh/id_ed25519_sign.pub"
 
 readonly DEFAULT_SSH_PERMS=0600
 readonly SUPPORTED_PLATFORMS=("darwin" "gnu" "android" "fedora")
-readonly STOW_PACKAGES=("config" "git" "ssh" "vscode" "zsh")
+readonly STOW_PACKAGES=("config" "git" "ssh" "vscode" "zsh" "wallpaper")
 
 # Helper functions
 print() {

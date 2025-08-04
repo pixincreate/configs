@@ -72,6 +72,7 @@ add_external_repos() {
     # RPM Fusion repositories
     log_info "Installing RPM Fusion repositories..."
     sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm || log_warn "Failed to install RPM Fusion"
+    sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1
 }
 
 # Function to update system
@@ -241,14 +242,21 @@ setup_nvidia() {
     # Install 32-bit libraries for gaming
     sudo dnf install -y xorg-x11-drv-nvidia-libs.i686
 
-# Regenerate initramfs
-sudo akmods --force
+    # Regenerate initramfs
+    sudo akmods --force
     # Enable NVIDIA services
     sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service
 
     log_info "NVIDIA drivers installed. A reboot is required."
     log_info "After reboot, run: sudo cat /sys/module/nvidia_drm/parameters/modeset"
     log_info "It should return 'Y' if the drivers are working correctly."
+}
+
+setup_multimedia() {
+    sudo dnf swap ffmpeg-free ffmpeg --allowerasing
+    sudo dnf update @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+    sudo dnf install intel-media-driver
+    sudo dnf install libva-nvidia-driver.{i686,x86_64}
 }
 
 # Function to setup ASUS utilities
@@ -458,6 +466,9 @@ main() {
 
     # Install Flatpak applications
     install_flatpaks
+
+    # Replace existing media with ffmpeg
+    setup_multimedia
 
     # Setup system services
     setup_services
