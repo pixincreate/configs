@@ -1,12 +1,60 @@
 # Configs
 
-This repo contains all of my development configs. I never had a backup of these before and hence this repo.
+This repo contains all of my development configs with a unified, modular setup system for cross-platform configuration management.
+
+## 🚀 Features
+
+- **🔧 Unified Setup Script**: Single script handles all platforms and use cases
+- **📦 Modular Architecture**: Selective installation (fonts, git, config, apps)
+- **🔄 Legacy Compatibility**: All existing commands still work
+- **🧪 CI Tested**: Comprehensive testing across platforms
+- **🛡️ Safe Operations**: Dry-run mode for testing
+- **📝 Enhanced Documentation**: Complete guides and help system
+- **🔍 System Verification**: Built-in status checking
 
 ## Contents
 
 Check repo [tree](./docs/TREE.md) to get list of file contents.
 
-## One line installer
+## 🎯 Quick Start
+
+### Enhanced Setup Commands
+
+The setup script now supports modular installation and enhanced features:
+
+```bash
+# Complete setup (recommended)
+./unix/setup.sh --setup
+
+# Selective installation
+./unix/setup.sh --config-only      # Configuration files only
+./unix/setup.sh --git-only         # Git setup only
+./unix/setup.sh --fonts-only       # Install fonts only
+./unix/setup.sh --apps-only        # Applications only
+
+# System management
+./unix/setup.sh --verify           # Check current setup status
+./unix/setup.sh --list-fonts       # List installed fonts
+./unix/setup.sh --update-configs   # Update managed configurations
+
+# Testing and safety
+./unix/setup.sh --dry-run --setup  # Preview what setup would do
+./unix/setup.sh --help             # Complete help system
+./unix/setup.sh --help-legacy      # Legacy command help
+```
+
+### Legacy Commands (Still Supported)
+
+All existing commands continue to work with automatic mapping:
+
+```bash
+./unix/setup.sh -s        # Complete setup
+./unix/setup.sh -c        # Config only (maps to --config-only)
+./unix/setup.sh -g        # Git only (maps to --git-only)
+./unix/setup.sh -i        # Apps only (maps to --apps-only)
+```
+
+## One Line Installer
 
 ### If the machine runs Windows, execute below command in [powershell](https://github.com/PowerShell/PowerShell)
 

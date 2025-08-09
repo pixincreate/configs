@@ -200,47 +200,121 @@ elif [[ "$OSTYPE" == "linux-android" ]]; then
 fi
 
 
-# Auto update this file
+# Auto update this file (preserves stow symlinks)
 update_zshrc() {
-  force_update=false
+  local force_update=false
+  local zshrc_file="${HOME}/.zsh/.zshrc"
 
   # Check if --force flag is provided
   if [[ "$1" == "--force" ]]; then
     force_update=true
   fi
 
-  if wget -q --spider --connect-timeout=3 http://duck.com; then
-    local url="https://github.com/pixincreate/configs/raw/main/home/zsh/.zsh/.zshrc"
-    local zshrc_file="${HOME}/.zsh/.zshrc"
-    local temp_file=$(mktemp)
+  # Check internet connectivity
+  if ! wget -q --spider --connect-timeout=3 http://duck.com; then
+    echo "Failed to update .zshrc - no internet connection!"
+    return 1
+  fi
 
-    curl -sSL "$url" -o "$temp_file"
+  # Check if file is stow-managed (symlink)
+  if [[ -L "$zshrc_file" ]]; then
+    echo "Detected stow-managed configuration."
 
-    if [[ "$force_update" == true ]]; then
-      # Force update without checksum comparison
-      echo -ne "Updating .zshrc...\r"
-      mv -f "$zshrc_file" "${zshrc_file}.bak"
-      mv -f "$temp_file" "$zshrc_file"
-      echo -e ".zshrc updated successfully!"
-      source "$zshrc_file"
+    # Get the configs directory from the symlink
+    local configs_dir
+    configs_dir=$(dirname "$(dirname "$(dirname "$(readlink -f "$zshrc_file")")")")
+
+    if [[ -d "$configs_dir/.git" ]]; then
+      # Check for uncommitted changes
+      if ! git -C "$configs_dir" diff-index --quiet HEAD --; then
+        echo "Configuration repository has uncommitted changes."
+        echo "Please commit or stash your changes first."
+        return 1
+      fi
+
+      # Check for updates
+      git -C "$configs_dir" fetch
+      local local_commit=$(git -C "$configs_dir" rev-parse HEAD)
+      local remote_commit=$(git -C "$configs_dir" rev-parse @{u} 2>/dev/null || echo "$local_commit")
+
+      if [[ "$local_commit" != "$remote_commit" ]] || [[ "$force_update" == true ]]; then
+        if [[ "$force_update" != true ]]; then
+          echo "There's an update available for your zshrc file. Do you want to update it? (y/n)"
+          read -r response
+          if [[ "$response" != "y" ]]; then
+            echo "Update cancelled."
+            return 0
+          fi
+        fi
+
+        echo "Updating configuration repository..."
+        if git -C "$configs_dir" pull; then
+          # Update submodules
+          git -C "$configs_dir" submodule update --init --recursive
+
+          # Re-stow to ensure links are updated
+          if command -v stow &>/dev/null; then
+            stow --restow --dir="${configs_dir}/home" --target="$HOME" zsh
+          fi
+
+          echo "Configuration updated successfully!"
+          source "$zshrc_file"
+        else
+          echo "Failed to update configuration repository!"
+          return 1
+        fi
+      else
+        echo ".zshrc is up-to-date!"
+      fi
     else
-      # Perform checksum comparison
-      local current_checksum=$(sha1sum "$zshrc_file" | awk '{print $1}')
-      local new_checksum=$(sha1sum "$temp_file" | awk '{print $1}')
+      echo "Warning: Symlink detected but no git repository found."
+      echo "Using fallback update method..."
+      _update_zshrc_fallback "$force_update"
+    fi
+  else
+    # File is not stow-managed, use original method
+    _update_zshrc_fallback "$force_update"
+  fi
+}
 
-      if [[ "$current_checksum" != "$new_checksum" ]]; then
+# Fallback update method for non-stow managed files
+_update_zshrc_fallback() {
+  local force_update="$1"
+  local url="https://github.com/pixincreate/configs/raw/main/home/zsh/.zsh/.zshrc"
+  local zshrc_file="${HOME}/.zsh/.zshrc"
+  local temp_file=$(mktemp)
+
+  curl -sSL "$url" -o "$temp_file"
+
+  if [[ "$force_update" == true ]]; then
+    # Force update without checksum comparison
+    echo -ne "Updating .zshrc...\r"
+    mv -f "$zshrc_file" "${zshrc_file}.bak"
+    mv -f "$temp_file" "$zshrc_file"
+    echo -e ".zshrc updated successfully!"
+    source "$zshrc_file"
+  else
+    # Perform checksum comparison
+    local current_checksum=$(sha1sum "$zshrc_file" | awk '{print $1}')
+    local new_checksum=$(sha1sum "$temp_file" | awk '{print $1}')
+
+    if [[ "$current_checksum" != "$new_checksum" ]]; then
+      echo "There's an update available for your zshrc file. Do you want to update it? (y/n)"
+      read -r response
+      if [[ "$response" == "y" ]]; then
         echo -ne "Updating .zshrc...\r"
         mv -f "$zshrc_file" "${zshrc_file}.bak"
         mv -f "$temp_file" "$zshrc_file"
         echo -e ".zshrc updated successfully!"
         source "$zshrc_file"
       else
-        echo ".zshrc is up-to-date!"
+        echo "Update cancelled."
         rm "$temp_file"
       fi
+    else
+      echo ".zshrc is up-to-date!"
+      rm "$temp_file"
     fi
-  else
-    echo "Failed to update .zshrc!"
   fi
 }
 

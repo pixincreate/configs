@@ -5,28 +5,35 @@
 
 set -euo pipefail
 
-# Color codes for output
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly NC='\033[0m' # No Color
-
 # Directories
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PACKAGES_DIR="${SCRIPT_DIR}/packages"
 
-# Logging functions
-log_info() { echo -e "${GREEN}[INFO]${NC} $*"; }
-log_warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
-log_step() { echo -e "${BLUE}[STEP]${NC} $*"; }
+# Import common functions if available
+if [[ -f "${SCRIPT_DIR}/../unix/modules/common.sh" ]]; then
+    source "${SCRIPT_DIR}/../unix/modules/common.sh"
+else
+    # Fallback logging functions
+    readonly RED='\033[0;31m'
+    readonly GREEN='\033[0;32m'
+    readonly YELLOW='\033[1;33m'
+    readonly BLUE='\033[0;34m'
+    readonly NC='\033[0m' # No Color
 
-# Error handling
-error_exit() {
-    log_error "$1"
-    exit 1
-}
+    log_info() { echo -e "${GREEN}[INFO]${NC} $*"; }
+    log_warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
+    log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
+    log_step() { echo -e "${BLUE}[STEP]${NC} $*"; }
+
+    error_exit() {
+        log_error "$1"
+        exit 1
+    }
+
+    command_exists() {
+        command -v "$1" > /dev/null 2>&1
+    }
+fi
 
 # Check if running on Fedora
 check_fedora() {
