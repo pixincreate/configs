@@ -1,0 +1,189 @@
+name: Setup Script Testing
+
+on:
+  push:
+    branches: [ main, refactor ]
+    paths:
+      - 'unix/setup.sh'
+      - 'unix/modules/**'
+      - 'fedora/setup-fedora.sh'
+      - 'home/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'unix/setup.sh'
+      - 'unix/modules/**'
+      - 'fedora/setup-fedora.sh'
+      - 'home/**'
+  workflow_dispatch:
+
+jobs:
+  test-setup-script:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: "gnu"
+            setup_cmd: "sudo apt-get update && sudo apt-get install -y stow"
+          - os: macos-latest
+            platform: "darwin"
+            setup_cmd: "brew install stow"
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup dependencies
+      run: ${{ matrix.setup_cmd }}
+
+    - name: Make setup script executable
+      run: chmod +x unix/setup.sh
+
+    - name: Test help commands
+      run: |
+        echo "Testing help commands..."
+        ./unix/setup.sh --help
+        ./unix/setup.sh --help-legacy
+        ./unix/setup.sh --help-full
+
+    - name: Test dry-run commands
+      run: |
+        echo "Testing dry-run commands..."
+        ./unix/setup.sh --verify --dry-run
+        ./unix/setup.sh --fonts-only --dry-run
+        ./unix/setup.sh --config-only --dry-run
+
+    - name: Test legacy command mapping
+      run: |
+        echo "Testing legacy command mapping..."
+        ./unix/setup.sh -c --dry-run
+        ./unix/setup.sh -g --dry-run || true  # Git setup might fail without proper config
+
+    - name: Test font commands
+      run: |
+        echo "Testing font commands..."
+        ./unix/setup.sh --list-fonts || echo "No fonts installed yet, which is expected"
+
+    - name: Test verification
+      run: |
+        echo "Testing verification..."
+        ./unix/setup.sh --verify
+
+    - name: Test module loading
+      run: |
+        echo "Testing module loading..."
+        # Test that all modules can be sourced without errors
+        bash -c "source unix/modules/common.sh && echo 'Common module loaded successfully'"
+        bash -c "source unix/modules/stow-manager.sh && echo 'Stow manager module loaded successfully'"
+        bash -c "source unix/modules/fonts.sh && echo 'Fonts module loaded successfully'"
+        bash -c "source unix/modules/git-setup.sh && echo 'Git setup module loaded successfully'"
+
+    - name: Test error handling
+      run: |
+        echo "Testing error handling..."
+        # Test invalid commands
+        ./unix/setup.sh --invalid-command && exit 1 || echo "Invalid command correctly rejected"
+        ./unix/setup.sh --stow-only && exit 1 || echo "Missing package argument correctly handled"
+
+  test-fedora-integration:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: |
+        dnf update -y
+        dnf install -y stow git curl wget
+
+    - name: Make scripts executable
+      run: |
+        chmod +x unix/setup.sh
+        chmod +x fedora/setup-fedora.sh
+
+    - name: Test Fedora detection
+      run: |
+        echo "Testing Fedora platform detection..."
+        ./unix/setup.sh --verify --dry-run
+
+    - name: Test Fedora-specific setup (dry-run)
+      run: |
+        echo "Testing Fedora-specific setup..."
+        ./unix/setup.sh --apps-only --dry-run || echo "Apps setup test completed (expected to have some limitations in container)"
+
+  test-zsh-update-function:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install zsh
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y zsh curl
+
+    - name: Test zsh configuration loading
+      run: |
+        echo "Testing zsh configuration loading..."
+        zsh -c "source home/zsh/.zsh/.zshrc && echo 'ZSH configuration loaded successfully'"
+
+    - name: Test update_zshrc function existence
+      run: |
+        echo "Testing update_zshrc function..."
+        zsh -c "source home/zsh/.zsh/.zshrc && type update_zshrc"
+
+  test-documentation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Check documentation exists
+      run: |
+        echo "Checking documentation files..."
+        test -f docs/MODULAR_SETUP_GUIDE.md
+        test -f docs/IMPLEMENTATION_SUMMARY.md
+        test -f README.md
+
+    - name: Validate script paths in documentation
+      run: |
+        echo "Validating script references..."
+        # Check that documentation doesn't reference the old setup-modular.sh
+        ! grep -r "setup-modular.sh" docs/ || (echo "Documentation still references setup-modular.sh" && exit 1)
+        echo "Documentation validation passed"
+
+  test-cross-platform-compatibility:
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04, macos-12, macos-13]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install stow (Ubuntu)
+      if: startsWith(matrix.os, 'ubuntu')
+      run: sudo apt-get update && sudo apt-get install -y stow
+
+    - name: Install stow (macOS)
+      if: startsWith(matrix.os, 'macos')
+      run: brew install stow
+
+    - name: Test basic functionality
+      run: |
+        chmod +x unix/setup.sh
+        ./unix/setup.sh --verify --dry-run
+        ./unix/setup.sh --help > /dev/null
