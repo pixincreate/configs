@@ -1,0 +1,75 @@
+# Application definitions for different platforms
+
+common:
+  # Applications that are generally available across platforms
+  browsers:
+    - brave-browser
+    - zen-browser
+
+  productivity:
+    - obsidian
+    - bitwarden
+    - signal
+    - localsend
+
+  development:
+    - visual-studio-code
+    - zed
+
+platforms:
+  macos:
+    # macOS applications (Homebrew casks)
+    apps:
+      productivity:
+        - alt-tab
+        - maccy
+        - rectangle
+        - tailscale-app
+        - onlyoffice
+
+      development:
+        - android-studio
+        - postman
+        - orbstack
+        - wezterm
+
+      browsers:
+        - brave-browser@beta
+        - zen-browser
+
+      communication:
+        - signal@beta
+
+      editors:
+        - zed@preview
+
+  fedora:
+    # Fedora applications (primarily Flatpak)
+    flatpaks:
+      - app.zen_browser.zen
+      - com.brave.Browser
+      - dev.zed.Zed
+      - org.signal.Signal
+      - md.obsidian.Obsidian
+      - org.localsend.localsend_app
+      - com.bitwarden.desktop
+      - org.onlyoffice.desktopeditors
+      - com.obsproject.Studio
+      - org.mozilla.Thunderbird
+      - org.davinci.DaVinciResolve
+      - com.valvesoftware.Steam
+
+    # Native packages via DNF
+    native_apps:
+      - thunderbird
+
+  debian:
+    # Debian/Ubuntu applications
+    apps:
+      development:
+        - code  # VS Code
+
+  android:
+    # Android/Termux doesn't typically install GUI apps
+    # but we can list some useful packages
+    apps: []

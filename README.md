@@ -23,64 +23,99 @@ Check repo [tree](./docs/TREE.md) to get list of file contents.
 irm "https://github.com/pixincreate/configs/raw/main/windows/powershell/setup.ps1" | iex
 ```
 
-### If the machine is using unix based OS, execute below in terminal
+### Modern Python-based Setup System
 
 > [!NOTE]
-> Unix based OS here means, `WSL`, `Debian`, `Fedora`, or `macOS`. The setup script will automatically detect your distribution and run the appropriate setup.
+> The setup system has been completely rewritten in Python for better maintainability, error handling, and cross-platform support. It supports `WSL`, `Debian`, `Fedora`, `macOS`, and `Android/Termux`.
 
-If the machine runs Windows that have networking tool like [Portmaster](https://safing.io) installed, `WSL` will have hard time establishing networking connection. Hence, it is recommended to execute the below command in `WSL` terminal before calling `setup` script. This will bypass the DNS restrictions imposed by `Portmaster`:
+**Prerequisites:** Python 3.8+ is required. The setup script will automatically install Python dependencies.
+
+If running on Windows with networking tools like [Portmaster](https://safing.io), WSL may have networking issues. Run this first in WSL:
 
 ```sh
 echo 'nameserver 9.9.9.9' | sudo tee -a /etc/resolv.conf
 ```
 
 > [!WARNING]
-> If tools like `Docker` have hard time connecting to the internet even after changing the DNS, it is recommended to shut down the `Portmaster` tool.
+> If tools like Docker have connection issues, temporarily disable Portmaster.
 
-**For Debian/Ubuntu/WSL:**
+**Quick Setup (All Platforms):**
 
-```sh
-sudo apt-get update && sudo apt-get install -y curl git wget zsh && \
-    bash -c "$(curl -sSL https://github.com/pixincreate/configs/raw/main/unix/setup.sh)" -- --setup
-```
-
-**For Fedora KDE:**
-
-> [!NOTE]
-> Comprehensive Fedora KDE setup with NVIDIA support, gaming, development environment, and Kanagawa Dragon theming.
-
-For a complete Fedora installation following the detailed setup guide in [`docs/FEDORA_SETUP_GUIDE.md`](docs/FEDORA_SETUP_GUIDE.md).
+First, clone the repository:
 
 ```sh
-sudo dnf install -y curl git wget zsh && \
-    bash -c "$(curl -sSL https://github.com/pixincreate/configs/raw/main/unix/setup.sh)" -- --setup
+# Install prerequisites first
+# For Debian/Ubuntu/WSL:
+sudo apt-get update && sudo apt-get install -y curl git wget zsh python3 python3-pip
+
+# For Fedora:
+sudo dnf install -y curl git wget zsh python3 python3-pip
+
+# For macOS (install Homebrew first if needed):
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install git python3
+
+# For Android/Termux:
+pkg update && pkg upgrade -y && pkg install -y curl git wget zsh python3
+
+# Clone the repository
+git clone https://github.com/pixincreate/configs.git ~/Dev/.configs
+cd ~/Dev/.configs
+
+# Run the interactive setup
+./scripts/setup --full-setup
 ```
 
-Features included:
+**Advanced Usage:**
 
-- 🎮 **NVIDIA GTX 1650Ti support** with stable drivers
+```sh
+# Show all options
+./scripts/setup --help
+
+# Dry run (see what would be done without making changes)
+./scripts/setup --dry-run --full-setup
+
+# Install only specific components
+./scripts/setup --install-packages    # Install packages only
+./scripts/setup --setup-fonts         # Install fonts only
+./scripts/setup --setup-git           # Setup Git configuration only
+./scripts/setup --stow-configs        # Stow dotfiles only
+./scripts/setup --setup-zsh           # Setup Zsh only
+
+# Force mode (skip confirmations)
+./scripts/setup --full-setup --force
+```
+
+**Platform-Specific Features:**
+
+**🐧 Fedora KDE Complete Setup:**
+
+- 🎮 **NVIDIA driver support** with automatic hardware detection
 - 🛠 **Complete development environment** (Rust, Node.js, Python, Java, C/C++)
-- 🎨 **Kanagawa Dragon theme** system-wide
-- 📦 **Single source of truth** for package management
-- 🔒 **Stability-first approach** - nothing breaks with updates
-- 🎯 **Gaming setup** with Steam, Lutris, and optimizations
-- 🎬 **DaVinci Resolve** ready for video editing
+- 📱 **ASUS laptop utilities** (ROG gaming laptops)
+- 🔋 **TLP power management** with service optimization
+- 🎬 **Multimedia codecs** (FFmpeg, Intel/NVIDIA VA-API)
+- 📦 **Flatpak applications** with automatic Flathub setup
+- 🔒 **NextDNS integration** (optional)
+- 📊 **System health monitoring** (`scripts/health-check.sh`)
 
-See `fedora/README.md` for detailed usage and `docs/SETUP_GUIDE.md` for complete installation instructions.
+**🍎 macOS Setup:**
 
-**For macOS:**
+- 🍺 **Homebrew integration** with automatic installation
+- 📱 **macOS-specific applications** via Homebrew Casks
+- ⚙️ **System optimizations** and developer tools
 
-```sh
-bash -c "$(curl -sSL https://github.com/pixincreate/configs/raw/main/unix/setup.sh)" -- --setup
-```
+**🐧 Debian/Ubuntu Setup:**
 
-If running in Termux
+- 📦 **APT package management** with repository updates
+- 🛠 **Development tools** and libraries
+- 🔧 **System configuration** and optimizations
 
-```sh
-pkg update && pkg upgrade -y && pkg install -y curl git wget zsh && \
-    bash -c "$(curl -sSL https://github.com/pixincreate/configs/raw/main/unix/setup.sh)" -- --setup
+**🤖 Android/Termux Setup:**
 
-```
+- 📱 **Termux-specific packages** and storage setup
+- 🔧 **Development environment** for mobile development
+- 🎯 **Android-optimized configurations**
 
 #### Vanguard Controller
 

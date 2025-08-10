@@ -1,0 +1,126 @@
+# General settings for the dotfiles setup system
+
+# Git configuration template
+git_config:
+  default_branch: "main"
+  editor: "nvim"
+  pager: "delta --diff-so-fancy"
+  gpg_format: "ssh"
+  signing_required: true
+
+  # Default SSH key paths (will be updated during setup)
+  ssh_key_auth: "~/.ssh/id_ed25519_auth"
+  ssh_key_sign: "~/.ssh/id_ed25519_sign"
+
+# SSH configuration
+ssh_config:
+  key_type: "ed25519"
+  key_comment_template: "{email}"
+  permissions:
+    private_key: 0o600
+    public_key: 0o644
+    ssh_dir: 0o700
+
+# Fonts configuration
+fonts:
+  source_dir: "fonts"
+  install_dir: "~/.local/share/fonts"
+  update_font_cache: true
+
+# Wallpapers configuration
+wallpapers:
+  source_dir: "home/Wallpaper"
+  install_dir: "~/Pictures/Wallpapers"
+  screenshots_dir: "~/Pictures/Screenshots"
+
+# Stow configuration
+stow_packages:
+  - config
+  - git
+  - ssh
+  - vscode
+  - zsh
+  - wallpaper
+
+# Directory structure
+directories:
+  config_root: "~/Dev/.configs"
+  backup_dir: "~/.dotfiles-backup"
+
+  # Directories to create
+  ensure_directories:
+    - "~/.config"
+    - "~/.ssh"
+    - "~/.zsh"
+    - "~/.zsh/.zgenom"
+    - "~/Pictures/Wallpapers"
+    - "~/Pictures/Screenshots"
+    - "~/.local/share/fonts"
+
+  # Android-specific directories
+  android_directories:
+    - "~/.rish"
+
+# Platform-specific settings
+platform_settings:
+  macos:
+    homebrew_prefix_arm64: "/opt/homebrew"
+    homebrew_prefix_x64: "/usr/local"
+    shell_path: "/opt/homebrew/bin/zsh"
+
+  fedora:
+    shell_path: "/usr/bin/zsh"
+    health_check_script: "~/Dev/.configs/fedora/health-check.sh"
+
+  debian:
+    shell_path: "/usr/bin/zsh"
+    homebrew_prefix: "/home/linuxbrew/.linuxbrew"
+
+  android:
+    shell_path: "zsh"  # Termux uses its own paths
+    rish_source: "/storage/emulated/0/Documents/Dev/Shizuku"
+
+# Zsh configuration
+zsh_config:
+  zgenom_dir: "~/.zsh/.zgenom"
+  additionals_file: "~/.zsh/.additionals.zsh"
+
+  # Platform-specific additions
+  platform_additions:
+    macos:
+      - "# macOS specific configurations"
+      - "export CONFIGS=${HOME}/Dev/.configs"
+      - "alias zed=zed-preview"
+
+    fedora:
+      - "# Fedora specific configurations"
+      - "export SYS_HEALTH=\"${HOME}/Dev/.configs/fedora/health-check.sh\""
+      - "alias cleanup=\"sudo dnf autoremove && flatpak uninstall --unused\""
+
+    debian:
+      - "# Debian specific configurations"
+      - "export LDFLAGS=\"-L/$(brew --prefix)/opt/binutils/lib\""
+      - "export CPPFLAGS=\"-I/$(brew --prefix)/opt/binutils/include\""
+
+    android:
+      - "# Android/Termux specific configurations"
+      - "alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'"
+      - "alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'"
+
+# Repository settings
+repository:
+  url: "https://github.com/pixincreate/configs.git"
+  ssh_url: "git@github.com:pixincreate/configs.git"
+  branch: "main"
+
+# Backup settings
+backup:
+  create_backups: true
+  backup_suffix: ".backup"
+  max_backups: 5
+
+# Logging settings
+logging:
+  default_level: "info"
+  file_logging: false
+  log_file: "~/.dotfiles-setup.log"

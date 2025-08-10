@@ -1,0 +1,139 @@
+# Package definitions for different platforms
+
+common:
+  terminal_tools:
+    - htop
+    - btop
+    - tealdeer
+    - git
+    - wget
+    - curl
+    - zsh
+    - vim
+    - neovim
+    - micro
+    - bat
+    - direnv
+    - fastfetch
+    - fzf
+    - git-delta
+    - jq
+    - pipx
+    - ripgrep
+    - tar
+    - tmux
+    - tree
+    - xclip
+    - zoxide
+    - croc
+    - openssh
+    - atuin
+    - topgrade
+    - starship
+    - gh
+    - coreutils
+    - binutils
+    - protobuf
+    - nextdns
+    - stow
+
+  development:
+    - gcc
+    - node
+    - python
+    - rustup
+    - sqlite
+    - ollama
+    - llvm
+    - ffmpeg
+    - parallel
+
+platforms:
+  macos:
+    package_manager: brew
+    packages:
+      terminal_tools:
+        - gnu-sed
+
+    # Additional tools for macOS that might conflict on other platforms
+    additional_tools:
+      - coreutils  # GNU coreutils for macOS
+      - binutils   # GNU binutils for macOS
+
+  fedora:
+    package_managers:
+      - dnf
+      - flatpak
+      - rpm
+
+    repositories:
+      copr:
+        - "atim/starship"
+        - "lilay/topgrade"
+        - "lukenukem/asus-linux"
+        - "wezfurlong/wezterm-nightly"
+
+      external:
+        nextdns:
+          url: "https://repo.nextdns.io/nextdns.repo"
+          type: "yum"
+        microsoft:
+          key_url: "https://packages.microsoft.com/keys/microsoft.asc"
+          repo_content: |
+            [code]
+            name=Visual Studio Code
+            baseurl=https://packages.microsoft.com/yumrepos/vscode
+            enabled=1
+            autorefresh=1
+            type=rpm-md
+            gpgcheck=1
+            gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+        rpmfusion:
+          free: "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm"
+          nonfree: "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+
+    packages:
+      development:
+        - java-latest-openjdk
+        - postgresql-server
+        - postgresql-devel
+        - redis
+        - docker
+        - kubectl
+        - code
+        - pkg-config
+        - dpkg
+        - tlp
+        - tlp-rdw
+        - powertop
+
+      system:
+        - dnf-plugins-core
+        - btrfs-assistant
+        - lm_sensors
+
+      # ASUS-specific packages (conditional)
+      asus:
+        - asusctl
+        - supergfxctl
+
+  debian:
+    package_managers:
+      - apt
+      - dpkg
+
+    packages:
+      development:
+        - build-essential
+        - postgresql
+        - postgresql-contrib
+        - redis-server
+
+  android:
+    package_manager: pkg
+
+    packages:
+      android_specific:
+        - termux-api
+        - termux-tools
+        - tsu

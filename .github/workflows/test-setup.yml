@@ -1,0 +1,391 @@
+name: Test Dotfiles Setup
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Test mode'
+        required: false
+        default: 'dry-run-only'
+        type: choice
+        options:
+          - 'dry-run-only'
+          - 'full-test'
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+  HOMEBREW_NO_ANALYTICS: 1
+  HOMEBREW_NO_AUTO_UPDATE: 1
+
+jobs:
+  # ============================================================================
+  # Test on Ubuntu (Debian-based)
+  # ============================================================================
+  test-debian:
+    name: Test on Ubuntu (Debian)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          git \
+          curl \
+          wget \
+          stow \
+          zsh \
+          build-essential \
+          python3-pip \
+          python3-venv
+
+    - name: Install Python requirements
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -r requirements.txt
+
+    - name: Create required directories
+      run: |
+        mkdir -p ~/Dev
+        # Create symlink to simulate the expected directory structure
+        ln -sf "$GITHUB_WORKSPACE" ~/Dev/.configs
+
+    - name: Run comprehensive tests
+      run: |
+        cd ~/Dev/.configs
+        if [[ "${{ github.event.inputs.test_mode }}" == "full-test" ]]; then
+          ./scripts/ci-test.sh
+        else
+          ./scripts/ci-test.sh --dry-run-only
+        fi
+
+    - name: Upload test logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: debian-test-logs
+        path: /tmp/dotfiles-ci-test.log
+        retention-days: 7
+
+  # ============================================================================
+  # Test on macOS
+  # ============================================================================
+  test-macos:
+    name: Test on macOS
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install system dependencies
+      run: |
+        # Homebrew should already be available on GitHub macOS runners
+        brew update
+        brew install stow git
+
+    - name: Install Python requirements
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -r requirements.txt
+
+    - name: Create required directories
+      run: |
+        mkdir -p ~/Dev
+        # Create symlink to simulate the expected directory structure
+        ln -sf "$GITHUB_WORKSPACE" ~/Dev/.configs
+
+    - name: Run comprehensive tests
+      run: |
+        cd ~/Dev/.configs
+        if [[ "${{ github.event.inputs.test_mode }}" == "full-test" ]]; then
+          ./scripts/ci-test.sh
+        else
+          ./scripts/ci-test.sh --dry-run-only
+        fi
+
+    - name: Upload test logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-test-logs
+        path: /tmp/dotfiles-ci-test.log
+        retention-days: 7
+
+  # ============================================================================
+  # Test on Fedora (using container)
+  # ============================================================================
+  test-fedora:
+    name: Test on Fedora
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: fedora:39
+      options: --user root
+
+    steps:
+    - name: Install Git and basic tools
+      run: |
+        dnf update -y
+        dnf install -y \
+          git \
+          python3 \
+          python3-pip \
+          curl \
+          wget \
+          stow \
+          zsh \
+          which \
+          findutils \
+          sudo
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Set up Python environment
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -r requirements.txt
+
+    - name: Create test user and setup environment
+      run: |
+        # Create a test user for more realistic testing
+        useradd -m -s /bin/bash testuser
+        echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+        # Set up the directory structure
+        sudo -u testuser mkdir -p /home/testuser/Dev
+        sudo -u testuser ln -sf "$GITHUB_WORKSPACE" /home/testuser/Dev/.configs
+
+        # Copy the workspace to user's home for better permissions
+        cp -r "$GITHUB_WORKSPACE" /home/testuser/dotfiles-test
+        chown -R testuser:testuser /home/testuser/dotfiles-test
+        sudo -u testuser ln -sf /home/testuser/dotfiles-test /home/testuser/Dev/.configs
+
+    - name: Run comprehensive tests
+      run: |
+        cd /home/testuser/Dev/.configs
+        if [[ "${{ github.event.inputs.test_mode }}" == "full-test" ]]; then
+          sudo -u testuser ./scripts/ci-test.sh
+        else
+          sudo -u testuser ./scripts/ci-test.sh --dry-run-only
+        fi
+
+    - name: Upload test logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: fedora-test-logs
+        path: /tmp/dotfiles-ci-test.log
+        retention-days: 7
+
+  # ============================================================================
+  # Test individual components
+  # ============================================================================
+  test-components:
+    name: Test Individual Components
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - install-packages
+          - setup-fonts
+          - setup-zsh
+          - stow-configs
+          - misc-setup
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git curl wget stow zsh python3-pip
+
+    - name: Install Python requirements
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -r requirements.txt
+
+    - name: Create required directories
+      run: |
+        mkdir -p ~/Dev
+        ln -sf "$GITHUB_WORKSPACE" ~/Dev/.configs
+
+    - name: Test component (${{ matrix.component }})
+      run: |
+        cd ~/Dev/.configs
+        ./scripts/setup --dry-run --${{ matrix.component }} --force
+
+  # ============================================================================
+  # Validation and linting
+  # ============================================================================
+  validate:
+    name: Validate Scripts and Configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install validation tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck yamllint
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -r requirements.txt
+        python3 -m pip install black flake8 mypy
+
+    - name: Validate shell scripts
+      run: |
+        echo "Checking shell scripts..."
+        find . -name "*.sh" -type f | xargs shellcheck -e SC1091,SC2034,SC2155
+
+    - name: Validate YAML files
+      run: |
+        echo "Checking YAML files..."
+        find . -name "*.yml" -o -name "*.yaml" | xargs yamllint -d relaxed
+
+    - name: Validate Python code style
+      run: |
+        echo "Checking Python code style..."
+        find unix -name "*.py" | xargs black --check --diff
+        find unix -name "*.py" | xargs flake8 --max-line-length=100 --ignore=E203,W503
+
+    - name: Test Python imports
+      run: |
+        echo "Testing Python imports..."
+        cd unix
+        python3 -c "import dotfiles; print('✅ Package imports successfully')"
+
+    - name: Validate configuration files
+      run: |
+        echo "Validating configuration files..."
+        cd unix
+        python3 validate-config.py
+
+  # ============================================================================
+  # Performance benchmarking
+  # ============================================================================
+  benchmark:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git curl stow zsh time
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -r requirements.txt
+
+    - name: Create required directories
+      run: |
+        mkdir -p ~/Dev
+        ln -sf "$GITHUB_WORKSPACE" ~/Dev/.configs
+
+    - name: Benchmark dry run performance
+      run: |
+        cd ~/Dev/.configs
+        echo "Benchmarking full setup dry run..."
+        time -p ./scripts/setup --dry-run --full-setup --force
+
+    - name: Benchmark component dry runs
+      run: |
+        cd ~/Dev/.configs
+        echo "Benchmarking individual components..."
+        for component in install-packages setup-fonts setup-zsh stow-configs misc-setup; do
+          echo "Timing: $component"
+          time -p ./scripts/setup --dry-run --$component --force
+        done
+
+  # ============================================================================
+  # Summary job
+  # ============================================================================
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [test-debian, test-macos, test-fedora, test-components, validate, benchmark]
+    if: always()
+
+    steps:
+    - name: Check test results
+      run: |
+        echo "## 🧪 Dotfiles Setup Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Debian/Ubuntu | ${{ needs.test-debian.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| macOS | ${{ needs.test-macos.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Fedora | ${{ needs.test-fedora.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Components | ${{ needs.test-components.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Validation | ${{ needs.validate.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Benchmark | ${{ needs.benchmark.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Check if any tests failed
+        if [[ "${{ needs.test-debian.result }}" != "success" ]] || \
+           [[ "${{ needs.test-macos.result }}" != "success" ]] || \
+           [[ "${{ needs.test-fedora.result }}" != "success" ]] || \
+           [[ "${{ needs.test-components.result }}" != "success" ]] || \
+           [[ "${{ needs.validate.result }}" != "success" ]] || \
+           [[ "${{ needs.benchmark.result }}" != "success" ]]; then
+          echo "❌ Some tests failed. Check the individual job logs for details." >> $GITHUB_STEP_SUMMARY
+          exit 1
+        else
+          echo "✅ All tests passed successfully!" >> $GITHUB_STEP_SUMMARY
+        fi

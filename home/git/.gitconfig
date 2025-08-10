@@ -9,10 +9,11 @@ pager = delta --diff-so-fancy
 preloadIndex = true
 whitespace = error
 
-[user]
-email = example@email.com
-name = username
-signingkey = ~/.ssh/signingkey
+# User configuration is loaded from ~/.gitconfig.user
+# This file will be created during setup
+
+[include]
+	path = ~/.gitconfig.user
 
 [color]
 ui = true

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Dotfiles Setup Script Wrapper
+# This script provides a convenient way to run the Python setup script
+
+set -euo pipefail
+
+# Get the project root directory
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
+PYTHON_SCRIPT="$PROJECT_ROOT/unix/setup.py"
+
+# Check if Python script exists
+if [[ ! -f "$PYTHON_SCRIPT" ]]; then
+    echo "Error: Python setup script not found at $PYTHON_SCRIPT"
+    exit 1
+fi
+
+# Check for Python
+if ! command -v python3 &> /dev/null; then
+    echo "Error: Python 3 is required but not installed"
+    exit 1
+fi
+
+# Check if virtual environment should be used
+if [[ -f "$PROJECT_ROOT/requirements.txt" ]] && ! python3 -c "import click, rich, inquirer, yaml" &> /dev/null; then
+    echo "Installing required Python packages..."
+    python3 -m pip install --user -r "$PROJECT_ROOT/requirements.txt"
+fi
+
+# Pass all arguments to the Python script
+exec python3 "$PYTHON_SCRIPT" "$@"
