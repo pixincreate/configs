@@ -371,7 +371,6 @@ lm_sensors
 dnf-plugins-core
 dpkg
 starship
-touchegg
 EOF
     fi
 
@@ -425,7 +424,7 @@ org.onlyoffice.desktopeditors
 com.obsproject.Studio
 org.mozilla.Thunderbird
 org.davinci.DaVinciResolve
-com.github.joseexposito.touche
+com.valvesoftware.Steam
 EOF
     fi
 }
