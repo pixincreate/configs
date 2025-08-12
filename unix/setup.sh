@@ -67,10 +67,15 @@ git_checkup() {
 update_gitconfig_data() {
   git_checkup
 
-  sed -i.bak "s/email = example@email.com/email = ${GITCONFIG_EMAIL}/" ~/.gitconfig
-  sed -i.bak "s/name = username/name = ${GITCONFIG_USERNAME}/" ~/.gitconfig
-  sed -i.bak "s|signingkey = ~/.ssh/signingkey|signingkey = ${GITCONFIG_SIGNGING_KEY}|" ~/.gitconfig
+  print "Setting up git configuration..." true
+  cat > "${HOME}/.config/gitconfig/.gitconfig.local" << EOF
+[user]
+  name = "${GITCONFIG_USERNAME}"
+  email = "${GITCONFIG_EMAIL}"
+  signingkey = "${GITCONFIG_SIGNGING_KEY}"
+EOF
 }
+
 
 # Function to generate SSH keys (DRY principle)
 generate_ssh_keys() {
