@@ -73,6 +73,10 @@ add_external_repos() {
     log_info "Installing RPM Fusion repositories..."
     sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm || log_warn "Failed to install RPM Fusion"
     sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1
+
+    # Tailscale repository
+    log_info "Installing Tailscale repository..."
+    sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo|| log_warn "Failed to install Tailscale repo"
 }
 
 # Function to update system
