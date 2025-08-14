@@ -1,0 +1,9 @@
+# Python dependencies for the setup script
+toml>=0.10.2
+rich>=14.0.0
+
+# Development dependencies
+# These are used for linting, formatting, and type checking
+black
+flake8
+isort
