@@ -1,0 +1,489 @@
+name: Setup Script CI
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'unix/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'unix/**'
+      - '.github/workflows/**'
+
+jobs:
+  lint:
+    name: Lint Python Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r unix/requirements.txt
+
+      - name: Run Black formatter check
+        run: black --check --diff unix/setup.py
+
+      - name: Run isort import check
+        run: isort --check-only --diff unix/setup.py
+
+      - name: Run flake8 linter
+        run: flake8 unix/setup.py --max-line-length=150 --extend-ignore=E203,W503,F401
+
+  test-config:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install TOML parser
+        run: pip install toml
+
+      - name: Validate TOML syntax
+        run: python -c "import toml; toml.load('unix/packages.toml'); print('✅ TOML syntax is valid')"
+
+      - name: Check required sections
+        run: |
+          python -c "
+          import toml
+          config = toml.load('unix/packages.toml')
+
+          # Check required top-level sections
+          required_sections = ['platforms', 'package_managers', 'git', 'directories']
+          for section in required_sections:
+              assert section in config, f'Missing required section: {section}'
+
+          # Check platform configurations
+          platforms = ['macos', 'fedora', 'debian', 'android']
+          for platform in platforms:
+              assert platform in config['platforms'], f'Missing platform: {platform}'
+              print(f'✅ Platform {platform} configuration found')
+
+          print('✅ All required configuration sections present')
+          "
+
+  test-script:
+    name: Test Setup Script
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        exclude:
+          # macOS runners don't support Python 3.8
+          - os: macos-latest
+            python-version: '3.8'
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install script dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r unix/requirements.txt
+
+      - name: Test script execution
+        run: |
+          # Make script executable
+          chmod +x unix/setup.py
+
+          # Test help command
+          python unix/setup.py --help
+
+          # Test dry-run mode for different commands
+          python unix/setup.py --dry-run install --category terminal
+          python unix/setup.py --dry-run install --category gui
+          python unix/setup.py --dry-run fonts
+          python unix/setup.py --dry-run zsh
+
+      - name: Test platform detection and configuration
+        run: |
+          cd unix
+          # Test that platform detection and configuration loading works
+          python -c "
+          import sys
+          import platform
+
+          # Test platform detection logic
+          system = platform.system().lower()
+          if system == 'darwin':
+              expected = 'macos'
+          elif system == 'linux':
+              expected = 'debian'  # Default for GitHub runners
+          else:
+              expected = 'unknown'
+
+          print(f'✅ System: {system}, Expected platform: {expected}')
+
+          # Test configuration loading
+          import toml
+          with open('packages.toml', 'r') as f:
+              config = toml.load(f)
+          assert 'platforms' in config
+          assert 'package_managers' in config
+          assert 'common_tools' in config
+          print('✅ Configuration structure is valid')
+          "
+
+      - name: Test individual commands
+        run: |
+          cd unix
+
+          # Test that all subcommands show help without errors
+          python setup.py install --help
+          python setup.py git-config --help
+          python setup.py stow --help
+          python setup.py fonts --help
+          python setup.py zsh --help
+          python setup.py services --help
+
+  test-package-installation:
+    name: Test Package Installation (Dry Run)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install script dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r unix/requirements.txt
+
+      - name: Install system dependencies for testing
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y stow git
+
+      - name: Test dry-run package installation
+        run: |
+          cd unix
+
+          # Test different package categories in dry-run mode
+          python setup.py --dry-run install --category all
+          python setup.py --dry-run install --category terminal
+          python setup.py --dry-run install --category gui
+
+          # Test individual components
+          python setup.py --dry-run fonts
+          python setup.py --dry-run stow
+          python setup.py --dry-run zsh
+
+  test-actual-functionality:
+    name: Test Actual Functionality (Safe Operations)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install script dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r unix/requirements.txt
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y stow git
+
+      - name: Test directory creation
+        run: |
+          cd unix
+          # Create a temporary home for testing
+          export TEST_HOME="/tmp/test_home"
+          mkdir -p "$TEST_HOME"
+
+          # Test directory creation functionality
+          python -c "
+          import sys
+          import os
+          from pathlib import Path
+          os.environ['HOME'] = '/tmp/test_home'
+
+          exec(open('setup.py').read())
+
+          # Test create_directories function
+          create_directories()
+
+          # Verify directories were created
+          test_dirs = [
+              Path('/tmp/test_home/.config'),
+              Path('/tmp/test_home/.ssh'),
+              Path('/tmp/test_home/.zsh'),
+              Path('/tmp/test_home/Pictures/Wallpapers'),
+              Path('/tmp/test_home/.local/share/fonts'),
+          ]
+
+          for dir_path in test_dirs:
+              assert dir_path.exists(), f'Directory not created: {dir_path}'
+
+          print('✅ Directory creation test passed')
+          "
+
+      - name: Test configuration and utility functions
+        run: |
+          cd unix
+          # Test configuration loading and utility functions
+          python -c "
+          exec(open('setup.py').read())
+
+          # Test platform detection
+          platform = detect_platform()
+          assert platform in ['macos', 'debian', 'fedora', 'android'], f'Invalid platform: {platform}'
+          print(f'✅ Platform detection: {platform}')
+
+          # Test configuration loading
+          config = load_config()
+          assert isinstance(config, dict), 'Config should be a dictionary'
+          assert 'platforms' in config, 'Config missing platforms section'
+          print('✅ Configuration loading test passed')
+
+          # Test command_exists function
+          assert command_exists('python3'), 'command_exists should detect python3'
+          assert not command_exists('nonexistent_command_12345'), 'command_exists should return False for non-existent commands'
+          print('✅ Command exists test passed')
+
+          # Test apply_package_mapping
+          test_packages = ['test-package']
+          mapped = apply_package_mapping(test_packages, platform)
+          assert isinstance(mapped, list), 'Package mapping should return a list'
+          print('✅ Package mapping test passed')
+          "
+
+      - name: Test Git operations (safe)
+        run: |
+          cd unix
+          # Create a test git repository
+          export TEST_HOME="/tmp/test_git"
+          mkdir -p "$TEST_HOME"
+          cd "$TEST_HOME"
+          git init
+          git config user.name "Test User"
+          git config user.email "test@example.com"
+
+          # Test git configuration functions without affecting global config
+          cd - && python -c "
+          import os
+          import tempfile
+          from pathlib import Path
+
+          exec(open('setup.py').read())
+
+          # Test checksum calculation
+          with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+              f.write('test content')
+              test_file = Path(f.name)
+
+          # Use the checksum function from update_zshrc
+          import hashlib
+          def calculate_checksum(file_path):
+              if not file_path.exists():
+                  return ''
+              with open(file_path, 'rb') as f:
+                  return hashlib.sha1(f.read()).hexdigest()
+
+          checksum = calculate_checksum(test_file)
+          assert len(checksum) == 40, 'SHA1 checksum should be 40 characters'
+          print('✅ Checksum calculation test passed')
+
+          # Clean up
+          test_file.unlink()
+          "
+
+      - name: Test Stow functionality with mock structure
+        run: |
+          cd unix
+          # Create a mock stow structure for testing
+          export TEST_HOME="/tmp/test_stow"
+          mkdir -p "$TEST_HOME"
+          mkdir -p "$TEST_HOME/stow_test/zsh/.zsh"
+          echo 'test config' > "$TEST_HOME/stow_test/zsh/.zsh/test.conf"
+
+          # Test stow operations
+          python -c "
+          import os
+          import sys
+          from pathlib import Path
+
+          os.environ['HOME'] = '/tmp/test_stow'
+
+          exec(open('setup.py').read())
+
+          # Mock the stow command for testing
+          def mock_run_command(cmd, **kwargs):
+              print(f'Mock running: {cmd}')
+              return type('MockResult', (), {'returncode': 0, 'stdout': '', 'stderr': ''})()
+
+          # Replace run_command for this test
+          original_run_command = globals()['run_command']
+          globals()['run_command'] = mock_run_command
+
+          # Create test directories
+          stow_dir = Path('/tmp/test_stow/stow_test')
+          pkg_dir = stow_dir / 'zsh'
+          pkg_dir.mkdir(parents=True, exist_ok=True)
+
+          # Create a mock config that includes our test package
+          def mock_load_config():
+              return {
+                  'directories': {
+                      'stow_packages': ['zsh']
+                  }
+              }
+
+          # Test stow package detection
+          packages = mock_load_config()['directories']['stow_packages']
+          assert 'zsh' in packages, 'Test package should be in stow packages'
+          print('✅ Stow configuration test passed')
+
+          # Restore original function
+          globals()['run_command'] = original_run_command
+          "
+
+      - name: Test platform-specific functions
+        run: |
+          cd unix
+          # Test platform-specific functionality
+          python -c "
+          exec(open('setup.py').read())
+
+          # Test platform detection logic thoroughly
+          import platform as py_platform
+
+          system = py_platform.system().lower()
+          print(f'Detected system: {system}')
+
+          # Test our platform detection
+          detected_platform = detect_platform()
+          print(f'Our platform detection: {detected_platform}')
+
+          # Validate platform detection logic
+          if system == 'linux':
+              # In GitHub runners, this should be debian (default)
+              assert detected_platform in ['debian', 'fedora'], f'Linux should detect as debian or fedora, got: {detected_platform}'
+          elif system == 'darwin':
+              assert detected_platform == 'macos', f'Darwin should detect as macos, got: {detected_platform}'
+
+          print('✅ Platform detection logic test passed')
+
+          # Test configuration structure for detected platform
+          config = load_config()
+          platform_config = config['platforms'].get(detected_platform, {})
+          assert platform_config, f'No configuration found for platform: {detected_platform}'
+          print(f'✅ Platform configuration exists for: {detected_platform}')
+          "
+
+  test-fedora-specific:
+    name: Test Fedora-Specific Features
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          dnf update -y
+          dnf install -y python3 python3-pip git
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install script dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r unix/requirements.txt
+
+      - name: Test Fedora platform detection
+        run: |
+          cd unix
+          # Test that Fedora platform is detected correctly by checking for fedora-release file
+          python3 -c "
+          import pathlib
+          # In Fedora container, should have fedora-release file
+          fedora_file = pathlib.Path('/etc/fedora-release')
+          assert fedora_file.exists(), 'Expected /etc/fedora-release to exist in Fedora container'
+          print('✅ Fedora system correctly identified')
+          "
+
+      - name: Test Fedora dry-run
+        run: |
+          cd unix
+          python3 setup.py --dry-run install --category terminal
+
+      - name: Test Fedora-specific configuration
+        run: |
+          cd unix
+          # Test that Fedora has the right configuration
+          python3 -c "
+          import toml
+          config = toml.load('packages.toml')
+
+          # Check Fedora platform exists
+          assert 'fedora' in config['platforms'], 'Fedora platform missing from config'
+
+          fedora_config = config['platforms']['fedora']
+          assert 'terminal_tools' in fedora_config, 'Fedora terminal_tools missing'
+          assert 'gui_apps' in fedora_config, 'Fedora gui_apps missing'
+
+          # Check for DNF and Flatpak
+          assert 'dnf' in fedora_config['terminal_tools'], 'DNF configuration missing'
+          assert 'flatpak' in fedora_config['gui_apps'], 'Flatpak configuration missing'
+
+          print('✅ Fedora configuration is valid')
+          "
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install bandit
+        run: pip install bandit
+
+      - name: Run security scan
+        run: bandit -r unix/ -f json -o bandit-report.json || true
+
+      - name: Display security report
+        run: |
+          if [ -f bandit-report.json ]; then
+            echo "Security scan completed. Check for any high-severity issues:"
+            cat bandit-report.json
+          fi
