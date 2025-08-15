@@ -17,7 +17,6 @@ terminal = [
     "zsh",
     "vim",
     "neovim",
-    "micro",
     "bat",
     "direnv",
     "fastfetch",
@@ -124,7 +123,6 @@ flatpak = [
     "org.onlyoffice.desktopeditors",
     "com.obsproject.Studio",
     "org.mozilla.Thunderbird",
-    "org.davinci.DaVinciResolve",
     "com.valvesoftware.Steam",
 ]
 

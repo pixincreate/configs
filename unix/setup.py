@@ -72,6 +72,7 @@ class SetupConfig:
 
     dry_run: bool = False
     verbose: bool = False
+    auto_confirm: bool = False
     platform: str = ""
     script_dir: Path = (
         Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
@@ -148,6 +149,14 @@ def log_warning(message: str, emoji: str = "⚠️"):
 def log_error(message: str, emoji: str = "❌"):
     """Log error message."""
     setup_config._log_error(message, emoji)
+
+
+def confirm_action(message: str, default: bool = False) -> bool:
+    """Ask for confirmation with auto-confirm support."""
+    if setup_config.auto_confirm:
+        log_info(f"Auto-confirming: {message}")
+        return True
+    return Confirm.ask(message, default=default)
 
 
 def run_command(
@@ -296,7 +305,11 @@ def setup_fedora_repositories():
                 pass
 
             log_info(f"Enabling COPR: {repo}")
-            run_command(f"sudo dnf copr enable -y {repo}")
+            # Build DNF COPR command with appropriate flags
+            dnf_flags = "-y"
+            if setup_config.auto_confirm:
+                dnf_flags += " --assumeyes"
+            run_command(f"sudo dnf copr enable {dnf_flags} {repo}")
 
     # Add external repositories
     if "fedora_external" in config.get("package_managers", {}):
@@ -336,8 +349,12 @@ def setup_fedora_repositories():
             log_success("RPM Fusion repositories already installed")
         else:
             log_info("Installing RPM Fusion repositories...")
+            # Build DNF command with appropriate flags
+            dnf_flags = "-y"
+            if setup_config.auto_confirm:
+                dnf_flags += " --assumeyes"
             rpm_fusion_cmd = (
-                "sudo dnf install -y "
+                f"sudo dnf install {dnf_flags} "
                 "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm "
                 "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
             )
@@ -346,8 +363,12 @@ def setup_fedora_repositories():
         log_warning(
             "Could not check RPM Fusion installation status, attempting to install..."
         )
+        # Build DNF command with appropriate flags
+        dnf_flags = "-y"
+        if setup_config.auto_confirm:
+            dnf_flags += " --assumeyes"
         rpm_fusion_cmd = (
-            "sudo dnf install -y "
+            f"sudo dnf install {dnf_flags} "
             "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm "
             "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
         )
@@ -360,8 +381,12 @@ def setup_fedora_repositories():
             log_success("Terra repository already installed")
         else:
             log_info("Installing Terra repository...")
+            # Build DNF command with appropriate flags
+            dnf_flags = "-y"
+            if setup_config.auto_confirm:
+                dnf_flags += " --assumeyes"
             terra_cmd = (
-                "sudo dnf install -y "
+                f"sudo dnf install {dnf_flags} "
                 "--nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release"
             )
             run_command(terra_cmd)
@@ -369,8 +394,12 @@ def setup_fedora_repositories():
         log_warning(
             "Could not check Terra installation status, attempting to install..."
         )
+        # Build DNF command with appropriate flags
+        dnf_flags = "-y"
+        if setup_config.auto_confirm:
+            dnf_flags += " --assumeyes"
         terra_cmd = (
-            "sudo dnf install -y "
+            f"sudo dnf install {dnf_flags} "
             "--nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release"
         )
         run_command(terra_cmd)
@@ -484,21 +513,52 @@ def install_gui_apps(platform_name: str, apps_config: Dict):
 
 def install_with_dnf(packages: List[str]):
     """Install packages using DNF."""
-    packages_str = " ".join(packages)
-    run_command(f"sudo dnf install -y {packages_str}")
+    if not packages:
+        return
+
+    log_info(f"Installing {len(packages)} packages with DNF...")
+
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
+
+    failed_packages = []
+
+    for package in packages:
+        try:
+            log_info(f"Installing individual package: {package}")
+            run_command(f"sudo dnf install {dnf_flags} {package}")
+        except subprocess.CalledProcessError:
+            log_warning(f"Failed to install package: {package}")
+            failed_packages.append(package)
+            continue
+
+    if failed_packages:
+        log_warning(f"Failed to install {len(failed_packages)} packages: {', '.join(failed_packages)}")
 
 
 def install_with_apt(packages: List[str]):
     """Install packages using APT."""
     run_command("sudo apt-get update")
     packages_str = " ".join(packages)
-    run_command(f"sudo apt-get install -y {packages_str}")
+
+    # Build APT command with appropriate flags
+    apt_flags = "-y"
+    if setup_config.auto_confirm:
+        apt_flags += " --assume-yes"
+
+    run_command(f"sudo apt-get install {apt_flags} {packages_str}")
 
 
 def install_with_pkg(packages: List[str]):
     """Install packages using pkg (Termux)."""
     packages_str = " ".join(packages)
-    run_command(f"pkg install -y {packages_str}")
+
+    # Build pkg command with appropriate flags
+    pkg_flags = "-y"
+
+    run_command(f"pkg install {pkg_flags} {packages_str}")
 
 
 def install_with_brew(packages: List[str]):
@@ -666,7 +726,7 @@ def setup_ssh_key():
     console.print()
 
     # Optionally upload to GitHub
-    if Confirm.ask("🪪 Do you want to upload this key to GitHub automatically?"):
+    if confirm_action("🪪 Do you want to upload this key to GitHub automatically?"):
         upload_ssh_key_to_github(ssh_key)
 
 
@@ -802,7 +862,7 @@ def update_zshrc():
     new_checksum = calculate_checksum(source_zshrc)
 
     if current_checksum != new_checksum:
-        if Confirm.ask("📝 .zshrc has updates available. Do you want to update it?"):
+        if confirm_action("📝 .zshrc has updates available. Do you want to update it?"):
             if not setup_config.dry_run:
                 # Backup current file
                 backup_path = zshrc_path.with_suffix(".zshrc.bak")
@@ -934,7 +994,7 @@ def stow_dotfiles(package: Optional[str] = None):
             run_command(stow_cmd)
             log_success(f"Successfully stowed: {pkg}")
         except subprocess.CalledProcessError:
-            if Confirm.ask(
+            if confirm_action(
                 f"❓ Stow conflict detected for {pkg}. Override existing files?"
             ):
                 run_command(
@@ -977,8 +1037,13 @@ def setup_fedora_system():
     """Run Fedora-specific system setup."""
     log_info("Running Fedora system setup...", "🎩")
 
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
+
     # Update system first
-    run_command("sudo dnf update -y --refresh")
+    run_command(f"sudo dnf update {dnf_flags} --refresh")
 
     # Setup repositories
     setup_fedora_repositories()
@@ -1002,15 +1067,34 @@ def setup_fedora_system():
     try:
         run_command("lspci | grep -i nvidia", capture_output=True)
         log_info("NVIDIA hardware detected, installing drivers...")
-        run_command("sudo dnf install -y kernel-devel")
-        run_command("sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda")
-        run_command("sudo dnf install -y nvidia-settings")
-        run_command("sudo dnf install -y xorg-x11-drv-nvidia-libs.i686")
+
+        # Build DNF command with appropriate flags
+        dnf_flags = "-y"
+        if setup_config.auto_confirm:
+            dnf_flags += " --assumeyes"
+
+        run_command(f"sudo dnf install {dnf_flags} kernel-devel")
+        run_command(f"sudo dnf install {dnf_flags} akmod-nvidia xorg-x11-drv-nvidia-cuda")
+        run_command(f"sudo dnf install {dnf_flags} nvidia-settings")
+
+        # Install only x86_64 versions to avoid architecture conflicts
+        run_command(f"sudo dnf install {dnf_flags} xorg-x11-drv-nvidia-libs.x86_64")
+
         run_command("sudo akmods --force")
         run_command(
             "sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service"
         )
-        run_command("sudo dnf install nvidia-vaapi-driver vdpauinfo")
+
+        # Handle libva-nvidia-driver separately to avoid conflicts
+        try:
+            # First remove any existing libva-nvidia-driver packages to avoid conflicts
+            run_command(f"sudo dnf remove {dnf_flags} libva-nvidia-driver", check=False)
+            log_info("Removed existing libva-nvidia-driver packages")
+        except subprocess.CalledProcessError:
+            pass  # Package might not be installed, that's fine
+
+        # Install NVIDIA VAAPI driver and tools (x86_64 only)
+        run_command(f"sudo dnf install {dnf_flags} libva-nvidia-driver.x86_64 vdpauinfo")
 
         # Enable NVIDIA modeset
         run_command('sudo grubby --update-kernel=ALL --args="nvidia-drm.modeset=1"')
@@ -1051,7 +1135,11 @@ def update_firmware():
 
     if not command_exists("fwupdmgr"):
         log_info("Installing fwupd...")
-        run_command("sudo dnf install -y fwupd")
+        # Build DNF command with appropriate flags
+        dnf_flags = "-y"
+        if setup_config.auto_confirm:
+            dnf_flags += " --assumeyes"
+        run_command(f"sudo dnf install {dnf_flags} fwupd")
 
     # Refresh firmware metadata
     run_command("sudo fwupdmgr refresh --force")
@@ -1076,7 +1164,7 @@ def update_firmware():
                 console.print(result.stdout)
 
             # Apply updates
-            if Confirm.ask("🔄 Apply firmware updates?"):
+            if confirm_action("🔄 Apply firmware updates?"):
                 run_command("sudo fwupdmgr update")
                 log_success("Firmware updates applied")
             else:
@@ -1092,7 +1180,11 @@ def setup_appimage_support():
     log_info("Setting up AppImage support...", "📱")
 
     # Install FUSE for AppImage support
-    run_command("sudo dnf install -y fuse")
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
+    run_command(f"sudo dnf install {dnf_flags} fuse")
     log_success("FUSE installed for AppImage support")
 
 
@@ -1100,23 +1192,28 @@ def setup_multimedia():
     """Setup multimedia support based on official Fedora recommendations."""
     log_info("Setting up multimedia support...", "🎵")
 
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
+
     # 1. Install multimedia group (official Fedora recommendation)
     log_info("Installing multimedia group...")
-    run_command("sudo dnf group install -y multimedia")
+    run_command(f"sudo dnf group install {dnf_flags} multimedia")
 
     # 2. Swap to full FFmpeg (RPM Fusion version with all codecs)
     log_info("Swapping to full FFmpeg...")
-    run_command("sudo dnf swap ffmpeg-free ffmpeg --allowerasing")
+    run_command(f"sudo dnf swap {dnf_flags} ffmpeg-free ffmpeg --allowerasing")
 
     # 3. Update multimedia group and install sound-and-video
     log_info("Updating multimedia packages...")
     run_command(
-        'sudo dnf group upgrade multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin'
+        f'sudo dnf group upgrade {dnf_flags} multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin'
     )
 
     # 4. Install essential multimedia libraries
     log_info("Installing multimedia libraries...")
-    run_command("sudo dnf install -y ffmpeg-libs libva libva-utils")
+    run_command(f"sudo dnf install {dnf_flags} ffmpeg-libs libva libva-utils")
 
     # 5. Hardware acceleration setup
     setup_hardware_acceleration()
@@ -1124,15 +1221,15 @@ def setup_multimedia():
     # 6. Install additional codecs and plugins
     log_info("Installing additional codecs...")
     run_command(
-        "sudo dnf install -y gstreamer1-plugins-{bad-*,good-*,base} gstreamer1-plugin-openh264 gstreamer1-libav"
+        f"sudo dnf install {dnf_flags} gstreamer1-plugins-{{bad-*,good-*,base}} gstreamer1-plugin-openh264 gstreamer1-libav"
     )
-    run_command("sudo dnf install -y lame* --exclude=lame-devel")
+    run_command(f"sudo dnf install {dnf_flags} lame* --exclude=lame-devel")
 
     # 7. Enable OpenH264 for browsers
     log_info("Setting up OpenH264 for browsers...")
     run_command("sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1")
     run_command(
-        "sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264"
+        f"sudo dnf install {dnf_flags} openh264 gstreamer1-plugin-openh264 mozilla-openh264"
     )
 
     log_success("Multimedia setup completed")
@@ -1146,8 +1243,12 @@ def setup_hardware_acceleration():
     try:
         run_command("lspci | grep -i intel.*graphics", capture_output=True)
         log_info("Intel graphics detected, installing Intel media drivers...")
+        # Build DNF command with appropriate flags
+        dnf_flags = "-y"
+        if setup_config.auto_confirm:
+            dnf_flags += " --assumeyes"
         run_command(
-            "sudo dnf swap libva-intel-media-driver intel-media-driver --allowerasing"
+            f"sudo dnf swap {dnf_flags} libva-intel-media-driver intel-media-driver --allowerasing"
         )
         # Note: libva-intel-driver is legacy and usually not needed with intel-media-driver
         log_success("Intel hardware acceleration configured")
@@ -1158,21 +1259,15 @@ def setup_hardware_acceleration():
     try:
         run_command("lspci | grep -i amd.*graphics", capture_output=True)
         log_info("AMD graphics detected, installing AMD drivers...")
+        # Build DNF command with appropriate flags
+        dnf_flags = "-y"
+        if setup_config.auto_confirm:
+            dnf_flags += " --assumeyes"
         # AMD drivers are usually included in mesa packages
-        run_command("sudo dnf install -y mesa-va-drivers mesa-vdpau-drivers")
+        run_command(f"sudo dnf install {dnf_flags} mesa-va-drivers mesa-vdpau-drivers")
         log_success("AMD hardware acceleration configured")
     except subprocess.CalledProcessError:
         log_info("No AMD graphics detected, skipping AMD drivers")
-
-    # NVIDIA will be handled separately in the main NVIDIA detection section
-    # but we can install the VAAPI driver here if NVIDIA is detected
-    try:
-        run_command("lspci | grep -i nvidia", capture_output=True)
-        log_info("NVIDIA graphics detected, installing NVIDIA media drivers...")
-        run_command("sudo dnf install -y libva-nvidia-driver.{i686,x86_64}")
-        log_success("NVIDIA VAAPI driver installed")
-    except subprocess.CalledProcessError:
-        log_info("No NVIDIA graphics detected, skipping NVIDIA VAAPI drivers")
 
 
 def setup_asus_system():
@@ -1180,7 +1275,11 @@ def setup_asus_system():
     log_info("Setting up ASUS system optimizations...", "🎮")
 
     # Install basic ASUS utilities
-    run_command("sudo dnf install -y asusctl supergfxctl")
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
+    run_command(f"sudo dnf install {dnf_flags} asusctl supergfxctl")
     run_command("sudo systemctl enable supergfxd.service")
     run_command("sudo systemctl start asusd")
 
@@ -1201,11 +1300,11 @@ def check_cpu_architecture_support() -> bool:
         result = run_command("/lib64/ld-linux-x86-64.so.2 --help", capture_output=True)
         output = result.stdout
 
-        if "x86_64_v3 (supported, searched)" in output:
-            log_success("CPU supports x86_64_v3 - CachyOS kernel compatible")
+        if "x86-64-v3 (supported, searched)" in output:
+            log_success("CPU supports x86-64-v3 - CachyOS kernel compatible")
             return True
-        elif "x86_64_v2 (supported, searched)" in output:
-            log_info("CPU supports x86_64_v2 - can use LTS kernel")
+        elif "x86-64-v2 (supported, searched)" in output:
+            log_info("CPU supports x86-64-v2 - can use LTS kernel")
             return True
         else:
             log_warning("CPU doesn't support required architecture")
@@ -1234,17 +1333,22 @@ def install_cachyos_kernel():
         log_info("Skipping CachyOS kernel installation")
         return
 
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
+
     # Install selected kernel
     if kernel_choice == "standard":
         log_info("Installing standard CachyOS kernel...")
-        run_command("sudo dnf install -y kernel-cachyos kernel-cachyos-devel-matched")
+        run_command(f"sudo dnf install {dnf_flags} kernel-cachyos kernel-cachyos-devel-matched")
     elif kernel_choice == "realtime":
         log_info("Installing realtime CachyOS kernel...")
         log_warning(
             "Realtime kernel provides lower latency but may be less stable for general use"
         )
         run_command(
-            "sudo dnf install -y kernel-cachyos-rt kernel-cachyos-rt-devel-matched"
+            f"sudo dnf install {dnf_flags} kernel-cachyos-rt kernel-cachyos-rt-devel-matched"
         )
 
     log_success("CachyOS kernel installed - reboot required to use new kernel")
@@ -1299,7 +1403,7 @@ def setup_kde_wallpaper_config():
                 log_success(f"KDE wallpaper directory configured: {wallpapers_path}")
 
                 # Restart plasmashell to apply changes
-                if Confirm.ask("🔄 Restart Plasma shell to apply wallpaper settings?"):
+                if confirm_action("🔄 Restart Plasma shell to apply wallpaper settings?"):
                     run_command("killall plasmashell && plasmashell &", check=False)
                     log_success("Plasma shell restarted")
                 else:
@@ -1324,7 +1428,7 @@ def optimize_system_performance():
     log_info("Optimizing system performance...", "⚡")
 
     # Disable CPU mitigations for better performance
-    if Confirm.ask(
+    if confirm_action(
         "🚀 Disable CPU mitigations for better performance? (Less secure but faster)"
     ):
         run_command('sudo grubby --update-kernel=ALL --args="mitigations=off"')
@@ -1497,6 +1601,9 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument(
+        "-y", "--yes", action="store_true", help="Automatically answer yes to all prompts"
+    )
+    parser.add_argument(
         "--full-setup", action="store_true", help="Run complete setup for the platform"
     )
 
@@ -1532,6 +1639,7 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
     # Configure setup_config with parsed arguments
     setup_config.dry_run = args.dry_run
     setup_config.verbose = args.verbose
+    setup_config.auto_confirm = args.yes
 
     # Detect platform
     platform_name = detect_platform()
