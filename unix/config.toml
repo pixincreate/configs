@@ -15,6 +15,7 @@ terminal = [
     "wget",
     "curl",
     "zsh",
+    "eza",
     "vim",
     "neovim",
     "bat",
@@ -130,31 +131,31 @@ flatpak = [
 [platforms.fedora.bloatware_removal]
 # KDE and default Fedora packages to remove
 kde_packages = [
-    "firefox",           # Default browser (we install Brave/Zen instead)
-    "kmahjongg",         # KDE Mahjong game
-    "kmines",            # KDE Minesweeper game
-    "kpatience",         # KDE Solitaire game
-    "akregator",         # RSS reader
-    "kmail",             # Email client
-    "neochat",           # Matrix chat client
-    "kontact",           # PIM suite
-    "korganizer",        # Calendar/organizer
-    "okular",            # Document viewer
+    "firefox",    # Default browser (we install Brave/Zen instead)
+    "kmahjongg",  # KDE Mahjong game
+    "kmines",     # KDE Minesweeper game
+    "kpatience",  # KDE Solitaire game
+    "akregator",  # RSS reader
+    "kmail",      # Email client
+    "neochat",    # Matrix chat client
+    "kontact",    # PIM suite
+    "korganizer", # Calendar/organizer
+    "okular",     # Document viewer
 ]
 
 libreoffice_packages = [
-    "libreoffice-draw",     # Drawing application
-    "libreoffice-math",     # Formula editor
-    "libreoffice-calc",     # Spreadsheet
-    "libreoffice-writer",   # Word processor
-    "libreoffice-core",     # Core LibreOffice
-    "libreoffice-base",     # Database
-    "libreoffice-impress",  # Presentations
+    "libreoffice-draw",    # Drawing application
+    "libreoffice-math",    # Formula editor
+    "libreoffice-calc",    # Spreadsheet
+    "libreoffice-writer",  # Word processor
+    "libreoffice-core",    # Core LibreOffice
+    "libreoffice-base",    # Database
+    "libreoffice-impress", # Presentations
 ]
 
 pim_packages = [
-    "sieve-editor",         # Email sieve editor
-    "pim-data-exporter",    # PIM data export tool
+    "sieve-editor",      # Email sieve editor
+    "pim-data-exporter", # PIM data export tool
 ]
 
 # ===============================================================================
@@ -262,7 +263,7 @@ zsh_dir = "~/.zsh"
 zshrc_file = "~/.zsh/.zshrc"
 zsh_source = "~/Dev/.configs/home/zsh/.zsh/.zshrc"
 additionals_zsh = "~/.zsh/.additionals.zsh"
-rish_dir = "~/.rish"  # Android specific
+rish_dir = "~/.rish"                                                   # Android specific
 zgenom_dir = "~/.zsh/.zgenom"
 config_dir = "~/.config"
 stow_packages = ["config", "git", "ssh", "vscode", "zsh", "wallpaper"]
