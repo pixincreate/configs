@@ -1173,6 +1173,89 @@ def setup_services():
                 )
 
 
+def remove_bloatware():
+    """Remove bloatware packages from Fedora KDE installation."""
+    log_info("Removing bloatware packages...", "🗑️")
+
+    config = load_config()
+    bloatware_config = config.get("platforms", {}).get("fedora", {}).get("bloatware_removal", {})
+
+    if not bloatware_config:
+        log_warning("No bloatware removal configuration found")
+        return
+
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
+
+    removed_packages = []
+    failed_packages = []
+
+    # Remove KDE packages
+    kde_packages = bloatware_config.get("kde_packages", [])
+    if kde_packages:
+        log_info(f"Removing KDE bloatware packages: {len(kde_packages)} packages")
+        for package in kde_packages:
+            try:
+                result = run_command(f"rpm -q {package}", capture_output=True, check=False)
+                if result.returncode == 0:
+                    run_command(f"sudo dnf remove {dnf_flags} {package}")
+                    removed_packages.append(package)
+                    log_success(f"Removed: {package}")
+                else:
+                    log_info(f"Not installed: {package}")
+            except subprocess.CalledProcessError:
+                log_warning(f"Failed to remove: {package}")
+                failed_packages.append(package)
+
+    # Remove LibreOffice packages
+    libreoffice_packages = bloatware_config.get("libreoffice_packages", [])
+    if libreoffice_packages:
+        log_info(f"Removing LibreOffice packages: {len(libreoffice_packages)} packages")
+        for package in libreoffice_packages:
+            try:
+                result = run_command(f"rpm -q {package}", capture_output=True, check=False)
+                if result.returncode == 0:
+                    run_command(f"sudo dnf remove {dnf_flags} {package}")
+                    removed_packages.append(package)
+                    log_success(f"Removed: {package}")
+                else:
+                    log_info(f"Not installed: {package}")
+            except subprocess.CalledProcessError:
+                log_warning(f"Failed to remove: {package}")
+                failed_packages.append(package)
+
+    # Remove PIM packages
+    pim_packages = bloatware_config.get("pim_packages", [])
+    if pim_packages:
+        log_info(f"Removing PIM packages: {len(pim_packages)} packages")
+        for package in pim_packages:
+            try:
+                result = run_command(f"rpm -q {package}", capture_output=True, check=False)
+                if result.returncode == 0:
+                    run_command(f"sudo dnf remove {dnf_flags} {package}")
+                    removed_packages.append(package)
+                    log_success(f"Removed: {package}")
+                else:
+                    log_info(f"Not installed: {package}")
+            except subprocess.CalledProcessError:
+                log_warning(f"Failed to remove: {package}")
+                failed_packages.append(package)
+
+    # Clean up orphaned packages
+    log_info("Cleaning up orphaned packages...")
+    run_command(f"sudo dnf autoremove {dnf_flags}")
+
+    # Summary
+    if removed_packages:
+        log_success(f"Successfully removed {len(removed_packages)} bloatware packages")
+    if failed_packages:
+        log_warning(f"Failed to remove {len(failed_packages)} packages: {', '.join(failed_packages)}")
+
+    log_success("Bloatware removal completed")
+
+
 def setup_fedora_system():
     """Run Fedora-specific system setup."""
     log_info("Running Fedora system setup...", "🎩")
@@ -1203,56 +1286,14 @@ def setup_fedora_system():
     # Setup multimedia (based on official Fedora recommendations)
     setup_multimedia()
 
-    # Check for NVIDIA hardware
-    try:
-        run_command("lspci | grep -i nvidia", capture_output=True)
-        log_info("NVIDIA hardware detected, installing drivers...")
+    # Setup NVIDIA drivers (if hardware detected)
+    setup_nvidia_drivers()
 
-        # Build DNF command with appropriate flags
-        dnf_flags = "-y"
-        if setup_config.auto_confirm:
-            dnf_flags += " --assumeyes"
+    # Setup ASUS system optimizations (if ASUS hardware detected)
+    setup_asus_system()
 
-        run_command(f"sudo dnf install {dnf_flags} kernel-devel")
-        run_command(f"sudo dnf install {dnf_flags} akmod-nvidia xorg-x11-drv-nvidia-cuda")
-        run_command(f"sudo dnf install {dnf_flags} nvidia-settings")
-
-        # Install only x86_64 versions to avoid architecture conflicts
-        run_command(f"sudo dnf install {dnf_flags} xorg-x11-drv-nvidia-libs.x86_64")
-
-        run_command("sudo akmods --force")
-        run_command(
-            "sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service"
-        )
-
-        # Handle libva-nvidia-driver separately to avoid conflicts
-        try:
-            # First remove any existing libva-nvidia-driver packages to avoid conflicts
-            run_command(f"sudo dnf remove {dnf_flags} libva-nvidia-driver", check=False)
-            log_info("Removed existing libva-nvidia-driver packages")
-        except subprocess.CalledProcessError:
-            pass  # Package might not be installed, that's fine
-
-        # Install NVIDIA VAAPI driver and tools (x86_64 only)
-        run_command(f"sudo dnf install {dnf_flags} libva-nvidia-driver.x86_64 vdpauinfo")
-
-        # Enable NVIDIA modeset
-        run_command('sudo grubby --update-kernel=ALL --args="nvidia-drm.modeset=1"')
-
-        log_success("NVIDIA drivers installed with modeset enabled. Reboot required.")
-    except subprocess.CalledProcessError:
-        log_info("No NVIDIA hardware detected, skipping NVIDIA setup")
-
-    # Check for ASUS hardware
-    try:
-        run_command(
-            "sudo dmidecode -s system-manufacturer | grep -i asus", capture_output=True
-        )
-        log_info("ASUS system detected, installing ASUS utilities...")
-        setup_asus_system()
-        log_success("ASUS system setup completed")
-    except subprocess.CalledProcessError:
-        log_info("Not an ASUS system, skipping ASUS setup")
+    # Remove bloatware packages at the end
+    remove_bloatware()
 
 
 def setup_hostname():
@@ -1410,9 +1451,71 @@ def setup_hardware_acceleration():
         log_info("No AMD graphics detected, skipping AMD drivers")
 
 
+def setup_nvidia_drivers():
+    """Setup NVIDIA drivers and related packages."""
+    log_info("Setting up NVIDIA drivers...", "🖥️")
+
+    # Check for NVIDIA hardware first
+    try:
+        run_command("lspci | grep -i nvidia", capture_output=True)
+        log_info("NVIDIA hardware detected, installing drivers...")
+    except subprocess.CalledProcessError:
+        log_info("No NVIDIA hardware detected, skipping NVIDIA setup")
+        return
+
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
+
+    # Install kernel development headers
+    run_command(f"sudo dnf install {dnf_flags} kernel-devel")
+
+    # Install NVIDIA drivers and CUDA support
+    run_command(f"sudo dnf install {dnf_flags} akmod-nvidia xorg-x11-drv-nvidia-cuda")
+    run_command(f"sudo dnf install {dnf_flags} nvidia-settings")
+
+    # Install only x86_64 versions to avoid architecture conflicts
+    run_command(f"sudo dnf install {dnf_flags} xorg-x11-drv-nvidia-libs.x86_64")
+
+    # Build NVIDIA kernel modules
+    run_command("sudo akmods --force")
+
+    # Enable NVIDIA services
+    run_command(
+        "sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service"
+    )
+
+    # Handle libva-nvidia-driver separately to avoid conflicts
+    try:
+        # First remove any existing libva-nvidia-driver packages to avoid conflicts
+        run_command(f"sudo dnf remove {dnf_flags} libva-nvidia-driver", check=False)
+        log_info("Removed existing libva-nvidia-driver packages")
+    except subprocess.CalledProcessError:
+        pass  # Package might not be installed, that's fine
+
+    # Install NVIDIA VAAPI driver and tools (x86_64 only)
+    run_command(f"sudo dnf install {dnf_flags} libva-nvidia-driver.x86_64 vdpauinfo")
+
+    # Enable NVIDIA modeset
+    run_command('sudo grubby --update-kernel=ALL --args="nvidia-drm.modeset=1"')
+
+    log_success("NVIDIA drivers installed with modeset enabled. Reboot required.")
+
+
 def setup_asus_system():
     """Setup ASUS system for better driver support."""
     log_info("Setting up ASUS system optimizations...", "🎮")
+
+    # Check for ASUS hardware first
+    try:
+        run_command(
+            "sudo dmidecode -s system-manufacturer | grep -i asus", capture_output=True
+        )
+        log_info("ASUS system detected, installing ASUS utilities...")
+    except subprocess.CalledProcessError:
+        log_info("Not an ASUS system, skipping ASUS setup")
+        return
 
     # Install basic ASUS utilities
     # Build DNF command with appropriate flags
@@ -1422,6 +1525,8 @@ def setup_asus_system():
     run_command(f"sudo dnf install {dnf_flags} asusctl supergfxctl")
     run_command("sudo systemctl enable supergfxd.service")
     run_command("sudo systemctl start asusd")
+
+    log_success("ASUS system setup completed")
 
 
 def setup_wallpaper_directories():
