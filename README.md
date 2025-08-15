@@ -6,6 +6,9 @@ A comprehensive dotfiles and system setup repository for multi-platform developm
 
 **One-liner setup (Unix/Linux/macOS):**
 
+> [!NOTE]
+> This assumes you've installed Python 3 and Git on your system already. If note, see the [Prerequisites](#prerequisites) section below.
+
 ```bash
 git clone --recurse-submodules https://github.com/pixincreate/configs.git ~/Dev/.configs && ~/Dev/.configs/unix/setup.py --full-setup
 ```
@@ -29,6 +32,19 @@ git clone --recurse-submodules https://github.com/pixincreate/configs.git ~/Dev/
 - **Internet connection** (for downloading packages)
 
 The setup script automatically installs required Python dependencies (`toml`, `rich`) if not present.
+
+To install the prerequisites, run:
+
+```bash
+# On Debian/Ubuntu
+sudo apt-get update && sudo apt-get install -y python3 git zsh curl wget
+# On Fedora
+sudo dnf update && sudo dnf install -y python3 git zsh curl wget
+# On macOS (Homebrew required)
+brew install python git zsh curl wget
+# On Android (Termux)
+pkg install python git zsh curl wget
+```
 
 ### Setup Script (`unix/setup.py`)
 
