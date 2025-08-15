@@ -935,10 +935,8 @@ def setup_fedora_system():
     setup_multimedia()
 
     # Check for NVIDIA hardware
-    nvidia_detected = False
     try:
         run_command("lspci | grep -i nvidia", capture_output=True)
-        nvidia_detected = True
         log_info("NVIDIA hardware detected, installing drivers...")
         run_command("sudo dnf install -y kernel-devel")
         run_command("sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda")
@@ -951,7 +949,7 @@ def setup_fedora_system():
         run_command("sudo dnf install nvidia-vaapi-driver vdpauinfo")
 
         # Enable NVIDIA modeset
-        run_command("sudo grubby --update-kernel=ALL --args=\"nvidia-drm.modeset=1\"")
+        run_command('sudo grubby --update-kernel=ALL --args="nvidia-drm.modeset=1"')
 
         log_success("NVIDIA drivers installed with modeset enabled. Reboot required.")
     except subprocess.CalledProcessError:
@@ -996,14 +994,18 @@ def update_firmware():
 
     # Get list of devices
     try:
-        result = run_command("sudo fwupdmgr get-devices", capture_output=True, check=False)
+        result = run_command(
+            "sudo fwupdmgr get-devices", capture_output=True, check=False
+        )
         if result.returncode == 0:
             log_info("Available devices for firmware update:")
             if not setup_config.dry_run:
                 console.print(result.stdout)
 
         # Check for available updates
-        result = run_command("sudo fwupdmgr get-updates", capture_output=True, check=False)
+        result = run_command(
+            "sudo fwupdmgr get-updates", capture_output=True, check=False
+        )
         if result.returncode == 0 and result.stdout.strip():
             log_info("Firmware updates available:")
             if not setup_config.dry_run:
@@ -1044,7 +1046,9 @@ def setup_multimedia():
 
     # 3. Update multimedia group and install sound-and-video
     log_info("Updating multimedia packages...")
-    run_command('sudo dnf groupupdate multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin')
+    run_command(
+        'sudo dnf groupupdate multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin'
+    )
     run_command("sudo dnf groupupdate sound-and-video")
 
     # 4. Install essential multimedia libraries
@@ -1056,13 +1060,17 @@ def setup_multimedia():
 
     # 6. Install additional codecs and plugins
     log_info("Installing additional codecs...")
-    run_command("sudo dnf install -y gstreamer1-plugins-{bad-*,good-*,base} gstreamer1-plugin-openh264 gstreamer1-libav")
+    run_command(
+        "sudo dnf install -y gstreamer1-plugins-{bad-*,good-*,base} gstreamer1-plugin-openh264 gstreamer1-libav"
+    )
     run_command("sudo dnf install -y lame* --exclude=lame-devel")
 
     # 7. Enable OpenH264 for browsers
     log_info("Setting up OpenH264 for browsers...")
     run_command("sudo dnf config-manager --set-enabled fedora-cisco-openh264")
-    run_command("sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264")
+    run_command(
+        "sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264"
+    )
 
     log_success("Multimedia setup completed")
 
@@ -1075,7 +1083,9 @@ def setup_hardware_acceleration():
     try:
         run_command("lspci | grep -i intel.*graphics", capture_output=True)
         log_info("Intel graphics detected, installing Intel media drivers...")
-        run_command("sudo dnf swap libva-intel-media-driver intel-media-driver --allowerasing")
+        run_command(
+            "sudo dnf swap libva-intel-media-driver intel-media-driver --allowerasing"
+        )
         # Note: libva-intel-driver is legacy and usually not needed with intel-media-driver
         log_success("Intel hardware acceleration configured")
     except subprocess.CalledProcessError:
@@ -1115,7 +1125,9 @@ def setup_asus_system():
     if check_cpu_architecture_support():
         install_cachyos_kernel()
     else:
-        log_warning("CPU doesn't support x86_64_v3, skipping CachyOS kernel installation")
+        log_warning(
+            "CPU doesn't support x86_64_v3, skipping CachyOS kernel installation"
+        )
 
 
 def check_cpu_architecture_support() -> bool:
@@ -1152,7 +1164,7 @@ def install_cachyos_kernel():
     kernel_choice = Prompt.ask(
         "Choose CachyOS kernel type",
         choices=["standard", "realtime", "skip"],
-        default="standard"
+        default="standard",
     )
 
     if kernel_choice == "skip":
@@ -1165,8 +1177,12 @@ def install_cachyos_kernel():
         run_command("sudo dnf install -y kernel-cachyos kernel-cachyos-devel-matched")
     elif kernel_choice == "realtime":
         log_info("Installing realtime CachyOS kernel...")
-        log_warning("Realtime kernel provides lower latency but may be less stable for general use")
-        run_command("sudo dnf install -y kernel-cachyos-rt kernel-cachyos-rt-devel-matched")
+        log_warning(
+            "Realtime kernel provides lower latency but may be less stable for general use"
+        )
+        run_command(
+            "sudo dnf install -y kernel-cachyos-rt kernel-cachyos-rt-devel-matched"
+        )
 
     log_success("CachyOS kernel installed - reboot required to use new kernel")
 
@@ -1176,8 +1192,10 @@ def optimize_system_performance():
     log_info("Optimizing system performance...", "⚡")
 
     # Disable CPU mitigations for better performance
-    if Confirm.ask("🚀 Disable CPU mitigations for better performance? (Less secure but faster)"):
-        run_command("sudo grubby --update-kernel=ALL --args=\"mitigations=off\"")
+    if Confirm.ask(
+        "🚀 Disable CPU mitigations for better performance? (Less secure but faster)"
+    ):
+        run_command('sudo grubby --update-kernel=ALL --args="mitigations=off"')
         log_success("CPU mitigations disabled for better performance")
     else:
         log_info("Keeping CPU mitigations enabled for security")
