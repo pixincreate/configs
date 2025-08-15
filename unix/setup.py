@@ -221,8 +221,16 @@ def create_directories():
         Path.home() / ".ssh",
         Path.home() / ".zsh",
         Path.home() / ".zsh" / ".zgenom",
-        Path(directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers").replace("~", str(Path.home()))),
-        Path(directories_config.get("screenshots_dir", "~/Pictures/Screenshots").replace("~", str(Path.home()))),
+        Path(
+            directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers").replace(
+                "~", str(Path.home())
+            )
+        ),
+        Path(
+            directories_config.get("screenshots_dir", "~/Pictures/Screenshots").replace(
+                "~", str(Path.home())
+            )
+        ),
         Path.home() / ".local" / "share" / "fonts",
     ]
 
@@ -276,6 +284,17 @@ def setup_fedora_repositories():
     # Enable COPR repositories
     if "fedora_copr" in config.get("package_managers", {}):
         for repo in config["package_managers"]["fedora_copr"]["repos"]:
+            # Check if COPR is already enabled
+            try:
+                result = run_command(
+                    "dnf copr list --enabled", capture_output=True, check=False
+                )
+                if result.returncode == 0 and repo in result.stdout:
+                    log_success(f"COPR already enabled: {repo}")
+                    continue
+            except Exception:
+                pass
+
             log_info(f"Enabling COPR: {repo}")
             run_command(f"sudo dnf copr enable -y {repo}")
 
@@ -283,39 +302,80 @@ def setup_fedora_repositories():
     if "fedora_external" in config.get("package_managers", {}):
         for repo in config["package_managers"]["fedora_external"]["repos"]:
             name = repo["name"]
+            repo_file_path = f"/etc/yum.repos.d/{name}.repo"
+
+            # Check if repository file already exists
+            if not setup_config.dry_run and Path(repo_file_path).exists():
+                log_success(f"Repository already configured: {name}")
+                continue
+
             log_info(f"Adding external repository: {name}")
 
             if "key" in repo:
-                # Import GPG key first
+                # Import GPG key first (safe to run multiple times)
                 run_command(f"sudo rpm --import {repo['key']}")
 
             if "url" in repo:
                 # Download repository file
-                run_command(
-                    f"sudo curl -Ls {repo['url']} -o /etc/yum.repos.d/{name}.repo"
-                )
+                run_command(f"sudo curl -Ls {repo['url']} -o {repo_file_path}")
             elif "repo" in repo:
                 # Write repository configuration
                 repo_content = repo["repo"]
                 if not setup_config.dry_run:
-                    with open(f"/etc/yum.repos.d/{name}.repo", "w") as f:
-                        f.write(repo_content)
+                    # Use sudo tee to write to system directory
+                    run_command(
+                        f"echo '{repo_content}' | sudo tee {repo_file_path} > /dev/null"
+                    )
 
-    # Install RPM Fusion
-    log_info("Installing RPM Fusion repositories...")
-    rpm_fusion_cmd = (
-        "sudo dnf install -y "
-        "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm "
-        "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
-    )
-    run_command(rpm_fusion_cmd)
+    # Install RPM Fusion (check if already installed)
+    try:
+        result = run_command(
+            "rpm -q rpmfusion-free-release", capture_output=True, check=False
+        )
+        if result.returncode == 0:
+            log_success("RPM Fusion repositories already installed")
+        else:
+            log_info("Installing RPM Fusion repositories...")
+            rpm_fusion_cmd = (
+                "sudo dnf install -y "
+                "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm "
+                "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+            )
+            run_command(rpm_fusion_cmd)
+    except Exception:
+        log_warning(
+            "Could not check RPM Fusion installation status, attempting to install..."
+        )
+        rpm_fusion_cmd = (
+            "sudo dnf install -y "
+            "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm "
+            "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+        )
+        run_command(rpm_fusion_cmd)
 
-    terra_cmd = (
-        "sudo dnf install -y "
-        "--nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release"
-    )
-    run_command(terra_cmd)
+    # Install Terra repository (check if already installed)
+    try:
+        result = run_command("rpm -q terra-release", capture_output=True, check=False)
+        if result.returncode == 0:
+            log_success("Terra repository already installed")
+        else:
+            log_info("Installing Terra repository...")
+            terra_cmd = (
+                "sudo dnf install -y "
+                "--nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release"
+            )
+            run_command(terra_cmd)
+    except Exception:
+        log_warning(
+            "Could not check Terra installation status, attempting to install..."
+        )
+        terra_cmd = (
+            "sudo dnf install -y "
+            "--nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release"
+        )
+        run_command(terra_cmd)
 
+    # Enable OpenH264 repository (safe to run multiple times)
     run_command("sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1")
 
     log_success("Fedora repositories setup completed")
@@ -1051,9 +1111,9 @@ def setup_multimedia():
     # 3. Update multimedia group and install sound-and-video
     log_info("Updating multimedia packages...")
     run_command(
-        'sudo dnf groupupdate multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin'
+        'sudo dnf group update multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin'
     )
-    run_command("sudo dnf groupupdate sound-and-video")
+    run_command("sudo dnf group update sound-and-video")
 
     # 4. Install essential multimedia libraries
     log_info("Installing multimedia libraries...")
@@ -1204,22 +1264,38 @@ def setup_kde_wallpaper_config():
 
     if not setup_config.dry_run:
         # Check if we're in a KDE environment
-        if not os.getenv("KDE_SESSION_VERSION") and not os.getenv("DESKTOP_SESSION") == "plasma":
+        if (
+            not os.getenv("KDE_SESSION_VERSION")
+            and not os.getenv("DESKTOP_SESSION") == "plasma"
+        ):
             # Try to detect if KDE is available anyway
-            if not command_exists("kwriteconfig6") and not command_exists("kwriteconfig5"):
-                log_warning("KDE not detected and kwriteconfig not available, skipping KDE wallpaper configuration")
+            if not command_exists("kwriteconfig6") and not command_exists(
+                "kwriteconfig5"
+            ):
+                log_warning(
+                    "KDE not detected and kwriteconfig not available, skipping KDE wallpaper configuration"
+                )
                 return
 
         # Use kwriteconfig6 (KDE 6) or kwriteconfig5 (KDE 5) to set wallpaper directory
-        kwrite_cmd = "kwriteconfig6" if command_exists("kwriteconfig6") else "kwriteconfig5"
+        kwrite_cmd = (
+            "kwriteconfig6" if command_exists("kwriteconfig6") else "kwriteconfig5"
+        )
 
         if command_exists(kwrite_cmd):
             try:
                 # Set the default wallpaper directory for the Image wallpaper plugin
-                run_command(f'{kwrite_cmd} --file plasmarc --group Wallpapers --key usersWallpapers "{wallpapers_path}"')
+                run_command(
+                    f'{kwrite_cmd} --file plasmarc --group Wallpapers --key usersWallpapers "{wallpapers_path}"'
+                )
 
                 # Also set it for the desktop containment
-                run_command(f'{kwrite_cmd} --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 1 --group Wallpaper --group org.kde.image --group General --key Image "file://{wallpapers_path}"')
+                containment_cmd = (
+                    f"{kwrite_cmd} --file plasma-org.kde.plasma.desktop-appletsrc "
+                    f"--group Containments --group 1 --group Wallpaper "
+                    f'--group org.kde.image --group General --key Image "file://{wallpapers_path}"'
+                )
+                run_command(containment_cmd)
 
                 log_success(f"KDE wallpaper directory configured: {wallpapers_path}")
 
@@ -1228,14 +1304,20 @@ def setup_kde_wallpaper_config():
                     run_command("killall plasmashell && plasmashell &", check=False)
                     log_success("Plasma shell restarted")
                 else:
-                    log_info("Please restart Plasma shell manually to apply wallpaper settings")
+                    log_info(
+                        "Please restart Plasma shell manually to apply wallpaper settings"
+                    )
 
             except subprocess.CalledProcessError as e:
                 log_warning(f"Failed to configure KDE wallpaper settings: {e}")
         else:
-            log_warning("kwriteconfig not available, cannot configure KDE wallpaper settings")
+            log_warning(
+                "kwriteconfig not available, cannot configure KDE wallpaper settings"
+            )
     else:
-        log_info(f"[DRY RUN] Would configure KDE wallpaper directory: {wallpapers_path}")
+        log_info(
+            f"[DRY RUN] Would configure KDE wallpaper directory: {wallpapers_path}"
+        )
 
 
 def optimize_system_performance():
@@ -1501,7 +1583,10 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
             stow_dotfiles()
 
             # Configure KDE wallpaper directory (if KDE is available)
-            if platform_name in ["fedora", "debian"]:  # Linux platforms where KDE might be used
+            if platform_name in [
+                "fedora",
+                "debian",
+            ]:  # Linux platforms where KDE might be used
                 setup_kde_wallpaper_config()
 
             # Setup services (Fedora only)
