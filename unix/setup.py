@@ -1411,7 +1411,7 @@ def setup_hardware_acceleration():
 
 
 def setup_asus_system():
-    """Setup ASUS system with CachyOS kernel for better driver support."""
+    """Setup ASUS system for better driver support."""
     log_info("Setting up ASUS system optimizations...", "🎮")
 
     # Install basic ASUS utilities
@@ -1422,76 +1422,6 @@ def setup_asus_system():
     run_command(f"sudo dnf install {dnf_flags} asusctl supergfxctl")
     run_command("sudo systemctl enable supergfxd.service")
     run_command("sudo systemctl start asusd")
-
-    # Check CPU architecture support for CachyOS kernel
-    if check_cpu_architecture_support():
-        install_cachyos_kernel()
-    else:
-        log_warning(
-            "CPU doesn't support x86_64_v3, skipping CachyOS kernel installation"
-        )
-
-
-def check_cpu_architecture_support() -> bool:
-    """Check if CPU supports x86_64_v3 architecture for CachyOS kernel."""
-    log_info("Checking CPU architecture support...", "🔍")
-
-    try:
-        result = run_command("/lib64/ld-linux-x86-64.so.2 --help", capture_output=True)
-        output = result.stdout
-
-        if "x86-64-v3 (supported, searched)" in output:
-            log_success("CPU supports x86-64-v3 - CachyOS kernel compatible")
-            return True
-        elif "x86-64-v2 (supported, searched)" in output:
-            log_info("CPU supports x86-64-v2 - can use LTS kernel")
-            return True
-        else:
-            log_warning("CPU doesn't support required architecture")
-            return False
-    except subprocess.CalledProcessError:
-        log_warning("Could not determine CPU architecture support")
-        return False
-
-
-def install_cachyos_kernel():
-    """Install CachyOS kernel for better ASUS driver compatibility."""
-    log_info("Installing CachyOS kernel for better ASUS driver support...", "⚡")
-
-    # Setup SELinux policy for kernel modules
-    log_info("Configuring SELinux for kernel modules...")
-    run_command("sudo setsebool -P domain_kernel_load_modules on")
-
-    # Ask user for kernel preference
-    kernel_choice = Prompt.ask(
-        "Choose CachyOS kernel type",
-        choices=["standard", "realtime", "skip"],
-        default="standard",
-    )
-
-    if kernel_choice == "skip":
-        log_info("Skipping CachyOS kernel installation")
-        return
-
-    # Build DNF command with appropriate flags
-    dnf_flags = "-y"
-    if setup_config.auto_confirm:
-        dnf_flags += " --assumeyes"
-
-    # Install selected kernel
-    if kernel_choice == "standard":
-        log_info("Installing standard CachyOS kernel...")
-        run_command(f"sudo dnf install {dnf_flags} kernel-cachyos kernel-cachyos-devel-matched")
-    elif kernel_choice == "realtime":
-        log_info("Installing realtime CachyOS kernel...")
-        log_warning(
-            "Realtime kernel provides lower latency but may be less stable for general use"
-        )
-        run_command(
-            f"sudo dnf install {dnf_flags} kernel-cachyos-rt kernel-cachyos-rt-devel-matched"
-        )
-
-    log_success("CachyOS kernel installed - reboot required to use new kernel")
 
 
 def setup_wallpaper_directories():

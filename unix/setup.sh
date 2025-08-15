@@ -182,8 +182,24 @@ main() {
     # Check and install dependencies
     check_dependencies "$platform"
 
+    # Check if we need to clone the repository first
+    if [[ ! -d "unix" ]]; then
+        log_info "Repository not found, cloning..."
+        if ! command_exists git; then
+            log_error "Git is required but not installed"
+            exit 1
+        fi
+
+        # Clone to expected location
+        target_dir="$HOME/Dev/.configs"
+        log_info "Cloning repository to $target_dir"
+        mkdir -p "$(dirname "$target_dir")"
+        git clone --recurse-submodules https://github.com/pixincreate/configs.git "$target_dir"
+        cd "$target_dir"
+    fi
+
     # Find the setup.py script
-    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    script_dir="$(pwd)"
     setup_py="$script_dir/unix/setup.py"
 
     if [[ ! -f "$setup_py" ]]; then
@@ -194,15 +210,22 @@ main() {
     # Make setup.py executable
     chmod +x "$setup_py"
 
-    # Call setup.py with all arguments passed to this script
-    log_info "Calling setup.py with arguments: $*"
+    # Prepare arguments - add --yes if stdin is not a tty (piped input)
+    local args=("$@")
+    if [[ ! -t 0 ]]; then
+        log_info "Detected piped input, enabling auto-confirm mode"
+        args=(--yes "${args[@]}")
+    fi
+
+    # Call setup.py with all arguments
+    log_info "Calling setup.py with arguments: ${args[*]}"
     log_success "Essential dependencies verified. Starting main setup..."
 
     # Use python3 explicitly if python points to python2
     if command_exists python3; then
-        python3 "$setup_py" "$@"
+        python3 "$setup_py" "${args[@]}"
     elif command_exists python; then
-        python "$setup_py" "$@"
+        python "$setup_py" "${args[@]}"
     else
         log_error "No Python interpreter found"
         exit 1

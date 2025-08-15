@@ -109,6 +109,7 @@ dnf = [
     "pkg-config",
     "dpkg",
     "tailscale",
+    "wezterm",
 ]
 
 [platforms.fedora.gui_apps]
@@ -175,7 +176,6 @@ repos = [
     "lilay/topgrade",
     "lukenukem/asus-linux",
     "wezfurlong/wezterm-nightly",
-    "bieszczaders/kernel-cachyos",
 ]
 
 [package_managers.fedora_external]
