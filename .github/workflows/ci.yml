@@ -55,13 +55,13 @@ jobs:
         run: pip install toml
 
       - name: Validate TOML syntax
-        run: python -c "import toml; toml.load('unix/packages.toml'); print('✅ TOML syntax is valid')"
+        run: python -c "import toml; toml.load('unix/config.toml'); print('✅ TOML syntax is valid')"
 
       - name: Check required sections
         run: |
           python -c "
           import toml
-          config = toml.load('unix/packages.toml')
+          config = toml.load('unix/config.toml')
 
           # Check required top-level sections
           required_sections = ['platforms', 'package_managers', 'git', 'directories']
@@ -140,7 +140,7 @@ jobs:
 
           # Test configuration loading
           import toml
-          with open('packages.toml', 'r') as f:
+          with open('config.toml', 'r') as f:
               config = toml.load(f)
           assert 'platforms' in config
           assert 'package_managers' in config
@@ -447,7 +447,7 @@ jobs:
           # Test that Fedora has the right configuration
           python3 -c "
           import toml
-          config = toml.load('packages.toml')
+          config = toml.load('config.toml')
 
           # Check Fedora platform exists
           assert 'fedora' in config['platforms'], 'Fedora platform missing from config'

@@ -177,6 +177,7 @@ repos = [
     "lilay/topgrade",
     "lukenukem/asus-linux",
     "wezfurlong/wezterm-nightly",
+    "bieszczaders/kernel-cachyos",
 ]
 
 [package_managers.fedora_external]
@@ -201,13 +202,14 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc"""
 name = "tailscale"
 url = "https://pkgs.tailscale.com/stable/fedora/tailscale.repo"
 
-[package_managers.flatpak]
-# Flatpak configuration
-remotes = ["flathub https://flathub.org/repo/flathub.flatpakrepo"]
 
 # ===============================================================================
 # CONFIGURATION SECTIONS
 # ===============================================================================
+
+[system]
+# System-level configuration
+hostname = "pixw"
 
 [git]
 # Git configuration defaults
