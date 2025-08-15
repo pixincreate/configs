@@ -17,53 +17,55 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import logging
+import toml
+from rich.console import Console
+from rich.prompt import Confirm, Prompt
+from rich.tree import Tree
 
-def install_dependencies():
-    """Install required dependencies if missing."""
-    try:
-        import toml
-        from rich.console import Console
-        from rich.prompt import Confirm, Prompt
-        from rich.tree import Tree
-
-        return toml, Console, Confirm, Prompt, Tree
-    except ImportError:
-        print("Missing required dependencies. Installing...")
-
-        install_commands = [
-            [sys.executable, "-m", "pip", "install", "--user", "toml", "rich"],
-            [
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                "--break-system-packages",
-                "toml",
-                "rich",
-            ],
-            ["pipx", "install", "toml", "rich"],
-        ]
-
-        for cmd in install_commands:
-            try:
-                subprocess.check_call(cmd)
-                import toml
-                from rich.console import Console
-                from rich.prompt import Confirm, Prompt
-                from rich.tree import Tree
-
-                return toml, Console, Confirm, Prompt, Tree
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                continue
-
-        print("Failed to install dependencies automatically.")
-        print("Please install manually: pip install --user toml rich")
-        sys.exit(1)
-
-
-# Install and import dependencies
-toml, Console, Confirm, Prompt, Tree = install_dependencies()
 console = Console()
+
+def expand_path(path_str: str) -> Path:
+    """Expand ~ and convert string path to Path object."""
+    return Path(path_str.replace("~", str(Path.home())))
+
+def get_path(key: str) -> Path:
+    """Get a path from config.toml and expand it."""
+    config = load_config()
+    path_str = config["directories"][key]
+    return expand_path(path_str)
+
+def setup_file_logger():
+    """Setup file logger for the setup script."""
+    # Load config first to get log file path
+    config_path = Path(__file__).resolve().parent / "config.toml"
+    with open(config_path, "r") as f:
+        temp_config = toml.load(f)
+
+    log_file = expand_path(temp_config["logging"]["log_file"])
+
+    # Create log directory if it doesn't exist
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, mode='a'),  # Append mode
+            logging.StreamHandler()  # Also log to console for debugging
+        ]
+    )
+
+    logger = logging.getLogger(__name__)
+    logger.info("=" * 60)
+    logger.info("Setup script started")
+    logger.info("=" * 60)
+
+    return logger
+
+# Initialize file logger
+file_logger = setup_file_logger()
 
 
 @dataclass
@@ -134,21 +136,25 @@ setup_config = SetupConfig()
 def log_info(message: str, emoji: str = "ℹ️"):
     """Log info message with emoji."""
     setup_config._log_info(message, emoji)
+    file_logger.info(f"{message}")
 
 
 def log_success(message: str, emoji: str = "✅"):
     """Log success message."""
     setup_config._log_success(message, emoji)
+    file_logger.info(f"SUCCESS: {message}")
 
 
 def log_warning(message: str, emoji: str = "⚠️"):
     """Log warning message."""
     setup_config._log_warning(message, emoji)
+    file_logger.warning(f"{message}")
 
 
 def log_error(message: str, emoji: str = "❌"):
     """Log error message."""
     setup_config._log_error(message, emoji)
+    file_logger.error(f"{message}")
 
 
 def confirm_action(message: str, default: bool = False) -> bool:
@@ -221,32 +227,21 @@ def create_directories():
     """Create necessary directories."""
     log_info("Creating necessary directories...", "📁")
 
-    config = load_config()
-    directories_config = config.get("directories", {})
-
-    # Use config.toml directories if available, otherwise use defaults
+    # Use paths from config.toml
     directories = [
-        Path.home() / ".config",
-        Path.home() / ".ssh",
-        Path.home() / ".zsh",
-        Path.home() / ".zsh" / ".zgenom",
-        Path(
-            directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers").replace(
-                "~", str(Path.home())
-            )
-        ),
-        Path(
-            directories_config.get("screenshots_dir", "~/Pictures/Screenshots").replace(
-                "~", str(Path.home())
-            )
-        ),
-        Path.home() / ".local" / "share" / "fonts",
+        get_path("config_dir"),
+        get_path("ssh_dir"),
+        get_path("zsh_dir"),
+        get_path("zgenom_dir"),
+        get_path("wallpapers_dir"),
+        get_path("screenshots_dir"),
+        get_path("local_fonts_dir"),
     ]
 
     # Add .rish directory only for Android
     platform_name = detect_platform()
     if platform_name == "android":
-        directories.append(Path.home() / ".rish")
+        directories.append(get_path("rish_dir"))
 
     for directory in directories:
         if not setup_config.dry_run:
@@ -681,8 +676,8 @@ def setup_git_config():
 
 def create_gitconfig_local(git_name: str, git_email: str):
     """Create .gitconfig.local file with user configuration."""
-    gitconfig_local = Path.home() / ".config" / "gitconfig" / ".gitconfig.local"
-    signing_key = Path.home() / ".ssh" / "id_ed25519_sign.pub"
+    gitconfig_local = get_path("gitconfig_local")
+    signing_key = get_path("ssh_signing_key")
 
     log_info("Creating .gitconfig.local file...")
 
@@ -712,10 +707,63 @@ def create_gitconfig_local(git_name: str, git_email: str):
         )
 
 
+def setup_ssh_permissions():
+    """Set proper SSH permissions for security."""
+    log_info("Setting SSH permissions...", "🔒")
+
+    ssh_dir = get_path("ssh_dir")
+
+    if not ssh_dir.exists():
+        log_info("SSH directory doesn't exist, skipping permissions setup")
+        return
+
+    if setup_config.dry_run:
+        log_warning("DRY RUN: Would set SSH permissions")
+        return
+
+    try:
+        # Set SSH directory permissions (700) - required for SSH to work
+        ssh_dir.chmod(0o700)
+        log_success(f"Set SSH directory permissions: {ssh_dir}")
+
+        # Set permissions for all SSH files
+        for ssh_file in ssh_dir.iterdir():
+            if ssh_file.is_file():
+                if ssh_file.name == "config":
+                    # SSH config file: 600 (rw-------)
+                    ssh_file.chmod(0o600)
+                    log_success(f"Set config permissions: {ssh_file.name}")
+                elif ssh_file.name == "known_hosts":
+                    # Known hosts file: 644 (rw-r--r--)
+                    ssh_file.chmod(0o644)
+                    log_success(f"Set known_hosts permissions: {ssh_file.name}")
+                elif ssh_file.suffix == ".pub":
+                    # Public keys: 644 (rw-r--r--)
+                    ssh_file.chmod(0o644)
+                    log_success(f"Set public key permissions: {ssh_file.name}")
+                elif ssh_file.name.startswith("id_") and ssh_file.suffix == "":
+                    # Private keys: 600 (rw-------)
+                    ssh_file.chmod(0o600)
+                    log_success(f"Set private key permissions: {ssh_file.name}")
+                elif ssh_file.name.startswith("id_") and ssh_file.suffix in [".pem", ".key"]:
+                    # Other private key formats: 600 (rw-------)
+                    ssh_file.chmod(0o600)
+                    log_success(f"Set private key permissions: {ssh_file.name}")
+                else:
+                    # Default for other SSH files: 600 (rw-------)
+                    ssh_file.chmod(0o600)
+                    log_success(f"Set default permissions: {ssh_file.name}")
+
+        log_success("All SSH permissions set correctly")
+
+    except Exception as e:
+        log_warning(f"Failed to set SSH permissions: {e}")
+
+
 def setup_ssh_key():
     """Setup SSH key if not present."""
-    ssh_key = Path.home() / ".ssh" / "id_ed25519"
-    ssh_dir = Path.home() / ".ssh"
+    ssh_key = get_path("ssh_key")
+    ssh_dir = get_path("ssh_dir")
 
     if ssh_key.exists():
         log_success(f"SSH key already exists at {ssh_key}")
@@ -732,37 +780,7 @@ def setup_ssh_key():
         log_success("SSH key generated")
 
     # Set proper SSH permissions for security
-    log_info("Setting SSH key permissions...", "🔒")
-    if not setup_config.dry_run:
-        # Set SSH directory permissions (700)
-        ssh_dir.chmod(0o700)
-
-        # Set private key permissions (600) - required for SSH to work
-        if ssh_key.exists():
-            ssh_key.chmod(0o600)
-
-        # Set public key permissions (644)
-        pub_key = ssh_dir / "id_ed25519.pub"
-        if pub_key.exists():
-            pub_key.chmod(0o644)
-
-        # Set permissions for other SSH files if they exist
-        known_hosts = ssh_dir / "known_hosts"
-        if known_hosts.exists():
-            known_hosts.chmod(0o644)
-
-        ssh_config = ssh_dir / "config"
-        if ssh_config.exists():
-            ssh_config.chmod(0o600)
-
-        # Fix permissions for any other keys that might exist
-        for key_file in ssh_dir.glob("id_*"):
-            if key_file.suffix == "":  # Private key (no extension)
-                key_file.chmod(0o600)
-            elif key_file.suffix == ".pub":  # Public key
-                key_file.chmod(0o644)
-
-        log_success("SSH permissions set correctly")
+    setup_ssh_permissions()
 
     # Add to ssh-agent
     log_info("Adding SSH key to ssh-agent...", "🔑")
@@ -851,13 +869,14 @@ def install_fonts():
     """Install fonts from fonts directory."""
     log_info("Installing fonts...", "🔤")
 
+    fonts_source = get_path("fonts_source")
+
+    # Get platform-specific font target directory
     config = load_config()
-    fonts_source = Path(
-        config["directories"]["fonts_source"].replace("~", str(Path.home()))
-    )
-    fonts_target = Path(
-        config["directories"]["fonts_target"].replace("~", str(Path.home()))
-    )
+    platform_name = detect_platform()
+    fonts_target_config = config["directories"]["fonts_target"]
+    fonts_target_path = fonts_target_config.get(platform_name, fonts_target_config.get("fedora"))
+    fonts_target = expand_path(fonts_target_path)
 
     if not fonts_source.exists():
         log_warning(f"Fonts source directory not found: {fonts_source}")
@@ -872,6 +891,8 @@ def install_fonts():
         log_warning("No font files found")
         return
 
+    log_info(f"Installing fonts to platform-specific directory: {fonts_target}")
+
     for font_file in font_files:
         if font_file.suffix.lower() in [".ttf", ".otf", ".woff", ".woff2"]:
             target_file = fonts_target / font_file.name
@@ -879,11 +900,11 @@ def install_fonts():
                 shutil.copy2(font_file, target_file)
             log_success(f"Installed font: {font_file.name}")
 
-    # Refresh font cache
-    if command_exists("fc-cache"):
+    # Refresh font cache (only on Linux systems)
+    if command_exists("fc-cache") and platform_name in ["fedora", "debian"]:
         run_command("fc-cache -fv")
 
-    log_success(f"Installed {len(font_files)} fonts")
+    log_success(f"Installed {len(font_files)} fonts to {fonts_target}")
 
 
 def change_default_shell():
@@ -928,8 +949,8 @@ def update_zshrc():
     """Update .zshrc file by downloading latest and restowing via stow."""
     log_info("Checking for .zshrc updates...", "🐚")
 
-    source_zshrc = Path.home() / "Dev" / ".configs" / "home" / "zsh" / ".zsh" / ".zshrc"
-    zshrc_path = Path.home() / ".zsh" / ".zshrc"
+    source_zshrc = get_path("zsh_source")
+    zshrc_path = get_path("zshrc_file")
 
     if not source_zshrc.exists():
         log_warning(f"Source .zshrc not found: {source_zshrc}")
@@ -1101,6 +1122,8 @@ def stow_dotfiles(package: Optional[str] = None):
             log_error(f"Package '{package}' not found in stow packages list")
             return
 
+    ssh_packages_stowed = []
+
     for pkg in packages:
         pkg_dir = stow_dir / pkg
         if not pkg_dir.exists():
@@ -1118,6 +1141,11 @@ def stow_dotfiles(package: Optional[str] = None):
         try:
             run_command(stow_cmd)
             log_success(f"Successfully stowed: {pkg}")
+
+            # Track SSH-related packages
+            if pkg in ["ssh", "git"] or "ssh" in pkg.lower():
+                ssh_packages_stowed.append(pkg)
+
         except subprocess.CalledProcessError:
             if confirm_action(
                 f"❓ Stow conflict detected for {pkg}. Override existing files?"
@@ -1126,8 +1154,17 @@ def stow_dotfiles(package: Optional[str] = None):
                     f"stow --no-folding --restow --adopt --dir={stow_dir} --target={Path.home()} {pkg}"
                 )
                 log_success(f"Successfully stowed with override: {pkg}")
+
+                # Track SSH-related packages even when overridden
+                if pkg in ["ssh", "git"] or "ssh" in pkg.lower():
+                    ssh_packages_stowed.append(pkg)
             else:
                 log_warning(f"Skipped stowing: {pkg}")
+
+    # Set SSH permissions after stowing SSH-related packages
+    if ssh_packages_stowed:
+        log_info(f"SSH-related packages were stowed: {', '.join(ssh_packages_stowed)}")
+        setup_ssh_permissions()
 
 
 def setup_services():
@@ -1606,18 +1643,8 @@ def setup_wallpaper_directories():
     """Create wallpaper and screenshot directories."""
     log_info("Setting up wallpaper and screenshot directories...", "🖼️")
 
-    config = load_config()
-    directories_config = config.get("directories", {})
-
-    # Get directory paths from config
-    wallpapers_dir = directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers")
-    screenshots_dir = directories_config.get(
-        "screenshots_dir", "~/Pictures/Screenshots"
-    )
-
-    # Expand tilde to full paths
-    wallpapers_path = Path(wallpapers_dir.replace("~", str(Path.home())))
-    screenshots_path = Path(screenshots_dir.replace("~", str(Path.home())))
+    wallpapers_path = get_path("wallpapers_dir")
+    screenshots_path = get_path("screenshots_dir")
 
     if not setup_config.dry_run:
         # Create directories
@@ -1628,7 +1655,8 @@ def setup_wallpaper_directories():
         log_success(f"Created screenshots directory: {screenshots_path}")
 
         # Stow wallpaper package if it exists in the configs
-        if (Path.home() / "Dev" / ".configs" / "home" / "wallpaper").exists():
+        stow_source = get_path("stow_source")
+        if (stow_source / "wallpaper").exists():
             log_info("Stowing wallpaper package...")
             stow_dotfiles("wallpaper")
     else:
@@ -1853,6 +1881,9 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
     # Shell command
     subparsers.add_parser("shell", help="Change default shell to zsh")
 
+    # SSH permissions command
+    subparsers.add_parser("ssh-perms", help="Fix SSH file permissions")
+
     args = parser.parse_args()
 
     # Configure setup_config with parsed arguments
@@ -1957,6 +1988,9 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
 
         elif args.command == "shell":
             change_default_shell()
+
+        elif args.command == "ssh-perms":
+            setup_ssh_permissions()
 
     except KeyboardInterrupt:
         log_warning("Setup interrupted by user")

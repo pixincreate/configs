@@ -171,6 +171,82 @@ check_dependencies() {
     fi
 }
 
+# Setup Python virtual environment and install requirements
+setup_python_environment() {
+    local script_dir="$1"
+    local venv_dir="$script_dir/venv"
+    local requirements_file="$script_dir/unix/requirements.txt"
+
+    log_info "Setting up Python virtual environment..."
+
+    # Check if virtual environment already exists
+    if [[ -d "$venv_dir" ]]; then
+        log_success "Virtual environment already exists at: $venv_dir"
+    else
+        log_info "Creating virtual environment at: $venv_dir"
+
+        # Determine Python command to use
+        local python_cmd=""
+        if command_exists python3; then
+            python_cmd="python3"
+        elif command_exists python; then
+            # Check if it's Python 3
+            if python --version 2>&1 | grep -q "Python 3"; then
+                python_cmd="python"
+            else
+                log_error "Python 3 is required but not found"
+                exit 1
+            fi
+        else
+            log_error "Python is required but not found"
+            exit 1
+        fi
+
+        # Create virtual environment
+        if ! "$python_cmd" -m venv "$venv_dir"; then
+            log_error "Failed to create virtual environment"
+            exit 1
+        fi
+
+        log_success "Virtual environment created successfully"
+    fi
+
+    # Check if requirements file exists
+    if [[ ! -f "$requirements_file" ]]; then
+        log_error "Requirements file not found at: $requirements_file"
+        exit 1
+    fi
+
+    # Activate virtual environment and install requirements
+    log_info "Activating virtual environment and installing requirements..."
+
+    # Source the activation script
+    if [[ -f "$venv_dir/bin/activate" ]]; then
+        source "$venv_dir/bin/activate"
+
+        # Upgrade pip first
+        log_info "Upgrading pip..."
+        python -m pip install --upgrade pip
+
+        # Install requirements
+        log_info "Installing requirements from: $requirements_file"
+        if python -m pip install -r "$requirements_file"; then
+            log_success "Requirements installed successfully"
+        else
+            log_error "Failed to install requirements"
+            exit 1
+        fi
+
+        # Deactivate for now (will be reactivated in main)
+        deactivate
+    else
+        log_error "Virtual environment activation script not found"
+        exit 1
+    fi
+
+    log_success "Python environment setup completed"
+}
+
 # Main function
 main() {
     log_info "Starting setup wrapper script..."
@@ -210,6 +286,9 @@ main() {
     # Make setup.py executable
     chmod +x "$setup_py"
 
+    # Setup virtual environment and requirements
+    setup_python_environment "$script_dir"
+
     # Prepare arguments - add --yes if stdin is not a tty (piped input)
     local args=("$@")
     if [[ ! -t 0 ]]; then
@@ -221,13 +300,12 @@ main() {
     log_info "Calling setup.py with arguments: ${args[*]}"
     log_success "Essential dependencies verified. Starting main setup..."
 
-    # Use python3 explicitly if python points to python2
-    if command_exists python3; then
-        python3 "$setup_py" "${args[@]}"
-    elif command_exists python; then
+    # Activate virtual environment and run setup.py
+    if [[ -f "$script_dir/venv/bin/activate" ]]; then
+        source "$script_dir/venv/bin/activate"
         python "$setup_py" "${args[@]}"
     else
-        log_error "No Python interpreter found"
+        log_error "Virtual environment activation failed"
         exit 1
     fi
 }

@@ -11,6 +11,10 @@
 # Rust
 /target
 
+# Python
+*.pyc
+__pycache__/
+
 # Generated files
 generated
 \%APPDATA\%

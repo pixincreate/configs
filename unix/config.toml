@@ -244,14 +244,36 @@ hostname = "pixw"
 default_name = "PiX"
 default_email = "69745008+pixincreate@users.noreply.github.com"
 
+[logging]
+# Logging configuration
+log_file = "~/Dev/.configs/setup.log"
+
 [directories]
 # Directory paths and configurations
 configs_path = "~/Dev/.configs"
 fonts_source = "~/Dev/.configs/fonts"
-fonts_target = "~/.local/share/fonts"
 wallpapers_dir = "~/Pictures/Wallpapers"
 screenshots_dir = "~/Pictures/Screenshots"
+gitconfig_local = "~/.config/gitconfig/.gitconfig.local"
+ssh_dir = "~/.ssh"
+ssh_key = "~/.ssh/id_ed25519"
+ssh_signing_key = "~/.ssh/id_ed25519_sign.pub"
+zsh_dir = "~/.zsh"
+zshrc_file = "~/.zsh/.zshrc"
+zsh_source = "~/Dev/.configs/home/zsh/.zsh/.zshrc"
+additionals_zsh = "~/.zsh/.additionals.zsh"
+rish_dir = "~/.rish"  # Android specific
+zgenom_dir = "~/.zsh/.zgenom"
+config_dir = "~/.config"
 stow_packages = ["config", "git", "ssh", "vscode", "zsh", "wallpaper"]
+stow_source = "~/Dev/.configs/home"
+
+# Platform-specific font directories
+[directories.fonts_target]
+macos = "~/Library/Fonts"
+fedora = "~/.local/share/fonts"
+debian = "~/.local/share/fonts"
+android = "~/.local/share/fonts"
 
 # ===============================================================================
 # PACKAGE MAPPING
