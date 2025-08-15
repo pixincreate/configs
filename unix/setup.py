@@ -25,15 +25,18 @@ from rich.tree import Tree
 
 console = Console()
 
+
 def expand_path(path_str: str) -> Path:
     """Expand ~ and convert string path to Path object."""
     return Path(path_str.replace("~", str(Path.home())))
+
 
 def get_path(key: str) -> Path:
     """Get a path from config.toml and expand it."""
     config = load_config()
     path_str = config["directories"][key]
     return expand_path(path_str)
+
 
 def setup_file_logger():
     """Setup file logger for the setup script."""
@@ -50,11 +53,11 @@ def setup_file_logger():
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
+        format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler(log_file, mode='a'),  # Append mode
-            logging.StreamHandler()  # Also log to console for debugging
-        ]
+            logging.FileHandler(log_file, mode="a"),  # Append mode
+            logging.StreamHandler(),  # Also log to console for debugging
+        ],
     )
 
     logger = logging.getLogger(__name__)
@@ -63,6 +66,7 @@ def setup_file_logger():
     logger.info("=" * 60)
 
     return logger
+
 
 # Initialize file logger
 file_logger = setup_file_logger()
@@ -745,7 +749,10 @@ def setup_ssh_permissions():
                     # Private keys: 600 (rw-------)
                     ssh_file.chmod(0o600)
                     log_success(f"Set private key permissions: {ssh_file.name}")
-                elif ssh_file.name.startswith("id_") and ssh_file.suffix in [".pem", ".key"]:
+                elif ssh_file.name.startswith("id_") and ssh_file.suffix in [
+                    ".pem",
+                    ".key",
+                ]:
                     # Other private key formats: 600 (rw-------)
                     ssh_file.chmod(0o600)
                     log_success(f"Set private key permissions: {ssh_file.name}")
@@ -875,7 +882,9 @@ def install_fonts():
     config = load_config()
     platform_name = detect_platform()
     fonts_target_config = config["directories"]["fonts_target"]
-    fonts_target_path = fonts_target_config.get(platform_name, fonts_target_config.get("fedora"))
+    fonts_target_path = fonts_target_config.get(
+        platform_name, fonts_target_config.get("fedora")
+    )
     fonts_target = expand_path(fonts_target_path)
 
     if not fonts_source.exists():
