@@ -1022,7 +1022,7 @@ def setup_fedora_system():
     # Check for ASUS hardware
     try:
         run_command(
-            "dmidecode -s system-manufacturer | grep -i asus", capture_output=True
+            "sudo dmidecode -s system-manufacturer | grep -i asus", capture_output=True
         )
         log_info("ASUS system detected, installing ASUS utilities...")
         setup_asus_system()
@@ -1111,9 +1111,8 @@ def setup_multimedia():
     # 3. Update multimedia group and install sound-and-video
     log_info("Updating multimedia packages...")
     run_command(
-        'sudo dnf group update multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin'
+        'sudo dnf group upgrade multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin'
     )
-    run_command("sudo dnf group update sound-and-video")
 
     # 4. Install essential multimedia libraries
     log_info("Installing multimedia libraries...")
@@ -1131,7 +1130,7 @@ def setup_multimedia():
 
     # 7. Enable OpenH264 for browsers
     log_info("Setting up OpenH264 for browsers...")
-    run_command("sudo dnf config-manager --set-enabled fedora-cisco-openh264")
+    run_command("sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1")
     run_command(
         "sudo dnf install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264"
     )
