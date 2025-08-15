@@ -535,7 +535,9 @@ def install_with_dnf(packages: List[str]):
             continue
 
     if failed_packages:
-        log_warning(f"Failed to install {len(failed_packages)} packages: {', '.join(failed_packages)}")
+        log_warning(
+            f"Failed to install {len(failed_packages)} packages: {', '.join(failed_packages)}"
+        )
 
 
 def install_with_apt(packages: List[str]):
@@ -884,6 +886,44 @@ def install_fonts():
     log_success(f"Installed {len(font_files)} fonts")
 
 
+def change_default_shell():
+    """Change the default shell to zsh."""
+    log_info("Setting zsh as default shell...", "🐚")
+
+    # Check if zsh is installed
+    if not command_exists("zsh"):
+        log_error("zsh is not installed. Cannot set as default shell.")
+        return
+
+    # Get the path to zsh
+    zsh_path = shutil.which("zsh")
+    if not zsh_path:
+        log_error("Could not find zsh executable path")
+        return
+
+    # Get current shell
+    current_shell = os.environ.get("SHELL", "")
+
+    if current_shell == zsh_path:
+        log_success(f"zsh is already the default shell: {zsh_path}")
+        return
+
+    # Change default shell
+    log_info(f"Changing default shell to: {zsh_path}")
+    if not setup_config.dry_run:
+        try:
+            run_command(f"chsh -s {zsh_path}")
+            log_success("Default shell changed to zsh")
+            log_info("Please log out and back in for the shell change to take effect")
+        except subprocess.CalledProcessError as e:
+            log_warning(f"Failed to change shell: {e}")
+            log_info(
+                f"You can manually change your shell by running: chsh -s {zsh_path}"
+            )
+    else:
+        log_warning(f"DRY RUN: Would change default shell to: {zsh_path}")
+
+
 def update_zshrc():
     """Update .zshrc file by downloading latest and restowing via stow."""
     log_info("Checking for .zshrc updates...", "🐚")
@@ -899,7 +939,9 @@ def update_zshrc():
     log_info("Checking for .zshrc updates from remote repository...")
 
     # Define the remote URL for the .zshrc file
-    remote_zshrc_url = "https://github.com/pixincreate/configs/raw/main/home/zsh/.zsh/.zshrc"
+    remote_zshrc_url = (
+        "https://github.com/pixincreate/configs/raw/main/home/zsh/.zsh/.zshrc"
+    )
 
     if not setup_config.dry_run:
         try:
@@ -907,6 +949,7 @@ def update_zshrc():
             log_info("Downloading latest .zshrc from remote...")
 
             import urllib.request
+
             temp_file = source_zshrc.with_suffix(".zshrc.temp")
 
             urllib.request.urlretrieve(remote_zshrc_url, temp_file)
@@ -922,7 +965,9 @@ def update_zshrc():
             new_checksum = calculate_checksum(temp_file)
 
             if current_checksum != new_checksum:
-                if confirm_action("📝 .zshrc has updates available. Do you want to update it?"):
+                if confirm_action(
+                    "📝 .zshrc has updates available. Do you want to update it?"
+                ):
                     # Backup current source file
                     backup_path = source_zshrc.with_suffix(".zshrc.bak")
                     if source_zshrc.exists():
@@ -1095,7 +1140,11 @@ def setup_services():
         # PostgreSQL setup
         if command_exists("postgresql-setup"):
             # Check if PostgreSQL is already initialized
-            result = run_command("sudo test -f /var/lib/pgsql/data/PG_VERSION", capture_output=True, check=False)
+            result = run_command(
+                "sudo test -f /var/lib/pgsql/data/PG_VERSION",
+                capture_output=True,
+                check=False,
+            )
             if result.returncode == 0:
                 log_success("PostgreSQL database already initialized")
             else:
@@ -1113,7 +1162,11 @@ def setup_services():
 
             # Check if service is already running
             try:
-                result = run_command("sudo systemctl is-active postgresql.service", capture_output=True, check=False)
+                result = run_command(
+                    "sudo systemctl is-active postgresql.service",
+                    capture_output=True,
+                    check=False,
+                )
                 if result.stdout.strip() == "active":
                     log_success("PostgreSQL service is already running")
                 else:
@@ -1129,7 +1182,11 @@ def setup_services():
 
             # Check if Redis service is already running
             try:
-                result = run_command("sudo systemctl is-active redis.service", capture_output=True, check=False)
+                result = run_command(
+                    "sudo systemctl is-active redis.service",
+                    capture_output=True,
+                    check=False,
+                )
                 if result.stdout.strip() == "active":
                     log_success("Redis service is already running")
                 else:
@@ -1145,7 +1202,11 @@ def setup_services():
 
             # Check if Docker service is already running
             try:
-                result = run_command("sudo systemctl is-active docker.service", capture_output=True, check=False)
+                result = run_command(
+                    "sudo systemctl is-active docker.service",
+                    capture_output=True,
+                    check=False,
+                )
                 if result.stdout.strip() == "active":
                     log_success("Docker service is already running")
                 else:
@@ -1157,8 +1218,10 @@ def setup_services():
 
             # Check if user is already in docker group
             try:
-                current_user = os.getenv('USER')
-                result = run_command(f"groups {current_user}", capture_output=True, check=False)
+                current_user = os.getenv("USER")
+                result = run_command(
+                    f"groups {current_user}", capture_output=True, check=False
+                )
                 if "docker" in result.stdout:
                     log_success(f"User {current_user} is already in docker group")
                 else:
@@ -1178,7 +1241,9 @@ def remove_bloatware():
     log_info("Removing bloatware packages...", "🗑️")
 
     config = load_config()
-    bloatware_config = config.get("platforms", {}).get("fedora", {}).get("bloatware_removal", {})
+    bloatware_config = (
+        config.get("platforms", {}).get("fedora", {}).get("bloatware_removal", {})
+    )
 
     if not bloatware_config:
         log_warning("No bloatware removal configuration found")
@@ -1198,7 +1263,9 @@ def remove_bloatware():
         log_info(f"Removing KDE bloatware packages: {len(kde_packages)} packages")
         for package in kde_packages:
             try:
-                result = run_command(f"rpm -q {package}", capture_output=True, check=False)
+                result = run_command(
+                    f"rpm -q {package}", capture_output=True, check=False
+                )
                 if result.returncode == 0:
                     run_command(f"sudo dnf remove {dnf_flags} {package}")
                     removed_packages.append(package)
@@ -1215,7 +1282,9 @@ def remove_bloatware():
         log_info(f"Removing LibreOffice packages: {len(libreoffice_packages)} packages")
         for package in libreoffice_packages:
             try:
-                result = run_command(f"rpm -q {package}", capture_output=True, check=False)
+                result = run_command(
+                    f"rpm -q {package}", capture_output=True, check=False
+                )
                 if result.returncode == 0:
                     run_command(f"sudo dnf remove {dnf_flags} {package}")
                     removed_packages.append(package)
@@ -1232,7 +1301,9 @@ def remove_bloatware():
         log_info(f"Removing PIM packages: {len(pim_packages)} packages")
         for package in pim_packages:
             try:
-                result = run_command(f"rpm -q {package}", capture_output=True, check=False)
+                result = run_command(
+                    f"rpm -q {package}", capture_output=True, check=False
+                )
                 if result.returncode == 0:
                     run_command(f"sudo dnf remove {dnf_flags} {package}")
                     removed_packages.append(package)
@@ -1251,7 +1322,9 @@ def remove_bloatware():
     if removed_packages:
         log_success(f"Successfully removed {len(removed_packages)} bloatware packages")
     if failed_packages:
-        log_warning(f"Failed to remove {len(failed_packages)} packages: {', '.join(failed_packages)}")
+        log_warning(
+            f"Failed to remove {len(failed_packages)} packages: {', '.join(failed_packages)}"
+        )
 
     log_success("Bloatware removal completed")
 
@@ -1538,7 +1611,9 @@ def setup_wallpaper_directories():
 
     # Get directory paths from config
     wallpapers_dir = directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers")
-    screenshots_dir = directories_config.get("screenshots_dir", "~/Pictures/Screenshots")
+    screenshots_dir = directories_config.get(
+        "screenshots_dir", "~/Pictures/Screenshots"
+    )
 
     # Expand tilde to full paths
     wallpapers_path = Path(wallpapers_dir.replace("~", str(Path.home())))
@@ -1739,7 +1814,10 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument(
-        "-y", "--yes", action="store_true", help="Automatically answer yes to all prompts"
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Automatically answer yes to all prompts",
     )
     parser.add_argument(
         "--full-setup", action="store_true", help="Run complete setup for the platform"
@@ -1771,6 +1849,9 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
 
     # Services command
     subparsers.add_parser("services", help="Setup system services (Fedora only)")
+
+    # Shell command
+    subparsers.add_parser("shell", help="Change default shell to zsh")
 
     args = parser.parse_args()
 
@@ -1835,6 +1916,9 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
             if platform_name == "fedora":
                 setup_services()
 
+            # Change default shell to zsh
+            change_default_shell()
+
             log_success("🎉 Full setup completed!")
 
             if platform_name == "fedora":
@@ -1870,6 +1954,9 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
                 setup_services()
             else:
                 log_warning("Services setup is only available on Fedora")
+
+        elif args.command == "shell":
+            change_default_shell()
 
     except KeyboardInterrupt:
         log_warning("Setup interrupted by user")
