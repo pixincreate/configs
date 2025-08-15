@@ -212,13 +212,17 @@ def create_directories():
     """Create necessary directories."""
     log_info("Creating necessary directories...", "📁")
 
+    config = load_config()
+    directories_config = config.get("directories", {})
+
+    # Use config.toml directories if available, otherwise use defaults
     directories = [
         Path.home() / ".config",
         Path.home() / ".ssh",
         Path.home() / ".zsh",
         Path.home() / ".zsh" / ".zgenom",
-        Path.home() / "Pictures" / "Wallpapers",
-        Path.home() / "Pictures" / "Screenshots",
+        Path(directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers").replace("~", str(Path.home()))),
+        Path(directories_config.get("screenshots_dir", "~/Pictures/Screenshots").replace("~", str(Path.home()))),
         Path.home() / ".local" / "share" / "fonts",
     ]
 
@@ -1187,6 +1191,53 @@ def install_cachyos_kernel():
     log_success("CachyOS kernel installed - reboot required to use new kernel")
 
 
+def setup_kde_wallpaper_config():
+    """Configure KDE to use custom wallpaper directory."""
+    log_info("Configuring KDE wallpaper settings...", "🖼️")
+
+    config = load_config()
+    directories_config = config.get("directories", {})
+    wallpapers_dir = directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers")
+
+    # Expand tilde to full path
+    wallpapers_path = wallpapers_dir.replace("~", str(Path.home()))
+
+    if not setup_config.dry_run:
+        # Check if we're in a KDE environment
+        if not os.getenv("KDE_SESSION_VERSION") and not os.getenv("DESKTOP_SESSION") == "plasma":
+            # Try to detect if KDE is available anyway
+            if not command_exists("kwriteconfig6") and not command_exists("kwriteconfig5"):
+                log_warning("KDE not detected and kwriteconfig not available, skipping KDE wallpaper configuration")
+                return
+
+        # Use kwriteconfig6 (KDE 6) or kwriteconfig5 (KDE 5) to set wallpaper directory
+        kwrite_cmd = "kwriteconfig6" if command_exists("kwriteconfig6") else "kwriteconfig5"
+
+        if command_exists(kwrite_cmd):
+            try:
+                # Set the default wallpaper directory for the Image wallpaper plugin
+                run_command(f'{kwrite_cmd} --file plasmarc --group Wallpapers --key usersWallpapers "{wallpapers_path}"')
+
+                # Also set it for the desktop containment
+                run_command(f'{kwrite_cmd} --file plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 1 --group Wallpaper --group org.kde.image --group General --key Image "file://{wallpapers_path}"')
+
+                log_success(f"KDE wallpaper directory configured: {wallpapers_path}")
+
+                # Restart plasmashell to apply changes
+                if Confirm.ask("🔄 Restart Plasma shell to apply wallpaper settings?"):
+                    run_command("killall plasmashell && plasmashell &", check=False)
+                    log_success("Plasma shell restarted")
+                else:
+                    log_info("Please restart Plasma shell manually to apply wallpaper settings")
+
+            except subprocess.CalledProcessError as e:
+                log_warning(f"Failed to configure KDE wallpaper settings: {e}")
+        else:
+            log_warning("kwriteconfig not available, cannot configure KDE wallpaper settings")
+    else:
+        log_info(f"[DRY RUN] Would configure KDE wallpaper directory: {wallpapers_path}")
+
+
 def optimize_system_performance():
     """Optimize system performance and boot time."""
     log_info("Optimizing system performance...", "⚡")
@@ -1448,6 +1499,10 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
 
             # Stow dotfiles
             stow_dotfiles()
+
+            # Configure KDE wallpaper directory (if KDE is available)
+            if platform_name in ["fedora", "debian"]:  # Linux platforms where KDE might be used
+                setup_kde_wallpaper_config()
 
             # Setup services (Fedora only)
             if platform_name == "fedora":
