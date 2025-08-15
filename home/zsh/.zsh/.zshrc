@@ -199,53 +199,6 @@ elif [[ "$OSTYPE" == "linux-android" ]]; then
   alias pbpaste='termux-clipboard-get'
 fi
 
-
-# Auto update this file
-update_zshrc() {
-  force_update=false
-
-  # Check if --force flag is provided
-  if [[ "$1" == "--force" ]]; then
-    force_update=true
-  fi
-
-  if wget -q --spider --connect-timeout=3 http://duck.com; then
-    local url="https://github.com/pixincreate/configs/raw/main/home/zsh/.zsh/.zshrc"
-    local zshrc_file="${HOME}/.zsh/.zshrc"
-    local temp_file=$(mktemp)
-
-    curl -sSL "$url" -o "$temp_file"
-
-    if [[ "$force_update" == true ]]; then
-      # Force update without checksum comparison
-      echo -ne "Updating .zshrc...\r"
-      mv -f "$zshrc_file" "${zshrc_file}.bak"
-      mv -f "$temp_file" "$zshrc_file"
-      echo -e ".zshrc updated successfully!"
-      source "$zshrc_file"
-    else
-      # Perform checksum comparison
-      local current_checksum=$(sha1sum "$zshrc_file" | awk '{print $1}')
-      local new_checksum=$(sha1sum "$temp_file" | awk '{print $1}')
-
-      if [[ "$current_checksum" != "$new_checksum" ]]; then
-        echo -ne "Updating .zshrc...\r"
-        mv -f "$zshrc_file" "${zshrc_file}.bak"
-        mv -f "$temp_file" "$zshrc_file"
-        echo -e ".zshrc updated successfully!"
-        source "$zshrc_file"
-      else
-        echo ".zshrc is up-to-date!"
-        rm "$temp_file"
-      fi
-    fi
-  else
-    echo "Failed to update .zshrc!"
-  fi
-}
-
-update_zshrc
-
 function whatsmyip() {
   # Internal IP Lookup.
   if [ -e /sbin/ip ]; then

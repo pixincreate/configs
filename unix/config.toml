@@ -244,6 +244,6 @@ android = "openssh"
 
 [package_mapping.pipx]
 macos = "pipx"
-fedora = "python3-pipx"
+fedora = "pipx"
 debian = "pipx"
-android = "python"      # Install via pip
+android = "python" # Install via pip

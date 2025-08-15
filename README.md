@@ -4,14 +4,21 @@ A comprehensive dotfiles and system setup repository for multi-platform developm
 
 ## 🚀 Quick Start
 
-**One-liner setup (Unix/Linux/macOS):**
-
-> [!NOTE]
-> This assumes you've installed Python 3 and Git on your system already. If note, see the [Prerequisites](#prerequisites) section below.
+**One-liner setup (Unix/Linux/macOS/Android):**
 
 ```bash
-git clone --recurse-submodules https://github.com/pixincreate/configs.git ~/Dev/.configs && ~/Dev/.configs/unix/setup.py --full-setup
+curl -fsSL https://raw.githubusercontent.com/pixincreate/configs/main/unix/setup.sh | bash -s -- --full-setup
 ```
+
+> [!NOTE]
+> This script automatically:
+>
+> - Detects your platform (macOS, Fedora, Debian, Android)
+> - Installs essential dependencies (Python, Git, etc.)
+> - Clones the repository with submodules
+> - Runs the complete setup process
+>
+> No manual installation required!
 
 ## 🖥️ Supported Platforms
 

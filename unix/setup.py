@@ -591,7 +591,7 @@ def setup_git_config():
     config = load_config()
     git_config = config.get("git", {})
 
-    # Get current values - only use capture_output in non-dry-run mode
+    # Get current git values
     git_name = None
     git_email = None
 
@@ -614,7 +614,24 @@ def setup_git_config():
         except Exception:
             pass
 
-    # Prompt for missing values only
+    # Use config.toml defaults if git config is not set and defaults exist
+    if not git_name and "default_name" in git_config:
+        git_name = git_config["default_name"]
+        log_info(f"Using git name from config.toml: {git_name}")
+        if not setup_config.dry_run:
+            run_command(f'git config --global user.name "{git_name}"')
+        elif setup_config.dry_run:
+            log_warning(f"DRY RUN: Would set git user.name to: {git_name}")
+
+    if not git_email and "default_email" in git_config:
+        git_email = git_config["default_email"]
+        log_info(f"Using git email from config.toml: {git_email}")
+        if not setup_config.dry_run:
+            run_command(f'git config --global user.email "{git_email}"')
+        elif setup_config.dry_run:
+            log_warning(f"DRY RUN: Would set git user.email to: {git_email}")
+
+    # Only prompt if still missing values
     if not git_name:
         git_name = Prompt.ask(
             "👤 Enter your Git user.name", default=git_config.get("default_name", "")
@@ -624,7 +641,7 @@ def setup_git_config():
         elif setup_config.dry_run:
             log_warning(f"DRY RUN: Would set git user.name to: {git_name}")
     else:
-        log_success(f"Git user.name already set: {git_name}")
+        log_success(f"Git user.name already configured: {git_name}")
 
     if not git_email:
         git_email = Prompt.ask(
@@ -635,7 +652,7 @@ def setup_git_config():
         elif setup_config.dry_run:
             log_warning(f"DRY RUN: Would set git user.email to: {git_email}")
     else:
-        log_success(f"Git user.email already set: {git_email}")
+        log_success(f"Git user.email already configured: {git_email}")
 
     # Create .gitconfig.local file
     create_gitconfig_local(git_name, git_email)
@@ -696,6 +713,7 @@ def create_gitconfig_local(git_name: str, git_email: str):
 def setup_ssh_key():
     """Setup SSH key if not present."""
     ssh_key = Path.home() / ".ssh" / "id_ed25519"
+    ssh_dir = Path.home() / ".ssh"
 
     if ssh_key.exists():
         log_success(f"SSH key already exists at {ssh_key}")
@@ -706,10 +724,43 @@ def setup_ssh_key():
         ).stdout.strip()
 
         if not setup_config.dry_run:
-            Path.home().joinpath(".ssh").mkdir(exist_ok=True)
+            ssh_dir.mkdir(exist_ok=True)
 
         run_command(f'ssh-keygen -t ed25519 -C "{email}" -f {ssh_key} -N ""')
         log_success("SSH key generated")
+
+    # Set proper SSH permissions for security
+    log_info("Setting SSH key permissions...", "🔒")
+    if not setup_config.dry_run:
+        # Set SSH directory permissions (700)
+        ssh_dir.chmod(0o700)
+
+        # Set private key permissions (600) - required for SSH to work
+        if ssh_key.exists():
+            ssh_key.chmod(0o600)
+
+        # Set public key permissions (644)
+        pub_key = ssh_dir / "id_ed25519.pub"
+        if pub_key.exists():
+            pub_key.chmod(0o644)
+
+        # Set permissions for other SSH files if they exist
+        known_hosts = ssh_dir / "known_hosts"
+        if known_hosts.exists():
+            known_hosts.chmod(0o644)
+
+        ssh_config = ssh_dir / "config"
+        if ssh_config.exists():
+            ssh_config.chmod(0o600)
+
+        # Fix permissions for any other keys that might exist
+        for key_file in ssh_dir.glob("id_*"):
+            if key_file.suffix == "":  # Private key (no extension)
+                key_file.chmod(0o600)
+            elif key_file.suffix == ".pub":  # Public key
+                key_file.chmod(0o644)
+
+        log_success("SSH permissions set correctly")
 
     # Add to ssh-agent
     log_info("Adding SSH key to ssh-agent...", "🔑")
@@ -834,48 +885,77 @@ def install_fonts():
 
 
 def update_zshrc():
-    """Update .zshrc file with checksum verification."""
+    """Update .zshrc file by downloading latest and restowing via stow."""
     log_info("Checking for .zshrc updates...", "🐚")
 
-    zshrc_path = Path.home() / ".zsh" / ".zshrc"
     source_zshrc = Path.home() / "Dev" / ".configs" / "home" / "zsh" / ".zsh" / ".zshrc"
+    zshrc_path = Path.home() / ".zsh" / ".zshrc"
 
     if not source_zshrc.exists():
         log_warning(f"Source .zshrc not found: {source_zshrc}")
         return
 
-    if not zshrc_path.exists():
-        log_info("No existing .zshrc found, copying new one")
-        if not setup_config.dry_run:
-            shutil.copy2(source_zshrc, zshrc_path)
-        log_success("Copied new .zshrc")
-        return
+    # Check if an update is available from the remote repository
+    log_info("Checking for .zshrc updates from remote repository...")
 
-    # Calculate checksums
-    def calculate_checksum(file_path: Path) -> str:
-        if not file_path.exists():
-            return ""
-        with open(file_path, "rb") as f:
-            return hashlib.sha1(f.read()).hexdigest()
+    # Define the remote URL for the .zshrc file
+    remote_zshrc_url = "https://github.com/pixincreate/configs/raw/main/home/zsh/.zsh/.zshrc"
 
-    current_checksum = calculate_checksum(zshrc_path)
-    new_checksum = calculate_checksum(source_zshrc)
+    if not setup_config.dry_run:
+        try:
+            # Download the latest .zshrc from remote
+            log_info("Downloading latest .zshrc from remote...")
 
-    if current_checksum != new_checksum:
-        if confirm_action("📝 .zshrc has updates available. Do you want to update it?"):
-            if not setup_config.dry_run:
-                # Backup current file
-                backup_path = zshrc_path.with_suffix(".zshrc.bak")
-                shutil.copy2(zshrc_path, backup_path)
+            import urllib.request
+            temp_file = source_zshrc.with_suffix(".zshrc.temp")
 
-                # Copy new file
-                shutil.copy2(source_zshrc, zshrc_path)
+            urllib.request.urlretrieve(remote_zshrc_url, temp_file)
 
-            log_success(".zshrc updated successfully!")
-        else:
-            log_info("Skipped .zshrc update")
+            # Calculate checksums to check if update is needed
+            def calculate_checksum(file_path: Path) -> str:
+                if not file_path.exists():
+                    return ""
+                with open(file_path, "rb") as f:
+                    return hashlib.sha1(f.read()).hexdigest()
+
+            current_checksum = calculate_checksum(source_zshrc)
+            new_checksum = calculate_checksum(temp_file)
+
+            if current_checksum != new_checksum:
+                if confirm_action("📝 .zshrc has updates available. Do you want to update it?"):
+                    # Backup current source file
+                    backup_path = source_zshrc.with_suffix(".zshrc.bak")
+                    if source_zshrc.exists():
+                        shutil.copy2(source_zshrc, backup_path)
+
+                    # Replace source file with updated version
+                    shutil.move(temp_file, source_zshrc)
+                    log_success("Source .zshrc updated successfully!")
+
+                    # Restow the zsh package to apply changes
+                    log_info("Restowing zsh package to apply changes...")
+                    stow_dotfiles("zsh")
+                    log_success(".zshrc updated and restowed successfully!")
+                else:
+                    # Clean up temp file if user skips update
+                    temp_file.unlink(missing_ok=True)
+                    log_info("Skipped .zshrc update")
+            else:
+                # Clean up temp file if no updates
+                temp_file.unlink(missing_ok=True)
+                log_success(".zshrc is up-to-date!")
+
+        except Exception as e:
+            log_warning(f"Failed to check for .zshrc updates: {e}")
+            log_info("Using existing .zshrc file")
     else:
-        log_success(".zshrc is up-to-date!")
+        log_warning("DRY RUN: Would check for .zshrc updates and restow if needed")
+
+    # If no existing .zshrc, stow it for the first time
+    if not zshrc_path.exists():
+        log_info("No existing .zshrc found, stowing zsh package...")
+        stow_dotfiles("zsh")
+        log_success("ZSH package stowed successfully!")
 
 
 def create_platform_specific_additionals():
@@ -1014,23 +1094,83 @@ def setup_services():
     if platform_name == "fedora":
         # PostgreSQL setup
         if command_exists("postgresql-setup"):
-            run_command("sudo postgresql-setup --initdb")
+            # Check if PostgreSQL is already initialized
+            result = run_command("sudo test -f /var/lib/pgsql/data/PG_VERSION", capture_output=True, check=False)
+            if result.returncode == 0:
+                log_success("PostgreSQL database already initialized")
+            else:
+                log_info("Initializing PostgreSQL database...")
+                try:
+                    run_command("sudo postgresql-setup --initdb")
+                except subprocess.CalledProcessError as e:
+                    if "is not empty" in str(e) or "already exists" in str(e):
+                        log_success("PostgreSQL database already initialized")
+                    else:
+                        raise
+
+            # Enable and start PostgreSQL service
             run_command("sudo systemctl enable postgresql.service")
-            run_command("sudo systemctl start postgresql.service")
+
+            # Check if service is already running
+            try:
+                result = run_command("sudo systemctl is-active postgresql.service", capture_output=True, check=False)
+                if result.stdout.strip() == "active":
+                    log_success("PostgreSQL service is already running")
+                else:
+                    run_command("sudo systemctl start postgresql.service")
+                    log_success("PostgreSQL service started")
+            except Exception:
+                run_command("sudo systemctl start postgresql.service")
+                log_success("PostgreSQL service started")
 
         # Redis setup
         if command_exists("redis-server"):
             run_command("sudo systemctl enable redis.service")
-            run_command("sudo systemctl start redis.service")
+
+            # Check if Redis service is already running
+            try:
+                result = run_command("sudo systemctl is-active redis.service", capture_output=True, check=False)
+                if result.stdout.strip() == "active":
+                    log_success("Redis service is already running")
+                else:
+                    run_command("sudo systemctl start redis.service")
+                    log_success("Redis service started")
+            except Exception:
+                run_command("sudo systemctl start redis.service")
+                log_success("Redis service started")
 
         # Docker setup
         if command_exists("docker"):
             run_command("sudo systemctl enable docker.service")
-            run_command("sudo systemctl start docker.service")
-            run_command(f"sudo usermod -aG docker {os.getenv('USER')}")
-            log_info(
-                "Added user to docker group. Please log out and back in for changes to take effect."
-            )
+
+            # Check if Docker service is already running
+            try:
+                result = run_command("sudo systemctl is-active docker.service", capture_output=True, check=False)
+                if result.stdout.strip() == "active":
+                    log_success("Docker service is already running")
+                else:
+                    run_command("sudo systemctl start docker.service")
+                    log_success("Docker service started")
+            except Exception:
+                run_command("sudo systemctl start docker.service")
+                log_success("Docker service started")
+
+            # Check if user is already in docker group
+            try:
+                current_user = os.getenv('USER')
+                result = run_command(f"groups {current_user}", capture_output=True, check=False)
+                if "docker" in result.stdout:
+                    log_success(f"User {current_user} is already in docker group")
+                else:
+                    run_command(f"sudo usermod -aG docker {current_user}")
+                    log_info(
+                        "Added user to docker group. Please log out and back in for changes to take effect."
+                    )
+            except Exception:
+                run_command(f"sudo usermod -aG docker {os.getenv('USER')}")
+                log_info(
+                    "Added user to docker group. Please log out and back in for changes to take effect."
+                )
 
 
 def setup_fedora_system():
@@ -1354,73 +1494,36 @@ def install_cachyos_kernel():
     log_success("CachyOS kernel installed - reboot required to use new kernel")
 
 
-def setup_kde_wallpaper_config():
-    """Configure KDE to use custom wallpaper directory."""
-    log_info("Configuring KDE wallpaper settings...", "🖼️")
+def setup_wallpaper_directories():
+    """Create wallpaper and screenshot directories."""
+    log_info("Setting up wallpaper and screenshot directories...", "🖼️")
 
     config = load_config()
     directories_config = config.get("directories", {})
-    wallpapers_dir = directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers")
 
-    # Expand tilde to full path
-    wallpapers_path = wallpapers_dir.replace("~", str(Path.home()))
+    # Get directory paths from config
+    wallpapers_dir = directories_config.get("wallpapers_dir", "~/Pictures/Wallpapers")
+    screenshots_dir = directories_config.get("screenshots_dir", "~/Pictures/Screenshots")
+
+    # Expand tilde to full paths
+    wallpapers_path = Path(wallpapers_dir.replace("~", str(Path.home())))
+    screenshots_path = Path(screenshots_dir.replace("~", str(Path.home())))
 
     if not setup_config.dry_run:
-        # Check if we're in a KDE environment
-        if (
-            not os.getenv("KDE_SESSION_VERSION")
-            and not os.getenv("DESKTOP_SESSION") == "plasma"
-        ):
-            # Try to detect if KDE is available anyway
-            if not command_exists("kwriteconfig6") and not command_exists(
-                "kwriteconfig5"
-            ):
-                log_warning(
-                    "KDE not detected and kwriteconfig not available, skipping KDE wallpaper configuration"
-                )
-                return
+        # Create directories
+        wallpapers_path.mkdir(parents=True, exist_ok=True)
+        screenshots_path.mkdir(parents=True, exist_ok=True)
 
-        # Use kwriteconfig6 (KDE 6) or kwriteconfig5 (KDE 5) to set wallpaper directory
-        kwrite_cmd = (
-            "kwriteconfig6" if command_exists("kwriteconfig6") else "kwriteconfig5"
-        )
+        log_success(f"Created wallpaper directory: {wallpapers_path}")
+        log_success(f"Created screenshots directory: {screenshots_path}")
 
-        if command_exists(kwrite_cmd):
-            try:
-                # Set the default wallpaper directory for the Image wallpaper plugin
-                run_command(
-                    f'{kwrite_cmd} --file plasmarc --group Wallpapers --key usersWallpapers "{wallpapers_path}"'
-                )
-
-                # Also set it for the desktop containment
-                containment_cmd = (
-                    f"{kwrite_cmd} --file plasma-org.kde.plasma.desktop-appletsrc "
-                    f"--group Containments --group 1 --group Wallpaper "
-                    f'--group org.kde.image --group General --key Image "file://{wallpapers_path}"'
-                )
-                run_command(containment_cmd)
-
-                log_success(f"KDE wallpaper directory configured: {wallpapers_path}")
-
-                # Restart plasmashell to apply changes
-                if confirm_action("🔄 Restart Plasma shell to apply wallpaper settings?"):
-                    run_command("killall plasmashell && plasmashell &", check=False)
-                    log_success("Plasma shell restarted")
-                else:
-                    log_info(
-                        "Please restart Plasma shell manually to apply wallpaper settings"
-                    )
-
-            except subprocess.CalledProcessError as e:
-                log_warning(f"Failed to configure KDE wallpaper settings: {e}")
-        else:
-            log_warning(
-                "kwriteconfig not available, cannot configure KDE wallpaper settings"
-            )
+        # Stow wallpaper package if it exists in the configs
+        if (Path.home() / "Dev" / ".configs" / "home" / "wallpaper").exists():
+            log_info("Stowing wallpaper package...")
+            stow_dotfiles("wallpaper")
     else:
-        log_info(
-            f"[DRY RUN] Would configure KDE wallpaper directory: {wallpapers_path}"
-        )
+        log_info(f"[DRY RUN] Would create wallpaper directory: {wallpapers_path}")
+        log_info(f"[DRY RUN] Would create screenshots directory: {screenshots_path}")
 
 
 def optimize_system_performance():
@@ -1682,19 +1785,16 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
             # Install fonts and setup directories
             install_fonts()
 
-            # Update ZSH configuration
-            update_zshrc()
-            create_platform_specific_additionals()
-
             # Stow dotfiles
             stow_dotfiles()
 
-            # Configure KDE wallpaper directory (if KDE is available)
-            if platform_name in [
-                "fedora",
-                "debian",
-            ]:  # Linux platforms where KDE might be used
-                setup_kde_wallpaper_config()
+            # Update ZSH configuration
+            update_zshrc()
+
+            create_platform_specific_additionals()
+
+            # Setup wallpaper and screenshot directories
+            setup_wallpaper_directories()
 
             # Setup services (Fedora only)
             if platform_name == "fedora":
