@@ -1414,6 +1414,12 @@ def setup_fedora_system():
     # Remove bloatware packages at the end
     remove_bloatware()
 
+    # Setup NextDNS
+    setup_nextdns()
+
+    # Setup secure boot (important for NVIDIA drivers)
+    setup_secure_boot()
+
 
 def setup_hostname():
     """Setup system hostname from config."""
@@ -1648,29 +1654,132 @@ def setup_asus_system():
     log_success("ASUS system setup completed")
 
 
-def setup_wallpaper_directories():
-    """Create wallpaper and screenshot directories."""
-    log_info("Setting up wallpaper and screenshot directories...", "🖼️")
+def setup_secure_boot():
+    """Setup secure boot for NVIDIA drivers and other kernel modules."""
+    log_info("Setting up Secure Boot support...", "🔐")
 
-    wallpapers_path = get_path("wallpapers_dir")
-    screenshots_path = get_path("screenshots_dir")
+    # Ask user if they want to setup secure boot
+    if not confirm_action(
+        "🔐 Do you want to setup Secure Boot support? (Required for NVIDIA drivers with Secure Boot enabled)"
+    ):
+        log_info("Skipped Secure Boot setup")
+        return
 
-    if not setup_config.dry_run:
-        # Create directories
-        wallpapers_path.mkdir(parents=True, exist_ok=True)
-        screenshots_path.mkdir(parents=True, exist_ok=True)
+    # Build DNF command with appropriate flags
+    dnf_flags = "-y"
+    if setup_config.auto_confirm:
+        dnf_flags += " --assumeyes"
 
-        log_success(f"Created wallpaper directory: {wallpapers_path}")
-        log_success(f"Created screenshots directory: {screenshots_path}")
+    # Install required packages for secure boot
+    log_info("Installing Secure Boot packages...")
+    try:
+        run_command(f"sudo dnf install {dnf_flags} kmodtool akmods mokutil openssl")
+        log_success("Secure Boot packages installed")
+    except subprocess.CalledProcessError as e:
+        log_error(f"Failed to install Secure Boot packages: {e}")
+        return
 
-        # Stow wallpaper package if it exists in the configs
-        stow_source = get_path("stow_source")
-        if (stow_source / "wallpaper").exists():
-            log_info("Stowing wallpaper package...")
-            stow_dotfiles("wallpaper")
+    # Generate kernel module certificate
+    log_info("Generating kernel module certificate...")
+    try:
+        run_command("sudo kmodgenca -a")
+        log_success("Kernel module certificate generated")
+    except subprocess.CalledProcessError as e:
+        log_error(f"Failed to generate kernel module certificate: {e}")
+        return
+
+    # Import the public key into MOK (Machine Owner Key)
+    log_info("Importing public key into MOK (Machine Owner Key)...")
+    try:
+        run_command("sudo mokutil --import /etc/pki/akmods/certs/public_key.der")
+        log_success("Public key imported into MOK")
+
+        console.print("\n[bold yellow]⚠️  IMPORTANT SECURE BOOT SETUP INFORMATION[/bold yellow]")
+        console.print("─" * 60)
+        console.print("🔐 The public key has been imported into MOK (Machine Owner Key)")
+        console.print("🔄 You will need to enroll the key on next boot:")
+        console.print("   1. The system will present a MOK management screen")
+        console.print("   2. Select 'Enroll MOK'")
+        console.print("   3. Select 'Continue'")
+        console.print("   4. Enter the password you'll be prompted for")
+        console.print("   5. Select 'Reboot'")
+        console.print("─" * 60)
+        console.print("[bold red]Without enrolling the MOK, NVIDIA drivers will NOT work with Secure Boot![/bold red]")
+        console.print()
+
+    except subprocess.CalledProcessError as e:
+        log_error(f"Failed to import public key: {e}")
+        return
+
+    # Ask user if they want to reboot now
+    if confirm_action(
+        "🔄 Secure Boot setup completed. Do you want to reboot now to enroll the MOK?"
+    ):
+        log_info("Rebooting system to enroll MOK...")
+        if not setup_config.dry_run:
+            run_command("sudo systemctl reboot")
+        else:
+            log_warning("DRY RUN: Would reboot system")
     else:
-        log_info(f"[DRY RUN] Would create wallpaper directory: {wallpapers_path}")
-        log_info(f"[DRY RUN] Would create screenshots directory: {screenshots_path}")
+        log_warning("Please reboot manually to complete Secure Boot setup")
+        log_info("Run 'sudo systemctl reboot' when ready")
+
+    log_success("Secure Boot setup completed")
+
+
+def setup_nextdns():
+    """Setup NextDNS with user input configuration."""
+    log_info("Setting up NextDNS...", "🌐")
+
+    if not command_exists("nextdns"):
+        log_warning("NextDNS not installed, skipping NextDNS configuration")
+        return
+
+    # Check if NextDNS is already installed/configured
+    try:
+        result = run_command("sudo nextdns status", capture_output=True, check=False)
+        if result.returncode == 0 and "running" in result.stdout.lower():
+            log_success("NextDNS is already running")
+            if not confirm_action("🔄 NextDNS is already configured. Reconfigure?"):
+                log_info("Skipped NextDNS reconfiguration")
+                return
+    except Exception:
+        pass
+
+    # Get NextDNS config ID from user
+    config_id = Prompt.ask("🌐 Enter your NextDNS config ID")
+    if not config_id:
+        log_warning("No NextDNS config ID provided, skipping NextDNS setup")
+        return
+
+    log_info(f"Configuring NextDNS with config ID: {config_id}")
+
+    # Install NextDNS with specified configuration
+    install_cmd = (
+        f"sudo nextdns install -config {config_id} "
+        "-setup-router=false -report-client-info=true -log-queries=false"
+    )
+
+    try:
+        run_command(install_cmd)
+        log_success("NextDNS installed and configured successfully")
+
+        # Activate NextDNS
+        run_command("sudo nextdns activate")
+        log_success("NextDNS activated")
+
+        # Show status
+        if not setup_config.dry_run:
+            result = run_command("sudo nextdns status", capture_output=True, check=False)
+            if result.returncode == 0:
+                log_info("NextDNS status:")
+                console.print(result.stdout)
+
+    except subprocess.CalledProcessError as e:
+        log_error(f"Failed to configure NextDNS: {e}")
+        return
+
+    log_success("NextDNS setup completed")
 
 
 def optimize_system_performance():
@@ -1948,9 +2057,6 @@ Run from repository root (~/Dev/.configs/) or script will auto-clone if missing.
             update_zshrc()
 
             create_platform_specific_additionals()
-
-            # Setup wallpaper and screenshot directories
-            setup_wallpaper_directories()
 
             # Setup services (Fedora only)
             if platform_name == "fedora":
