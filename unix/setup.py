@@ -585,12 +585,50 @@ def install_with_flatpak(packages: List[str]):
         run_command(f"flatpak install -y flathub {package}")
 
 
+def backup_existing_gitconfig():
+    """Backup existing .gitconfig file if it contains user configuration."""
+    gitconfig_path = Path.home() / ".gitconfig"
+
+    if not gitconfig_path.exists():
+        log_info("No existing .gitconfig found")
+        return
+
+    if setup_config.dry_run:
+        log_warning("DRY RUN: Would backup existing .gitconfig")
+        return
+
+    try:
+        # Read existing .gitconfig to check if it has user configuration
+        with open(gitconfig_path, "r") as f:
+            content = f.read()
+
+        # Check if it contains user configuration
+        if (
+            "[user]" in content.lower()
+            or "user.name" in content.lower()
+            or "user.email" in content.lower()
+        ):
+            backup_path = gitconfig_path.with_suffix(".gitconfig.backup")
+            shutil.copy2(gitconfig_path, backup_path)
+            log_success(
+                f"Backed up existing .gitconfig with user config to: {backup_path}"
+            )
+        else:
+            log_info("Existing .gitconfig has no user configuration, no backup needed")
+
+    except Exception as e:
+        log_warning(f"Failed to backup .gitconfig: {e}")
+
+
 def setup_git_config():
     """Setup Git configuration with SSH keys."""
     log_info("Setting up Git configuration...", "🔧")
 
     config = load_config()
     git_config = config.get("git", {})
+
+    # Backup existing .gitconfig if it has user configuration
+    backup_existing_gitconfig()
 
     # Get current git values
     git_name = None
@@ -1694,9 +1732,13 @@ def setup_secure_boot():
         run_command("sudo mokutil --import /etc/pki/akmods/certs/public_key.der")
         log_success("Public key imported into MOK")
 
-        console.print("\n[bold yellow]⚠️  IMPORTANT SECURE BOOT SETUP INFORMATION[/bold yellow]")
+        console.print(
+            "\n[bold yellow]⚠️  IMPORTANT SECURE BOOT SETUP INFORMATION[/bold yellow]"
+        )
         console.print("─" * 60)
-        console.print("🔐 The public key has been imported into MOK (Machine Owner Key)")
+        console.print(
+            "🔐 The public key has been imported into MOK (Machine Owner Key)"
+        )
         console.print("🔄 You will need to enroll the key on next boot:")
         console.print("   1. The system will present a MOK management screen")
         console.print("   2. Select 'Enroll MOK'")
@@ -1704,7 +1746,9 @@ def setup_secure_boot():
         console.print("   4. Enter the password you'll be prompted for")
         console.print("   5. Select 'Reboot'")
         console.print("─" * 60)
-        console.print("[bold red]Without enrolling the MOK, NVIDIA drivers will NOT work with Secure Boot![/bold red]")
+        console.print(
+            "[bold red]Without enrolling the MOK, NVIDIA drivers will NOT work with Secure Boot![/bold red]"
+        )
         console.print()
 
     except subprocess.CalledProcessError as e:
@@ -1770,7 +1814,9 @@ def setup_nextdns():
 
         # Show status
         if not setup_config.dry_run:
-            result = run_command("sudo nextdns status", capture_output=True, check=False)
+            result = run_command(
+                "sudo nextdns status", capture_output=True, check=False
+            )
             if result.returncode == 0:
                 log_info("NextDNS status:")
                 console.print(result.stdout)

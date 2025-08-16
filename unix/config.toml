@@ -263,10 +263,10 @@ zsh_dir = "~/.zsh"
 zshrc_file = "~/.zsh/.zshrc"
 zsh_source = "~/Dev/.configs/home/zsh/.zsh/.zshrc"
 additionals_zsh = "~/.zsh/.additionals.zsh"
-rish_dir = "~/.rish"                                                   # Android specific
+rish_dir = "~/.rish"                                                  # Android specific
 zgenom_dir = "~/.zsh/.zgenom"
 config_dir = "~/.config"
-stow_packages = ["config", "git", "ssh", "vscode", "zsh", "wallpaper"]
+stow_packages = ["config", "git", "ssh", "vscode", "zsh", "Pictures"]
 stow_source = "~/Dev/.configs/home"
 
 # Platform-specific font directories
