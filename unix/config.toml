@@ -111,13 +111,14 @@ dnf = [
     "dpkg",
     "tailscale",
     "wezterm",
+    # Prefer Terra repo over Flatpak since it is too restrictive
+    "zed"
 ]
 
 [platforms.fedora.gui_apps]
 flatpak = [
     "app.zen_browser.zen",
     "com.brave.Browser",
-    "dev.zed.Zed",
     "org.signal.Signal",
     "md.obsidian.Obsidian",
     "org.localsend.localsend_app",
