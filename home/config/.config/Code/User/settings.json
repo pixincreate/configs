@@ -27,7 +27,7 @@
     "editor.inlineSuggest.enabled": true,
     "editor.letterSpacing": 0.2,
     "editor.lineNumbers": "relative",
-    "editor.minimap.autohide": true,
+    "editor.minimap.autohide": "scroll",
     "editor.minimap.enabled": true,
     "editor.renderWhitespace": "all",
     "editor.renderFinalNewline": "on",
@@ -258,7 +258,7 @@
     },
     "github.copilot.chat.scopeSelection": true,
     "github.copilot.advanced": {
-        "useLanguageServer": true,
+        "useLanguageServer": true
     },
     // GitLens
     "gitlens.defaultDateStyle": "absolute",

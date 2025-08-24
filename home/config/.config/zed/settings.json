@@ -16,6 +16,7 @@
     "edit_prediction_provider": "copilot"
   },
   "agent": {
+    "use_modifier_to_send": true,
     "single_file_review": true,
     "default_profile": "minimal",
     "default_model": {
@@ -123,7 +124,7 @@
     "light": "Catppuccin Frappé",
     "dark": "Kanagawa Dragon"
   },
-  "icon_theme": "Material Icon Theme",
+  "icon_theme": "Colored Zed Icons Theme Dark",
 
   // Git Integration
   "git": {
@@ -138,7 +139,7 @@
 
   // Privacy Settings
   "telemetry": {
-    "diagnostics": true,
+    "diagnostics": false,
     "metrics": false
   },
 
