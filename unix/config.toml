@@ -58,8 +58,20 @@ terminal = [
     "stow",
 ]
 
-# Development tools that may have different package names
-languages = ["gcc", "node", "python", "rustup", "sqlite"]
+# ===============================================================================
+# RUST TOOLS
+# ===============================================================================
+
+[rust]
+rust_tools= [
+    "cargo-audit",
+    "cargo-deny",
+    "cargo-fuzz",
+    "cargo-wipe",
+    "just",
+    "rustlings",
+    "wasm-pack",
+]
 
 # ===============================================================================
 # PLATFORM CONFIGURATIONS

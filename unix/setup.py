@@ -474,6 +474,71 @@ def install_terminal_tools(platform_name: str, tools_config: Dict):
                 setup_homebrew()
                 install_with_brew(mapped_packages)
 
+    setup_rust()
+
+
+def setup_rust():
+    """Install Rust with Rustup"""
+
+    # ToDo: Fix this
+    if shutil.which("rustup"):
+        log_info("Rust is already installed, updating...")
+        run_command("rustup update")
+    else:
+        try:
+            log_info("Installing Rust with rustup-init...")
+
+            run_command("rustup-init -y --default-toolchain stable")
+            run_command("rustup toolchain install nightly")
+            run_command("source ~/.cargo/env")
+
+            install_rust_tools()
+        except subprocess.CalledProcessError:
+            log_warning(f"Failed to install RustLang")
+
+
+def install_rust_tools():
+    """Installs rust tools"""
+
+    log_info("Installing Rust tools with cargo...")
+
+    config = load_config()
+    tools = config["rust"].get("rust_tools", {})
+
+    if not tools:
+        log_error(f"No configuration found for rust tools: {tools}")
+        return
+
+    log_info(f"Installing {len(tools)} tools with Cargo...")
+
+    failed_tools = []
+
+    for tool in tools:
+        try:
+            log_info(f"Installing tool: {tool}")
+            run_command(f"cargo install {tool}")
+
+        except subprocess.CalledProcessError:
+            log_warning(f"Failed to install: {tool}")
+            failed_tools.append(tool)
+            continue
+
+    if failed_tools:
+        log_warning(
+            f"Failed to install {len(failed_tools)} tools: {', '.join(failed_tools)}"
+        )
+
+    try:
+        if confirm_action(
+            "🦀 Do you want to install diesel_cli with PostgreSQL support?"
+        ):
+            log_info("Installing diesel_cli with PostgreSQL support...")
+            run_command(
+                "cargo install diesel_cli --no-default-features --features-postgres"
+            )
+    except subprocess.CalledProcessError:
+        log_warning("Failed to install Diesel CLI")
+
 
 def apply_package_mapping(packages: List[str], platform_name: str) -> List[str]:
     """Apply platform-specific package name mappings."""
