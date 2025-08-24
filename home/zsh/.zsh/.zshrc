@@ -71,8 +71,8 @@ zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"
 
 # History
 export HISTFILE="$ZDOTDIR/.zsh_history"
-export HISTSIZE=50000
-export SAVEHIST=10000
+export HISTSIZE=500000
+export SAVEHIST=100000
 
 # Don't put duplicate lines in the history and do not add lines that start with a space
 export HISTCONTROL=erasedups:ignoredups:ignorespace
@@ -114,6 +114,9 @@ alias multitail='multitail --no-repeat -c'
 alias vi='nvim'
 alias reload='echo "Reloading shell...";sleep 1;clear;exec ${SHELL} -l'
 alias inv='nvim $(fzf -m --preview="bat --color=always {}")'  # Open files in nvim with fzf
+
+# Load zsh_history with fzf
+alias hish='cat $ZDOTDIR/.zsh_history | fzf'
 
 # Tmux aliases
 alias tmux_debug='tmux kill-server && tmux -f ~/.config/tmux/tmux.conf > tmux.log 2>&1'
