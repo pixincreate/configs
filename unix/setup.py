@@ -7,6 +7,7 @@ Replaces fedora/setup-fedora.sh and unix/setup.sh with a clean Python implementa
 import argparse
 import hashlib
 import json
+import logging
 import os
 import platform
 import shutil
@@ -17,7 +18,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import logging
 import toml
 from rich.console import Console
 from rich.prompt import Confirm, Prompt
