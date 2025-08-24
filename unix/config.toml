@@ -105,6 +105,7 @@ dnf = [
     "postgresql-devel",
     "code",
     "dnf-plugins-core",
+    "qt",
     "btrfs-assistant",
     "lm_sensors",
     "pkg-config",
@@ -257,6 +258,7 @@ fonts_source = "~/Dev/.configs/fonts"
 wallpapers_dir = "~/Pictures/Wallpapers"
 screenshots_dir = "~/Pictures/Screenshots"
 gitconfig_local = "~/.config/gitconfig/.gitconfig.local"
+local_bin_dir = "~/.local/bin"
 ssh_dir = "~/.ssh"
 ssh_key = "~/.ssh/id_ed25519"
 ssh_signing_key = "~/.ssh/id_ed25519_sign.pub"
@@ -267,7 +269,7 @@ additionals_zsh = "~/.zsh/.additionals.zsh"
 rish_dir = "~/.rish"                                                  # Android specific
 zgenom_dir = "~/.zsh/.zgenom"
 config_dir = "~/.config"
-stow_packages = ["config", "git", "ssh", "vscode", "zsh", "Pictures"]
+stow_packages = ["config", "git", "ssh", "zsh", "Pictures", "local"]
 stow_source = "~/Dev/.configs/home"
 
 # Platform-specific font directories

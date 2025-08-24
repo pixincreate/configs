@@ -240,6 +240,7 @@ def create_directories():
         get_path("wallpapers_dir"),
         get_path("screenshots_dir"),
         get_path("local_fonts_dir"),
+        get_path("local_bin_dir"),
     ]
 
     # Add .rish directory only for Android
@@ -526,7 +527,7 @@ def install_with_dnf(packages: List[str]):
 
     for package in packages:
         try:
-            log_info(f"Installing individual package: {package}")
+            log_info(f"Installing package: {package}")
             run_command(f"sudo dnf install {dnf_flags} {package}")
         except subprocess.CalledProcessError:
             log_warning(f"Failed to install package: {package}")
@@ -1109,7 +1110,6 @@ PQ_LIB_DIR="$(brew --prefix libpq)/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
 export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
 export CC="$(brew --prefix)/opt/llvm/bin/clang"
-export CONFIGS=${HOME}/Dev/.configs
 
 alias zed=zed-preview
 """
@@ -1118,14 +1118,12 @@ alias zed=zed-preview
 # Fedora specific configurations
 export SYS_HEALTH="${HOME}/Dev/.configs/unix/fedora/health-check.sh"
 alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
-export CONFIGS=${HOME}/Dev/.configs
 """
     elif platform_name == "debian":
         content += """
 # Debian specific configurations
 export LDFLAGS="-L/$(brew --prefix)/opt/binutils/lib"
 export CPPFLAGS="-I/$(brew --prefix)/opt/binutils/include"
-export CONFIGS=${HOME}/Dev/.configs
 
 # WSL configurations (if applicable)
 if [[ -n "$WSL_DISTRO_NAME" ]]; then
@@ -1455,7 +1453,7 @@ def setup_fedora_system():
     # Setup NextDNS
     setup_nextdns()
 
-    # Setup secure boot (important for NVIDIA drivers)
+    # Setup secure boot
     setup_secure_boot()
 
 
@@ -1685,11 +1683,26 @@ def setup_asus_system():
     dnf_flags = "-y"
     if setup_config.auto_confirm:
         dnf_flags += " --assumeyes"
+
     run_command(f"sudo dnf install {dnf_flags} asusctl supergfxctl")
     run_command("sudo systemctl enable supergfxd.service")
     run_command("sudo systemctl start asusd")
 
-    log_success("ASUS system setup completed")
+    log_info("Setting up toast message for Asus profile changes...")
+    run_command("""
+        sudo tee /etc/udev/rules.d/99-asus-profile-toast.rules << 'EOF'
+        KERNEL=="platform-profile-*", \
+            SUBSYSTEM=="platform-profile", \
+            ACTION=="change", \
+            RUN+="/bin/bash -c ' \
+                DISPLAY=:0 \
+                XDG_RUNTIME_DIR=/run/user/1000 \
+                /usr/bin/sudo -u $(who | awk \"{print \$1}\" | head -1) \
+                /home/$(who | awk \"{print \$1}\" | head -1)/.local/bin/asus-profile-notify.sh \
+            '"
+        EOF
+    """)
+    run_command("sudo udevadm control --reload-rules")
 
 
 def setup_secure_boot():
