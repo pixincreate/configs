@@ -494,7 +494,7 @@ def setup_rust():
 
             install_rust_tools()
         except subprocess.CalledProcessError:
-            log_warning(f"Failed to install RustLang")
+            log_warning("Failed to install RustLang")
 
 
 def install_rust_tools():
@@ -1738,19 +1738,21 @@ def setup_asus_system():
     run_command("sudo systemctl start asusd")
 
     log_info("Setting up toast message for Asus profile changes...")
-    run_command("""
-        sudo tee /etc/udev/rules.d/99-asus-profile-toast.rules << 'EOF'
-        KERNEL=="platform-profile-*", \
-            SUBSYSTEM=="platform-profile", \
-            ACTION=="change", \
-            RUN+="/bin/bash -c ' \
-                DISPLAY=:0 \
-                XDG_RUNTIME_DIR=/run/user/1000 \
-                /usr/bin/sudo -u $(who | awk \"{print \$1}\" | head -1) \
-                /home/$(who | awk \"{print \$1}\" | head -1)/.local/bin/asus-profile-notify.sh \
-            '"
-        EOF
-    """)
+    run_command(
+        r"""
+    sudo tee /etc/udev/rules.d/99-asus-profile-toast.rules << 'EOF'
+    KERNEL=="platform-profile-*", \
+        SUBSYSTEM=="platform-profile", \
+        ACTION=="change", \
+        RUN+="/bin/bash -c ' \
+            DISPLAY=:0 \
+            XDG_RUNTIME_DIR=/run/user/1000 \
+            /usr/bin/sudo -u $(who | awk \"{print \$1}\" | head -1) \
+            /home/$(who | awk \"{print \$1}\" | head -1)/.local/bin/asus-profile-notify.sh \
+        '"
+    EOF
+    """
+    )
     run_command("sudo udevadm control --reload-rules")
 
 
