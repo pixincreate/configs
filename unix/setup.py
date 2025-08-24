@@ -534,7 +534,7 @@ def install_rust_tools():
         ):
             log_info("Installing diesel_cli with PostgreSQL support...")
             run_command(
-                "cargo install diesel_cli --no-default-features --features-postgres"
+                "cargo install diesel_cli --no-default-features --features postgres"
             )
     except subprocess.CalledProcessError:
         log_warning("Failed to install Diesel CLI")
