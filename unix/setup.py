@@ -1908,16 +1908,14 @@ def setup_nextdns():
 
 def optimize_system_performance():
     """Optimize system performance and boot time."""
+
     log_info("Optimizing system performance...", "⚡")
 
-    # Disable CPU mitigations for better performance
-    if confirm_action(
-        "🚀 Disable CPU mitigations for better performance? (Less secure but faster)"
-    ):
-        run_command('sudo grubby --update-kernel=ALL --args="mitigations=off"')
-        log_success("CPU mitigations disabled for better performance")
-    else:
-        log_info("Keeping CPU mitigations enabled for security")
+    log_info("Enabling systemd-oomd (Out-of-Memory Daemon)...")
+    run_command("sudo systemctl enable --now systemd-oomd")
+
+    log_info("Enabling automatic SSD TRIM for storage optimization...")
+    run_command("sudo systemctl enable --now fstrim.timer")
 
     # Disable NetworkManager-wait-online.service to improve boot time
     run_command("sudo systemctl disable NetworkManager-wait-online.service")
