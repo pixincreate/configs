@@ -723,28 +723,16 @@ def setup_git_config():
     if not git_name and "default_name" in git_config:
         git_name = git_config["default_name"]
         log_info(f"Using git name from config.toml: {git_name}")
-        if not setup_config.dry_run:
-            run_command(f'git config --global user.name "{git_name}"')
-        elif setup_config.dry_run:
-            log_warning(f"DRY RUN: Would set git user.name to: {git_name}")
 
     if not git_email and "default_email" in git_config:
         git_email = git_config["default_email"]
         log_info(f"Using git email from config.toml: {git_email}")
-        if not setup_config.dry_run:
-            run_command(f'git config --global user.email "{git_email}"')
-        elif setup_config.dry_run:
-            log_warning(f"DRY RUN: Would set git user.email to: {git_email}")
 
     # Only prompt if still missing values
     if not git_name:
         git_name = Prompt.ask(
             "👤 Enter your Git user.name", default=git_config.get("default_name", "")
         )
-        if git_name and not setup_config.dry_run:
-            run_command(f'git config --global user.name "{git_name}"')
-        elif setup_config.dry_run:
-            log_warning(f"DRY RUN: Would set git user.name to: {git_name}")
     else:
         log_success(f"Git user.name already configured: {git_name}")
 
@@ -752,10 +740,6 @@ def setup_git_config():
         git_email = Prompt.ask(
             "📧 Enter your Git user.email", default=git_config.get("default_email", "")
         )
-        if git_email and not setup_config.dry_run:
-            run_command(f'git config --global user.email "{git_email}"')
-        elif setup_config.dry_run:
-            log_warning(f"DRY RUN: Would set git user.email to: {git_email}")
     else:
         log_success(f"Git user.email already configured: {git_email}")
 
