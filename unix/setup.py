@@ -1167,6 +1167,7 @@ alias zed=zed-preview
 # Fedora specific configurations
 export SYS_HEALTH="${HOME}/Dev/.configs/unix/fedora/health-check.sh"
 alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
+alias secure_boot_retrigger='sudo kmodgenca -a && sudo mokutil --import /etc/pki/akmods/certs/public_key.der'
 """
     elif platform_name == "debian":
         content += """
@@ -1281,7 +1282,12 @@ def setup_services():
             else:
                 log_info("Initializing PostgreSQL database...")
                 try:
+                    pg_conf_path = "/var/lib/pgsql/data/pg_hba.conf"
+
                     run_command("sudo postgresql-setup --initdb")
+                    run_command(f"sudo sed -i 's/\(host.*all.*all.*127.0.0.1\/32.*\)ident/\1md5/' ${pg_config_path}")
+                    run_command(f"sudo sed -i 's/\(host.*all.*all.*::1\/128.*\)ident/\1md5/' ${pg_config_path}")
+
                 except subprocess.CalledProcessError as e:
                     if "is not empty" in str(e) or "already exists" in str(e):
                         log_success("PostgreSQL database already initialized")
@@ -1708,7 +1714,27 @@ def setup_nvidia_drivers():
     run_command(f"sudo dnf install {dnf_flags} libva-nvidia-driver.x86_64 vdpauinfo")
 
     # Enable NVIDIA modeset
-    run_command('sudo grubby --update-kernel=ALL --args="nvidia-drm.modeset=1"')
+    run_command(
+        r"""
+sudo tee /etc/modprobe.d/blacklist.conf <<EOF > /dev/null
+blacklist nouveau
+options nouveau modeset=0
+EOF
+
+sudo tee /etc/modprobe.d/nvidia.conf <<EOF > /dev/null
+options nvidia-drm modeset=1
+options nvidia NVreg_PreserveVideoMemoryAllocations=1
+EOF
+    """
+    )
+
+    log_info("Re-building system components...")
+    run_command(
+        """
+        sudo akmods --force
+        sudo dracut --force
+    """
+    )
 
     log_success("NVIDIA drivers installed with modeset enabled. Reboot required.")
 
