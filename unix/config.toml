@@ -13,6 +13,7 @@ terminal = [
     "tealdeer",
     "git",
     "wget",
+    "clang",
     "curl",
     "zsh",
     "eza",
@@ -122,10 +123,12 @@ dnf = [
     "lm_sensors",
     "pkg-config",
     "dpkg",
+    "protobuf-compiler",
     "tailscale",
     "wezterm",
     # Prefer Terra repo over Flatpak since it is too restrictive
-    "zed"
+    "zed",
+    "steam",
 ]
 
 [platforms.fedora.gui_apps]
@@ -139,7 +142,6 @@ flatpak = [
     "org.onlyoffice.desktopeditors",
     "com.obsproject.Studio",
     "org.mozilla.Thunderbird",
-    "com.valvesoftware.Steam",
 ]
 
 [platforms.fedora.bloatware_removal]
