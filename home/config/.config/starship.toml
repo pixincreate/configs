@@ -8,15 +8,21 @@ $directory\
 $git_branch\
 $git_state\
 $python\
+$conda\
 $nodejs\
 $rust\
 $golang\
 $java\
 $ruby\
-$php\
+$docker_context\
+$package\
 $lua\
 $swift\
+$c\
+$cpp\
+$php\
 $kotlin\
+$haskell\
 $dotnet\
 $git_status\
 $fill\
@@ -75,7 +81,7 @@ Windows = " "
 format = "[$read_only]($read_only_style)  [$path]($style)"
 style = "dimmed #585b70"                                                                                                                        # Catppuccin Surface2 (dimmed)
 read_only_style = "#f38ba8"                                                                                                                     # Catppuccin Red
-read_only = "󰌾"
+read_only = "󰌾 "
 truncation_length = 0                                                                                                                           # Show full path
 truncate_to_repo = false
 truncation_symbol = "…/"
@@ -84,6 +90,13 @@ repo_root_style = "bold #f9e2af"                                                
 repo_root_format = "[$read_only]($read_only_style)  [$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)"
 before_repo_root_style = "dimmed #585b70"
 fish_style_pwd_dir_length = 0
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = "󰝚 "
+"Pictures" = " "
+"Dev" = "󰲋 "
 
 [git_branch]
 format = " on [$symbol$branch(:$remote_branch)]($style) "
@@ -151,8 +164,8 @@ utc_time_offset = "local"
 
 [cmd_duration]
 min_time = 2_000
-format = "[$duration]($style) "
-style = "dimmed #a6adc8"        # Catppuccin Subtext0
+format = " [$duration]($style) "
+style = "dimmed #a6adc8"          # Catppuccin Subtext0
 show_milliseconds = false
 show_notifications = false
 
@@ -163,8 +176,8 @@ vimcmd_symbol = "[❮](bold #cba6f7)"  # Catppuccin Mauve
 
 # Language-specific modules that show next to git branch when in those project types
 [python]
-format = '[$symbol]($style)'
-symbol = ""
+format = '[$symbol(\($virtualenv\) )]($style)'
+symbol = " "
 style = "dimmed #89b4fa" # Catppuccin Blue
 detect_extensions = ["py"]
 detect_files = [
@@ -176,31 +189,37 @@ detect_files = [
     "setup.py",
     "tox.ini",
 ]
+detect_folders = [".venv"]
+
+[conda]
+format = '[$symbol]($style)'
+symbol = "   "
+style = "dimmed ##209fb5"    # Catppuccin Sapphire
 
 [nodejs]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #a6e3a1"                                     # Catppuccin Green
 detect_extensions = ["js", "mjs", "cjs", "ts", "mts", "cts"]
 detect_files = ["package.json", ".node-version", ".nvmrc"]
 
 [rust]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #fab387"                    # Catppuccin Peach
 detect_extensions = ["rs"]
 detect_files = ["Cargo.toml", "Cargo.lock"]
 
 [golang]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #74c7ec"                           # Catppuccin Sapphire
 detect_extensions = ["go"]
 detect_files = ["go.mod", "go.sum", ".go-version"]
 
 [java]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #f38ba8"                                                     # Catppuccin Red
 detect_extensions = ["java", "class", "gradle", "jar"]
 detect_files = ["pom.xml", "build.gradle.kts", "build.sbt", ".java-version"]
@@ -214,7 +233,7 @@ detect_files = ["Gemfile", ".ruby-version"]
 
 [docker_context]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #89b4fa"                                                   # Catppuccin Blue
 only_with_files = true
 detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
@@ -239,27 +258,33 @@ detect_extensions = ["swift"]
 
 [c]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #89dceb"       # Catppuccin Sky
 detect_extensions = ["c", "h"]
 
 [cpp]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #89dceb"                                    # Catppuccin Sky
 detect_extensions = ["cpp", "cxx", "cc", "h", "hpp", "hxx"]
 
 [php]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #cba6f7"     # Catppuccin Mauve
 detect_extensions = ["php"]
 
 [kotlin]
 format = '[$symbol]($style)'
-symbol = ""
+symbol = " "
 style = "dimmed #b4befe"          # Catppuccin Lavender
 detect_extensions = ["kt", "kts"]
+
+[haskell]
+format = '[$symbol]($style)'
+symbol = " "
+style = "dimmed ##1e66f5"         # Catppuccin Blue
+detect_extensions = ["hs", "lhs"]
 
 [dotnet]
 format = '[$symbol]($style)'
