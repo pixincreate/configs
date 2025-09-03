@@ -64,7 +64,7 @@ terminal = [
 # ===============================================================================
 
 [rust]
-rust_tools= [
+rust_tools = [
     "cargo-audit",
     "cargo-deny",
     "cargo-fuzz",
@@ -129,6 +129,7 @@ dnf = [
     # Prefer Terra repo over Flatpak since it is too restrictive
     "zed",
     "steam",
+    "speech-dispatcher-utils",
 ]
 
 [platforms.fedora.gui_apps]
@@ -280,7 +281,7 @@ zsh_dir = "~/.zsh"
 zshrc_file = "~/.zsh/.zshrc"
 zsh_source = "~/Dev/.configs/home/zsh/.zsh/.zshrc"
 additionals_zsh = "~/.zsh/.additionals.zsh"
-rish_dir = "~/.rish"                                                  # Android specific
+rish_dir = "~/.rish"                                                 # Android specific
 zgenom_dir = "~/.zsh/.zgenom"
 config_dir = "~/.config"
 stow_packages = ["config", "git", "ssh", "zsh", "Pictures", "local"]
