@@ -1282,11 +1282,15 @@ def setup_services():
             else:
                 log_info("Initializing PostgreSQL database...")
                 try:
-                    pg_conf_path = "/var/lib/pgsql/data/pg_hba.conf"
+                    pg_config_path = "/var/lib/pgsql/data/pg_hba.conf"
 
                     run_command("sudo postgresql-setup --initdb")
-                    run_command(f"sudo sed -i 's/\(host.*all.*all.*127.0.0.1\/32.*\)ident/\1md5/' ${pg_config_path}")
-                    run_command(f"sudo sed -i 's/\(host.*all.*all.*::1\/128.*\)ident/\1md5/' ${pg_config_path}")
+                    run_command(
+                        f"sudo sed -i r's/(host.*all.*all.*127.0.0.1/32.*)ident/\\1md5/' {pg_config_path}"
+                    )
+                    run_command(
+                        f"sudo sed -i r's/(host.*all.*all.*::1/128.*)ident/\\1md5/' {pg_config_path}"
+                    )
 
                 except subprocess.CalledProcessError as e:
                     if "is not empty" in str(e) or "already exists" in str(e):
@@ -1922,6 +1926,15 @@ def optimize_system_performance():
     """Optimize system performance and boot time."""
 
     log_info("Optimizing system performance...", "⚡")
+
+    # Disable CPU mitigations for better performance
+    if confirm_action(
+        "🚀 Disable CPU mitigations for better performance? (Less secure but faster)"
+    ):
+        run_command('sudo grubby --update-kernel=ALL --args="mitigations=off"')
+        log_success("CPU mitigations disabled for better performance")
+    else:
+        log_info("Keeping CPU mitigations enabled for security")
 
     log_info("Enabling systemd-oomd (Out-of-Memory Daemon)...")
     run_command("sudo systemctl enable --now systemd-oomd")
