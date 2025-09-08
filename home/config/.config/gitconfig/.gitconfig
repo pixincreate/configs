@@ -23,6 +23,9 @@ interHunkContext = 10
 [gpg]
 format = ssh
 
+[fetch]
+	prune = true
+
 [init]
 defaultBranch = main
 
