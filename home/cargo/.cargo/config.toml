@@ -1,0 +1,5 @@
+# Since `.gitconfig` has urls predefined with `insteadOf`, we need to
+# ensure that Cargo uses the git CLI to fetch dependencies, so that it
+# respects those settings.
+[net]
+git-fetch-with-cli = true
