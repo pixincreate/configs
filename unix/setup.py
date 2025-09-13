@@ -1479,6 +1479,17 @@ def setup_fedora_system():
     if setup_config.auto_confirm:
         dnf_flags += " --assumeyes"
 
+    run_command(
+        r"""
+cat /etc/dnf/dnf.conf  << EOF
+[main]
+install_weak_deps = False
+max_parallel_downloads = 10
+fastestmirror = True
+EOF
+    """
+    )
+
     # Update system first
     run_command(f"sudo dnf update {dnf_flags} --refresh")
 
