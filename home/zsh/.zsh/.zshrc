@@ -376,7 +376,7 @@ eval "$(direnv hook zsh)"
 source <(fzf --zsh)
 
 # Load Starship and transient prompt
-[[ -f ~/.zsh/.starship.zsh ]] && source ~/.zsh/.starship.zsh
+[[ -f ~/.zsh/.starship.sh ]] && source ~/.zsh/.starship.sh
 
 # Load application aliases
 [[ -f ~/.zsh/.additionals.zsh ]] && source ~/.zsh/.additionals.zsh
