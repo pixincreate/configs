@@ -1,4 +1,12 @@
-CURRENT_SHELL=$(basename "$SHELL" 2>/dev/null || echo "unknown")
+# Detect the current running shell, not the default shell
+if [ -n "$ZSH_VERSION" ]; then
+    CURRENT_SHELL="zsh"
+elif [ -n "$BASH_VERSION" ]; then
+    CURRENT_SHELL="bash"
+else
+    # Fallback to checking the process name
+    CURRENT_SHELL=$(basename "$0" 2>/dev/null || echo "unknown")
+fi
 
 
 export STARSHIP_PRESETS_DIR="${HOME}/.config/starship/presets"
