@@ -4,24 +4,26 @@ if [ -n "$ZSH_VERSION" ]; then
 elif [ -n "$BASH_VERSION" ]; then
     CURRENT_SHELL="bash"
 else
-    # Fallback to checking the process name
-    CURRENT_SHELL=$(basename "$0" 2>/dev/null || echo "unknown")
+    # Fallback to checking the process name (optimized parameter expansion)
+    CURRENT_SHELL="${0##*/}"
+    [ -z "$CURRENT_SHELL" ] && CURRENT_SHELL="unknown"
 fi
 
 
 export STARSHIP_PRESETS_DIR="${HOME}/.config/starship/presets"
 STARSHIP_STATE_FILE="$STARSHIP_PRESETS_DIR/current_preset"
 
+STARSHIP_SUCCESS_COLOR="${STARSHIP_SUCCESS_COLOR:-#a6e3a1}"  # Catppuccin Green
+STARSHIP_ERROR_COLOR="${STARSHIP_ERROR_COLOR:-#f38ba8}"      # Catppuccin Red
 
 if [ "$CURRENT_SHELL" = "zsh" ]; then
-    # Define the transient prompt (minimal version)
     function _starship_transient_prompt() {
         local exit_code=$?
         local prompt_char
         if [[ $exit_code -eq 0 ]]; then
-            prompt_char='%F{#a6e3a1}❯%f' # Green for success (Catppuccin Green)
+            prompt_char="%F{$STARSHIP_SUCCESS_COLOR}❯%f"
         else
-            prompt_char='%F{#f38ba8}❯%f' # Red for error (Catppuccin Red)
+            prompt_char="%F{$STARSHIP_ERROR_COLOR}❯%f"
         fi
 
         # Set minimal transient prompt with newline for spacing
@@ -49,18 +51,14 @@ if [ "$CURRENT_SHELL" = "zsh" ]; then
     }
 
     function starship_transient_prompt_setup() {
-        # Register the ZLE widgets only if zle is available
-        if [[ -n "$ZSH_VERSION" ]] && (($+widgets)); then
-            zle -N zle-line-finish _starship_zle_line_finish
-            zle -N zle-line-init _starship_zle_line_init
+        if [[ -z "$_STARSHIP_TRANSIENT_SETUP" ]]; then
+            # Register the ZLE widgets only if zle is available
+            if [[ -n "$ZSH_VERSION" ]] && (($+widgets)); then
+                zle -N zle-line-finish _starship_zle_line_finish
+                zle -N zle-line-init _starship_zle_line_init
+                export _STARSHIP_TRANSIENT_SETUP=1
+            fi
         fi
-    }
-
-    # Remove the setup function after first run to avoid re-registering
-    function starship_transient_prompt_setup_once() {
-        starship_transient_prompt_setup
-        # Remove this function from precmd hooks after first run
-        add-zsh-hook -d precmd starship_transient_prompt_setup_once
     }
 fi
 
@@ -69,12 +67,10 @@ case "$CURRENT_SHELL" in
     "zsh")
         eval "$(starship init zsh)"
 
-        # Transient prompt implementation for Starship (ZSH only)
         if command -v starship >/dev/null 2>&1; then
             # Set up the transient prompt in precmd hook to ensure proper timing
             autoload -Uz add-zsh-hook
             add-zsh-hook precmd starship_transient_prompt_setup
-            add-zsh-hook precmd starship_transient_prompt_setup_once
         fi
         ;;
     "bash")
@@ -89,62 +85,80 @@ esac
 
 
 if [ ! -d "$STARSHIP_PRESETS_DIR" ]; then
-    mkdir -p "$STARSHIP_PRESETS_DIR"
+    if ! mkdir -p "$STARSHIP_PRESETS_DIR" 2>/dev/null; then
+        echo "Warning: Cannot create starship presets directory: $STARSHIP_PRESETS_DIR" >&2
+        # Fallback to using default starship config
+        unset STARSHIP_CONFIG
+    fi
 fi
 
-
+# Load current preset configuration
 if [ -f "$STARSHIP_STATE_FILE" ]; then
-    current_preset=$(cat "$STARSHIP_STATE_FILE" 2>/dev/null)
-    preset_path="$STARSHIP_PRESETS_DIR/$current_preset.toml"
-    if [ -f "$preset_path" ]; then
-        export STARSHIP_CONFIG="$preset_path"
+    if read -r current_preset < "$STARSHIP_STATE_FILE" 2>/dev/null && [ -n "$current_preset" ]; then
+        preset_path="$STARSHIP_PRESETS_DIR/$current_preset.toml"
+        if [ -f "$preset_path" ]; then
+            export STARSHIP_CONFIG="$preset_path"
+        else
+            # Preset file missing, clean up and use default
+            rm -f "$STARSHIP_STATE_FILE" 2>/dev/null
+            export STARSHIP_CONFIG="$STARSHIP_PRESETS_DIR/starship.toml"
+        fi
     else
-        # Preset file missing, clean up and use default
+        # State file corrupted, clean up
         rm -f "$STARSHIP_STATE_FILE" 2>/dev/null
-        export STARSHIP_CONFIG="$STARSHIP_PRESETS_DIR/default.toml"
+        export STARSHIP_CONFIG="$STARSHIP_PRESETS_DIR/starship.toml"
     fi
 else
-    export STARSHIP_CONFIG="$STARSHIP_PRESETS_DIR/default.toml"
+    export STARSHIP_CONFIG="$STARSHIP_PRESETS_DIR/starship.toml"
 fi
 
+function _list_presets() {
+    echo "Available presets:"
+    if [ -d "$STARSHIP_PRESETS_DIR" ]; then
+        local found_presets=false
+        for preset in "$STARSHIP_PRESETS_DIR"/*.toml; do
+            if [ -f "$preset" ]; then
+                preset_name="${preset##*/}"
+                preset_name="${preset_name%.toml}"
+                echo "  $preset_name"
+                found_presets=true
+            fi
+        done
+        if [ "$found_presets" = false ]; then
+            echo "  No presets found"
+        fi
+    else
+        echo "  Presets directory not found: $STARSHIP_PRESETS_DIR"
+    fi
+}
 
-switch_starship_preset() {
+function switch_starship_preset() {
     local name="$1"
-    local path="$STARSHIP_PRESETS_DIR/$name.toml"
 
     if [ -z "$name" ]; then
-        echo "Usage: switch_starship_preset <preset_name>"
-        echo "Available presets:"
-        if [ -d "$STARSHIP_PRESETS_DIR" ]; then
-            for preset in "$STARSHIP_PRESETS_DIR"/*.toml; do
-                if [ -f "$preset" ]; then
-                    # Extract filename without path and .toml extension
-                    preset_name="${preset##*/}"
-                    preset_name="${preset_name%.toml}"
-                    echo "  $preset_name"
-                fi
-            done
-        fi
+        echo "Usage: spreset <preset_name>" >&2
+        _list_presets
         return 1
     fi
+
+    if [[ "$name" =~ [^a-zA-Z0-9_-] ]] || [[ "$name" == *"/"* ]] || [[ "$name" == *".."* ]]; then
+        echo "Error: Invalid preset name. Only alphanumeric characters, hyphens, and underscores are allowed." >&2
+        return 1
+    fi
+
+    local path="$STARSHIP_PRESETS_DIR/$name.toml"
 
     if [ ! -f "$path" ]; then
-        echo "No such preset: $name"
-        echo "Available presets:"
-        if [ -d "$STARSHIP_PRESETS_DIR" ]; then
-            for preset in "$STARSHIP_PRESETS_DIR"/*.toml; do
-                if [ -f "$preset" ]; then
-                    # Extract filename without path and .toml extension
-                    preset_name="${preset##*/}"
-                    preset_name="${preset_name%.toml}"
-                    echo "  $preset_name"
-                fi
-            done
-        fi
+        echo "Error: No such preset: $name" >&2
+        _list_presets
         return 1
     fi
 
-    echo "$name" > "$STARSHIP_STATE_FILE"
+    if ! echo "$name" > "$STARSHIP_STATE_FILE" 2>/dev/null; then
+        echo "Error: Failed to save preset state" >&2
+        return 1
+    fi
+
     export STARSHIP_CONFIG="$path"
 
     case "$CURRENT_SHELL" in
