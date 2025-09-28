@@ -1,152 +1,228 @@
-// Zed settings
-
-//
-// Documentation: https://zed.dev/docs/configuring-zed
-// To see defaults, run `zed: open default settings` from the command palette
 {
-  // AI Assistant Settings
-  "context_servers": {
-    "browser-tools-context-server": {
-      "source": "extension",
-      "enabled": true,
-      "settings": {}
-    }
-  },
-  "features": {
-    "edit_prediction_provider": "copilot"
-  },
-  "agent": {
-    "use_modifier_to_send": true,
-    "single_file_review": true,
-    "default_profile": "minimal",
-    "default_model": {
-      "provider": "copilot_chat",
-      "model": "claude-sonnet-4"
-    }
-  },
-  "language_models": {
-    "ollama": {
-      "api_url": "http://localhost:11434",
-      "available_models": [
-        {
-          "name": "gemma3:12b",
-          "display_name": "Gemini 3 12B",
-          "max_tokens": 1000000
-        }
-      ]
-    }
-  },
-
-  // Core Editor Settings
-  "autosave": {
-    "after_delay": {
-      "milliseconds": 1000
-    }
-  },
-  "base_keymap": "VSCode",
-  "enable_language_server": true,
-  "format_on_save": "on",
-  "relative_line_numbers": true,
-  "restore_on_startup": "last_session",
-  "soft_wrap": "editor_width",
-  "vim_mode": true,
-
-  // Font & Typography
-  "buffer_font_family": "FiraCode Nerd Font",
-  "buffer_font_size": 11.0,
-  "buffer_font_weight": 400,
-  "ui_font_family": "GeistMono Nerd Font Mono",
-  "ui_font_size": 16,
-  "ui_font_weight": 500,
-
-  // UI Configuration
-  "centered_layout": {
-    "left_padding": 0.15,
-    "right_padding": 0.15
-  },
-  "cursor_blink": true,
-  "cursor_shape": "bar",
-  "file_icons": true,
-  "folder_icons": true,
-  "indent_guides": {
-    "enabled": true,
-    "coloring": "indent_aware"
-  },
-  "inlay_hints": {
-    "enabled": true
-  },
-
-  // Panel Configuration
-  "chat_panel": {
-    "dock": "left"
-  },
-  "collaboration_panel": {
-    "dock": "left"
-  },
-  "notification_panel": {
-    "dock": "right"
-  },
-  "outline_panel": {
-    "dock": "left",
-    "button": true,
-    "default_width": 240,
-    "file_icons": true,
-    "folder_icons": true,
-    "git_status": true,
-    "indent_size": 20,
-    "auto_reveal_entries": true,
-    "auto_fold_dirs": true,
-    "indent_guides": {
-      "show": "always"
-    },
-    "scrollbar": {
-      "show": null
-    }
-  },
-  "project_panel": {
-    "button": true,
-    "dock": "left",
-    "git_status": true
-  },
-
-  // Tab Settings
-  "tabs": {
-    "close_position": "right",
-    "file_icons": true,
-    "git_status": true,
-    "activate_on_close": "history",
-    "show_close_button": "hover"
-  },
-
-  // Theme Settings
+  // The name of the Zed theme to use for the UI.
+  //
+  // `mode` is one of:
+  // - "system": Use the theme that corresponds to the system's appearance
+  // - "light": Use the theme indicated by the "light" field
+  // - "dark": Use the theme indicated by the "dark" field
   "theme": {
     "mode": "system",
-    "light": "Catppuccin Frappé",
+    "light": "One Light",
     "dark": "Kanagawa Dragon"
   },
-  "icon_theme": "Colored Zed Icons Theme Dark",
-
-  // Git Integration
-  "git": {
-    "git_gutter": "tracked_files",
-    "git_status": true,
-    "inline_blame": {
-      "enabled": true,
-      "show_commit_summary": true,
-      "min_column": 80
+  "icon_theme": "Material Icon Theme",
+  // Features that can be globally enabled or disabled
+  "features": {
+    // Which edit prediction provider to use.
+    "edit_prediction_provider": "zed" // "copilot"
+  },
+  // The name of a font to use for rendering text in the editor
+  // ".ZedMono" currently aliases to Lilex
+  // but this may change in the future.
+  "buffer_font_family": "GeistMono Nerd Font Mono",
+  // The default font size for text in the editor
+  "buffer_font_size": 13,
+  // The weight of the editor font in standard CSS units from 100 to 900.
+  "buffer_font_weight": 400,
+  // The name of a font to use for rendering text in the UI
+  // You can set this to ".SystemUIFont" to use the system font
+  // ".ZedSans" currently aliases to "IBM Plex Sans", but this may
+  // change in the future
+  "ui_font_family": "GeistMono Nerd Font Propo",
+  // Active pane styling settings.
+  "active_pane_modifiers": {
+    // Inset border size of the active pane, in pixels.
+    "border_size": 1.0,
+    // Opacity of the inactive panes. 0 means transparent, 1 means opaque.
+    // Values are clamped to the [0.0, 1.0] range.
+    "inactive_opacity": 0.7
+  },
+  // Whether to enable vim modes and key bindings.
+  "vim_mode": true,
+  // Whether to show the signature help after completion or a bracket pair inserted.
+  // If `auto_signature_help` is enabled, this setting will be treated as enabled also.
+  "show_signature_help_after_edits": true,
+  // Hide the values of in variables from visual display in private files
+  "redact_private_values": false,
+  // Globs to match against file paths to determine if a file is private.
+  "private_files": [
+    "**/.env*",
+    "**/*.pem",
+    "**/*.key",
+    "**/*.cert",
+    "**/*.crt",
+    "**/secrets.yml"
+  ],
+  // Whether to show tabs and spaces in the editor.
+  // This setting can take four values:
+  //
+  // 1. Draw tabs and spaces only for the selected text (default):
+  //    "selection"
+  // 2. Do not draw any tabs or spaces:
+  //    "none"
+  // 3. Draw all invisible symbols:
+  //    "all"
+  // 4. Draw whitespaces at boundaries only:
+  //    "boundary"
+  // 5. Draw whitespaces only after non-whitespace characters:
+  //    "trailing"
+  // For a whitespace to be on a boundary, any of the following conditions need to be met:
+  // - It is a tab
+  // - It is adjacent to an edge (start or end)
+  // - It is adjacent to a whitespace (left or right)
+  "show_whitespaces": "all",
+  // Titlebar related settings
+  "title_bar": {
+    // Whether to show the sign in button in the titlebar.
+    "show_sign_in": false
+  },
+  // Minimap related settings
+  "minimap": {
+    // When to show the minimap in the editor.
+    // This setting can take three values:
+    // 1. Show the minimap if the editor's scrollbar is visible:
+    //    "auto"
+    // 2. Always show the minimap:
+    //    "always"
+    // 3. Never show the minimap:
+    //    "never" (default)
+    "show": "auto"
+  },
+  "relative_line_numbers": true,
+  // When enabled, automatically adjusts search case sensitivity based on your query.
+  // If your search query contains any uppercase letters, the search becomes case-sensitive;
+  // if it contains only lowercase letters, the search becomes case-insensitive.
+  "use_smartcase_search": true,
+  "project_panel": {
+    // Spacing between worktree entries in the project panel. Can be 'comfortable' or 'standard'.
+    "entry_spacing": "standard"
+  },
+  "outline_panel": {
+    // Whether to show the outline panel button in the status bar
+    "button": false
+  },
+  "collaboration_panel": {
+    // Whether to show the collaboration panel button in the status bar.
+    "button": false
+  },
+  "git_panel": {
+    // What branch name to use if `init.defaultBranch` is not set
+    //
+    // Default: main
+    "fallback_branch_name": "master"
+  },
+  "agent": {
+    // The default model to use when creating new threads.
+    "default_model": {
+      // The provider to use.
+      "provider": "copilot_chat",
+      // The model to use.
+      "model": "grok-code-fast-1"
+    },
+    // When enabled, show voting thumbs for feedback on agent edits.
+    "enable_feedback": false,
+    "default_profile": "minimal",
+    "profiles": {
+      "minimal": {
+        "name": "Minimal",
+        "enable_all_context_servers": false,
+        "tools": {
+          "thinking": true,
+          "web_search": true
+        }
+      }
     }
   },
-
-  // Privacy Settings
+  // When to automatically save edited buffers. This setting can
+  // take four values.
+  //
+  // 1. Never automatically save:
+  //     "autosave": "off",
+  // 2. Save when changing focus away from the Zed window:
+  //     "autosave": "on_window_change",
+  // 3. Save when changing focus away from a specific buffer:
+  //     "autosave": "on_focus_change",
+  // 4. Save when idle for a certain amount of time:
+  //     "autosave": { "after_delay": {"milliseconds": 500} },
+  "autosave": { "after_delay": { "milliseconds": 1000 } },
+  // Settings related to the editor's tabs
+  "tabs": {
+    // Show git status colors in the editor tabs.
+    "git_status": true,
+    // Whether to show the file icon for a tab.
+    "file_icons": true
+  },
+  // Settings related to preview tabs.
+  "preview_tabs": {
+    // Whether preview tabs should be enabled.
+    // Preview tabs allow you to open files in preview mode, where they close automatically
+    // when you switch to another file unless you explicitly pin them.
+    // This is useful for quickly viewing files without cluttering your workspace.
+    "enabled": true,
+    // Whether to open tabs in preview mode when selected from the file finder.
+    "enable_preview_from_file_finder": true,
+    // Whether a preview tab gets replaced when code navigation is used to navigate away from the tab.
+    "enable_preview_from_code_navigation": true
+  },
+  // How to soft-wrap long lines of text.
+  // Possible values:
+  //
+  // 1. Prefer a single line generally, unless an overly long line is encountered.
+  //      "soft_wrap": "none",
+  //      "soft_wrap": "prefer_line", // (deprecated, same as "none")
+  // 2. Soft wrap lines that overflow the editor.
+  //      "soft_wrap": "editor_width",
+  // 3. Soft wrap lines at the preferred line length.
+  //      "soft_wrap": "preferred_line_length",
+  // 4. Soft wrap lines at the preferred line length or the editor width (whichever is smaller).
+  //      "soft_wrap": "bounded",
+  "soft_wrap": "editor_width",
+  // Control what info is collected by Zed.
   "telemetry": {
+    // Send debug info like crash reports.
     "diagnostics": false,
+    // Send anonymized usage data like what languages you're using Zed with.
     "metrics": false
   },
-
-  // Auto-Install Extensions
-  "auto_install_extension": {
-    "catppuccin": true,
-    "catppuccin-blur": true,
+  // Whether to disable all AI features in Zed.
+  //
+  // Default: false
+  "disable_ai": false,
+  // Automatically update Zed. This setting may be ignored on Linux if
+  // installed through a package manager.
+  "auto_update": false,
+  // Settings specific to journaling
+  "journal": {
+    // The path of the directory where journal entries are stored
+    "path": "~",
+    // What format to display the hours in
+    // May take 2 values:
+    // 1. hour12
+    // 2. hour24
+    "hour_format": "hour24"
+  },
+  // Settings specific to the terminal
+  "terminal": {
+    // Any key-value pairs added to this list will be added to the terminal's
+    // environment. Use `:` to separate multiple values.
+    "env": {
+      // "KEY": "value1:value2"
+    },
+    // Sets the maximum number of lines in the terminal's scrollback buffer.
+    // Default: 10_000, maximum: 100_000 (all bigger values set will be treated as 100_000), 0 disables the scrolling.
+    // Existing terminals will not pick up this change until they are recreated.
+    "max_scroll_history_lines": 1000000
+  },
+  // The code actions to perform with the primary language server when formatting the buffer.
+  "code_actions_on_format": {
+    "source.organizeImports": true
+  },
+  // The extensions that Zed should automatically install on startup.
+  //
+  // If you don't want any of these extensions, add this field to your settings
+  // and change the value to `false`.
+  "auto_install_extensions": {
+    "assembly": true,
     "csv": true,
     "docker-compose": true,
     "dockerfile": true,
@@ -154,9 +230,14 @@
     "git-firefly": true,
     "groovy": true,
     "html": true,
+    "ini": true,
     "java": true,
+    "just": true,
+    "kanagawa-themes": true,
     "kotlin": true,
     "latex": true,
+    "live-server": true,
+    "log": true,
     "lua": true,
     "make": true,
     "nix": true,
@@ -166,63 +247,293 @@
     "xml": true,
     "zig": true
   },
-
-  // Language Server Configuration
+  // Different settings for specific languages.
+  "languages": {
+    "Astro": {
+      "language_servers": ["astro-language-server", "..."],
+      "prettier": {
+        "allowed": true,
+        "plugins": ["prettier-plugin-astro"]
+      }
+    },
+    "Blade": {
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "C": {
+      "format_on_save": "off",
+      "use_on_type_format": false,
+      "prettier": {
+        "allowed": false
+      }
+    },
+    "C++": {
+      "format_on_save": "off",
+      "use_on_type_format": false,
+      "prettier": {
+        "allowed": false
+      }
+    },
+    "CSS": {
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "Dart": {
+      "tab_size": 2
+    },
+    "Diff": {
+      "show_edit_predictions": false,
+      "remove_trailing_whitespace_on_save": false,
+      "ensure_final_newline_on_save": false
+    },
+    "Elixir": {
+      "language_servers": [
+        "elixir-ls",
+        "!expert",
+        "!next-ls",
+        "!lexical",
+        "..."
+      ]
+    },
+    "Elm": {
+      "tab_size": 4
+    },
+    "Erlang": {
+      "language_servers": ["erlang-ls", "!elp", "..."]
+    },
+    "Git Commit": {
+      "allow_rewrap": "anywhere",
+      "soft_wrap": "editor_width",
+      "preferred_line_length": 72
+    },
+    "Go": {
+      "code_actions_on_format": {
+        "source.organizeImports": true
+      },
+      "debuggers": ["Delve"]
+    },
+    "GraphQL": {
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "HEEX": {
+      "language_servers": [
+        "elixir-ls",
+        "!expert",
+        "!next-ls",
+        "!lexical",
+        "..."
+      ]
+    },
+    "HTML": {
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "Java": {
+      "prettier": {
+        "allowed": true,
+        "plugins": ["prettier-plugin-java"]
+      }
+    },
+    "JavaScript": {
+      "language_servers": ["!typescript-language-server", "vtsls", "..."],
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "JSON": {
+      "prettier": {
+        "allowed": true
+      },
+      "tab_size": 2
+    },
+    "JSONC": {
+      "prettier": {
+        "allowed": true
+      },
+      "tab_size": 2
+    },
+    "Kotlin": {
+      "language_servers": ["kotlin-language-server", "!kotlin-lsp", "..."]
+    },
+    "LaTeX": {
+      "formatter": "language_server",
+      "language_servers": ["texlab", "..."],
+      "prettier": {
+        "allowed": true,
+        "plugins": ["prettier-plugin-latex"]
+      }
+    },
+    "Markdown": {
+      "format_on_save": "on",
+      "use_on_type_format": false,
+      "allow_rewrap": "anywhere",
+      "soft_wrap": "editor_width",
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "PHP": {
+      "language_servers": ["phpactor", "!intelephense", "..."],
+      "prettier": {
+        "allowed": true,
+        "plugins": ["@prettier/plugin-php"],
+        "parser": "php"
+      }
+    },
+    "Plain Text": {
+      "allow_rewrap": "anywhere"
+    },
+    "Python": {
+      "debuggers": ["Debugpy"]
+    },
+    "Ruby": {
+      "language_servers": [
+        "solargraph",
+        "!ruby-lsp",
+        "!rubocop",
+        "!sorbet",
+        "!steep",
+        "..."
+      ]
+    },
+    "Rust": {
+      "debuggers": ["CodeLLDB"]
+    },
+    "SCSS": {
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "Starlark": {
+      "language_servers": ["starpls", "!buck2-lsp", "..."]
+    },
+    "Svelte": {
+      "language_servers": ["svelte-language-server", "..."],
+      "prettier": {
+        "allowed": true,
+        "plugins": ["prettier-plugin-svelte"]
+      }
+    },
+    "TSX": {
+      "language_servers": ["!typescript-language-server", "vtsls", "..."],
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "Twig": {
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "TypeScript": {
+      "language_servers": ["!typescript-language-server", "vtsls", "..."],
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "SystemVerilog": {
+      "format_on_save": "off",
+      "use_on_type_format": false
+    },
+    "Vue.js": {
+      "language_servers": ["vue-language-server", "..."],
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "XML": {
+      "prettier": {
+        "allowed": true,
+        "plugins": ["@prettier/plugin-xml"]
+      }
+    },
+    "YAML": {
+      "prettier": {
+        "allowed": true
+      }
+    },
+    "Zig": {
+      "language_servers": ["zls", "..."]
+    }
+  },
+  // Zed's Prettier integration settings.
+  // Allows to enable/disable formatting with Prettier
+  // and configure default Prettier, used when no project-level Prettier installation is found.
+  "prettier": {
+    // // Whether to consider prettier formatter or not when attempting to format a file.
+    "allowed": true,
+    //
+    // // Use regular Prettier json configuration.
+    // // If Prettier is allowed, Zed will use this for its Prettier instance for any applicable file, if
+    // // the project has no other Prettier installed.
+    // "plugins": [],
+    //
+    // // Use regular Prettier json configuration.
+    // // If Prettier is allowed, Zed will use this for its Prettier instance for any applicable file, if
+    // // the project has no other Prettier installed.
+    // "trailingComma": "es5",
+    // "tabWidth": 4,
+    "semi": true,
+    "singleQuote": false
+  },
+  // LSP Specific settings.
   "lsp": {
-    // Rust Configuration
+    // Specify the LSP name as a key here.
     "rust-analyzer": {
+      // A special flag for rust-analyzer integration, to use server-provided tasks
       "enable_lsp_tasks": true,
+      // These initialization options are merged into Zed's defaults
       "initialization_options": {
+        "checkOnSave": false,
+        "cargo": {
+          "features": "all"
+        },
+        "check": {
+          "command": "clippy", // rust-analyzer.check.command (default: "check")
+          "features": "all",
+          "allTargets": true
+        },
+        "completition": {
+          "addSemicolonToUnit": true,
+          "autoimport": {
+            "enable": true
+          },
+          "privateEditable": {
+            "enable": true
+          }
+        },
         "diagnostics": {
           "experimental": {
             "enable": true
           }
         },
-        // "cargo": {
-        //   "features": "all"
-        // },
-        "check": {
-          "allTargets": true,
-          "command": "clippy"
-          // ,
-          // "features": "all"
-        },
-        "checkOnSave": false,
-        "completion": {
-          "autoimport": {
-            "enable": true,
-            "privateeditable": true
-          }
-        },
-        "rust": {
-          "analyzerTargetDir": true
+        "imports": {
+          "granularity": {
+            "enforce": true,
+            "group": "crate"
+          },
+          "prefix": "crate"
         },
         "trace": {
           "server": "verbose"
-        },
-        "inlayHints": {
-          "maxLength": null,
-          "lifetimeElisionHints": {
-            "enable": "skip_trivial",
-            "useParameterNames": true
-          },
-          "closureReturnTypeHints": {
-            "enable": "always"
-          }
         }
       }
     },
     // Python Configuration
     "pyright": {
-      "enable": true,
       "settings": {
         "python.analysis": {
-          "diagnosticMode": "workspace",
-          "typeCheckingMode": "standard",
-          "useLibraryCodeForTypes": true,
           "autoImportCompletions": true,
+          "diagnosticMode": "workspace",
+          "useLibraryCodeForTypes": true,
           "reportMissingImports": true,
-          "reportMissingTypeStubs": true
+          "reportMissingTypeStubs": true,
+          "typeCheckingMode": "standard"
         },
         "python": {
           "pythonPath": "./venv/bin/python",
@@ -232,70 +543,43 @@
     },
     // TypeScript Configuration
     "typescript-language-server": {
-      "enable": true,
       "initialization_options": {
+        "format": {
+          "enable": true
+        },
         "preferences": {
           "importModuleSpecifier": "relative",
           "importModuleSpecifierEnding": "minimal",
           "includeCompletionsForModuleExports": true,
-          "includeCompletionsWithSnippetText": true
+          "includeCompletionsWithSnippetText": true,
+          "includeInlayParameterNameHints": "all",
+          "includeInlayParameterNameHintsWhenArgumentMatchesName": true,
+          "includeInlayFunctionParameterTypeHints": true,
+          "includeInlayVariableTypeHints": true,
+          "includeInlayVariableTypeHintsWhenTypeMatchesName": true,
+          "includeInlayPropertyDeclarationTypeHints": true,
+          "includeInlayFunctionLikeReturnTypeHints": true,
+          "includeInlayEnumMemberValueHints": true
         },
         "suggestions": {
           "completeFunctionCalls": true,
           "includeAutomaticOptionalChainCompletions": true
-        },
-        "format": {
-          "enable": true
         }
-      }
-    },
-    // ESLint Configuration
-    "eslint": {
-      "enable": true,
-      "settings": {
-        "rulesCustomizations": [
-          {
-            "rule": "*",
-            "severity": "warn"
-          }
-        ],
-        "format.enable": true,
-        "workingDirectory": "./frontend"
-      }
-    },
-    // Prettier Configuration
-    "prettier": {
-      "enable": true,
-      "settings": {
-        "singleQuote": true,
-        "semi": true,
-        "trailingComma": "es5"
       }
     }
   },
-
-  // Terminal Configuration
-  "terminal": {
-    "alternate_scroll": "off",
-    "blinking": "on",
-    "copy_on_select": false,
-    "dock": "bottom",
-    "detect_venv": {
-      "on": {
-        "directories": [".env", "env", ".venv", "venv"],
-        "activate_script": "default"
-      }
-    },
-    "env": {},
-    "font_size": 14,
-    "font_features": null,
-    "line_height": "comfortable",
-    "option_as_meta": false,
-    "button": false,
-    "shell": "system",
-    "toolbar": {
-      "breadcrumbs": true
-    },
-    "working_directory": "current_project_directory"
+  // Vim settings
+  "vim": {
+    "default_mode": "normal",
+    "toggle_relative_line_numbers": true,
+    "use_system_clipboard": "always",
+    "use_smartcase_find": true,
+    "highlight_on_yank_duration": 200,
+    "custom_digraphs": {},
+    // Cursor shape for the each mode.
+    // Specify the mode as the key and the shape as the value.
+    // The mode can be one of the following: "normal", "replace", "insert", "visual".
+    // The shape can be one of the following: "block", "bar", "underline", "hollow".
+    "cursor_shape": {}
   }
 }
