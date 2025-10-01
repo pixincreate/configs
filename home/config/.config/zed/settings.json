@@ -113,6 +113,7 @@
   },
   "agent": {
     // The default model to use when creating new threads.
+    "use_modifier_to_send": true,
     "default_model": {
       // The provider to use.
       "provider": "copilot_chat",
@@ -460,26 +461,6 @@
     "Zig": {
       "language_servers": ["zls", "..."]
     }
-  },
-  // Zed's Prettier integration settings.
-  // Allows to enable/disable formatting with Prettier
-  // and configure default Prettier, used when no project-level Prettier installation is found.
-  "prettier": {
-    // // Whether to consider prettier formatter or not when attempting to format a file.
-    "allowed": true,
-    //
-    // // Use regular Prettier json configuration.
-    // // If Prettier is allowed, Zed will use this for its Prettier instance for any applicable file, if
-    // // the project has no other Prettier installed.
-    // "plugins": [],
-    //
-    // // Use regular Prettier json configuration.
-    // // If Prettier is allowed, Zed will use this for its Prettier instance for any applicable file, if
-    // // the project has no other Prettier installed.
-    // "trailingComma": "es5",
-    // "tabWidth": 4,
-    "semi": true,
-    "singleQuote": false
   },
   // LSP Specific settings.
   "lsp": {
