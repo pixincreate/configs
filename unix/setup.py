@@ -1778,6 +1778,10 @@ def setup_asus_system():
     run_command("sudo systemctl enable supergfxd.service")
     run_command("sudo systemctl start asusd")
 
+    log_info("Setting up Dynamic GPU (Requires a reboot which can be post setup)...")
+    run_command("supergfxctl -m Hybrid")
+    run_command("supergfxctl -m AsusMuxDgpu")
+
     log_info("Setting up toast message for Asus profile changes...")
     run_command(
         r"""
