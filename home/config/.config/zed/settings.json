@@ -19,7 +19,7 @@
   // The name of a font to use for rendering text in the editor
   // ".ZedMono" currently aliases to Lilex
   // but this may change in the future.
-  "buffer_font_family": "GeistMono Nerd Font Mono",
+  "buffer_font_family": "GeistMono Nerd Font",
   // The default font size for text in the editor
   "buffer_font_size": 13,
   // The weight of the editor font in standard CSS units from 100 to 900.
@@ -35,7 +35,7 @@
     "border_size": 1.0,
     // Opacity of the inactive panes. 0 means transparent, 1 means opaque.
     // Values are clamped to the [0.0, 1.0] range.
-    "inactive_opacity": 0.7
+    "inactive_opacity": 0.85
   },
   // Whether to enable vim modes and key bindings.
   "vim_mode": true,
@@ -209,6 +209,8 @@
     "env": {
       // "KEY": "value1:value2"
     },
+
+    "font_family": "FiraCode Nerd Font Mono",
     // Sets the maximum number of lines in the terminal's scrollback buffer.
     // Default: 10_000, maximum: 100_000 (all bigger values set will be treated as 100_000), 0 disables the scrolling.
     // Existing terminals will not pick up this change until they are recreated.
@@ -345,6 +347,9 @@
       "prettier": {
         "allowed": true
       }
+    },
+    "Groovy": {
+      "tab_size": 2
     },
     "JSON": {
       "prettier": {
