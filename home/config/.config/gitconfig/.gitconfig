@@ -27,7 +27,7 @@ format = ssh
 	prune = true
 
 [init]
-defaultBranch = main
+defaultBranch = master 
 
 [merge]
 log = true
