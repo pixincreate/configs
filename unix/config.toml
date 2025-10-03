@@ -70,6 +70,7 @@ rust_tools = [
     "cargo-fuzz",
     "cargo-wipe",
     "cargo-update",
+    "cargo-cache",
     "just",
     "rustlings",
     "wasm-pack",
