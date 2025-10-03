@@ -1738,11 +1738,6 @@ sudo tee /etc/modprobe.d/blacklist.conf <<EOF > /dev/null
 blacklist nouveau
 options nouveau modeset=0
 EOF
-
-sudo tee /etc/modprobe.d/nvidia.conf <<EOF > /dev/null
-options nvidia-drm modeset=1
-options nvidia NVreg_PreserveVideoMemoryAllocations=1
-EOF
     """
     )
 
