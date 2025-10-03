@@ -1514,6 +1514,9 @@ EOF
     # Setup NVIDIA drivers (if hardware detected)
     setup_nvidia_drivers()
 
+    # Setup zram for better performance on low-RAM systems
+    setup_zram()
+
     # Setup ASUS system optimizations (if ASUS hardware detected)
     setup_asus_system()
 
@@ -1752,6 +1755,41 @@ EOF
     )
 
     log_success("NVIDIA drivers installed with modeset enabled. Reboot required.")
+
+
+def setup_zram():
+    """Setup zram with 24GB for better performance."""
+    log_info("Setting up zram...")
+
+    if not setup_config.dry_run:
+        try:
+            run_command(
+                r"""
+sudo tee /etc/systemd/zram-generator.conf << 'EOF'
+[zram0]
+zram-size = 24576
+compression-algorithm = zstd
+EOF
+                """
+            )
+
+            run_command("sudo systemctl daemon-reload")
+            run_command("sudo systemctl enable systemd-zram-setup@zram0.service")
+            run_command("sudo systemctl restart systemd-zram-setup@zram0.service")
+
+            log_info("Verifying zram setup...")
+            run_command("swapon --show")
+            run_command("zramctl")  # Shows compression stats
+
+            log_info("zram setup complete!")
+            return True
+
+        except Exception as e:
+            log_error(f"Failed to setup zram: {e}")
+            return False
+    else:
+        log_info("Dry run: Would create 24GB zram")
+        return True
 
 
 def setup_asus_system():
