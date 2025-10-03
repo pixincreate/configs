@@ -69,6 +69,7 @@ rust_tools = [
     "cargo-deny",
     "cargo-fuzz",
     "cargo-wipe",
+    "cargo-update",
     "just",
     "rustlings",
     "wasm-pack",
