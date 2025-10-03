@@ -39,7 +39,7 @@
 # display_time = true
 
 # Don't ask for confirmations (no default value)
-# assume_yes = true
+assume_yes = true
 
 # Do not ask to retry failed steps (default: false)
 # no_retry = true
@@ -89,7 +89,8 @@ cleanup = true
 # Commands to run after anything
 [post_commands]
 # "Emacs Snapshot" = "rm -rf ~/.emacs.d/elpa.bak && cp -rl ~/.emacs.d/elpa ~/.emacs.d/elpa.bak"
-
+"DNF Cleanup" = "if [ \"$(uname)\" = \"Linux\" ]; then sudo dnf autoremove -y; fi"
+"Flatpak Cleanup" = "if [ \"$(uname)\" = \"Linux\" ]; then flatpak uninstall --unused -y; fi"
 
 # Custom commands
 [commands]
@@ -100,7 +101,7 @@ cleanup = true
 [python]
 # enable_pip_review = true                         ###disabled by default
 # enable_pip_review_local = true                   ###disabled by default
-enable_pipupgrade = true                         ###disabled by default
+enable_pipupgrade = true ###disabled by default
 # pipupgrade_arguments = "-y -u --pip-path pip"    ###disabled by default
 
 # For the poetry step, by default, Topgrade skips its update if poetry is not
@@ -152,7 +153,7 @@ fetch_head = true
 # yay_arguments = "--nodevel"
 
 # Arguments to pass dnf when updating packages
-# dnf_arguments = "--refresh"
+dnf_arguments = "--refresh"
 
 # aura_aur_arguments = "-kx"
 
@@ -263,7 +264,7 @@ force_plug_update = true
 
 [flatpak]
 # Use sudo for updating the system-wide installation
-# use_sudo = true
+use_sudo = true
 
 
 [distrobox]
