@@ -3,20 +3,28 @@
 sleep 0.1
 
 # Get current profile
-current_profile=$(asusctl profile --profile-get  | grep "Active profile" | awk '{print $4}')
+current_profile=$(asusctl profile --profile-get | grep "Active profile" | awk '{print $4}')
 
-# Determine icon and message based on profile
+# Sync with tuned and supergfxctl based on profile
 case "$current_profile" in
     "Quiet")
+        # Power saving mode
+        tuned-adm profile powersave 2>/dev/null
+        supergfxctl -m integrated 2>/dev/null
         icon="battery-profile-powersave"
-        message="Profile: Quiet (Battery Saver)"
+        message="Profile: Quiet (Power Saver)"
         ;;
     "Balanced")
-        # icon="battery-profile-balanced"
+        # Balanced mode
+        tuned-adm profile balanced-battery 2>/dev/null
+        supergfxctl -m hybrid 2>/dev/null
         icon="battery-060"
         message="Profile: Balanced"
         ;;
     "Performance")
+        # Performance mode
+        tuned-adm profile throughput-performance 2>/dev/null
+        supergfxctl -m hybrid 2>/dev/null
         icon="battery-profile-performance"
         message="Profile: Performance"
         ;;
