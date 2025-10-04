@@ -1827,6 +1827,23 @@ def setup_asus_system():
     EOF
     """
     )
+    run_command(
+        r"""
+    sudo tee /etc/polkit-1/rules.d/49-asus-profile.rules << 'EOF'
+    // Allow switching TuneD profiles from udev/inactive sessions
+    // This enables ASUS profile synchronization script to work
+    polkit.addRule(function(action, subject) {
+        if (action.id == "com.redhat.tuned.switch_profile") {
+            return polkit.Result.YES;
+        }
+    });
+    EOF
+    """
+    )
+
+    run_command("sudo chmod 644 /etc/polkit-1/rules.d/49-asus-profile.rules")
+    run_command("sudo chmod 644 /etc/udev/rules.d/99-asus-profile-toast.rules")
+    run_command("sudo systemctl restart polkit")
     run_command("sudo udevadm control --reload-rules")
 
 

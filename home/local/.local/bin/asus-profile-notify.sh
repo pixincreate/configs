@@ -1,30 +1,27 @@
 #!/bin/bash
 
-sleep 0.1
+sleep 0.3
 
 # Get current profile
 current_profile=$(asusctl profile --profile-get | grep "Active profile" | awk '{print $4}')
 
-# Sync with tuned and supergfxctl based on profile
+# Map ASUS profiles to TuneD profiles
 case "$current_profile" in
     "Quiet")
-        # Power saving mode
-        tuned-adm profile powersave 2>/dev/null
-        supergfxctl -m integrated 2>/dev/null
+        /usr/sbin/tuned-adm profile powersave >/dev/null 2>&1
+        /usr/bin/supergfxctl -m "Integrated" >/dev/null 2>&1
         icon="battery-profile-powersave"
         message="Profile: Quiet (Power Saver)"
         ;;
     "Balanced")
-        # Balanced mode
-        tuned-adm profile balanced-battery 2>/dev/null
-        supergfxctl -m hybrid 2>/dev/null
+        /usr/sbin/tuned-adm profile balanced-battery >/dev/null 2>&1
+        /usr/bin/supergfxctl -m "Hybrid" >/dev/null 2>&1
         icon="battery-060"
         message="Profile: Balanced"
         ;;
     "Performance")
-        # Performance mode
-        tuned-adm profile throughput-performance 2>/dev/null
-        supergfxctl -m hybrid 2>/dev/null
+        /usr/sbin/tuned-adm profile throughput-performance >/dev/null 2>&1
+        /usr/bin/supergfxctl -m "Hybrid" >/dev/null 2>&1
         icon="battery-profile-performance"
         message="Profile: Performance"
         ;;
@@ -34,18 +31,14 @@ case "$current_profile" in
         ;;
 esac
 
-# Show OSD toast notification (KDE system-style)
+# Show OSD toast notification
 if command -v qdbus &> /dev/null; then
-    # Use KDE's OSD system (like volume/brightness toasts)
-    qdbus org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText "$icon" "$message" 2>/dev/null &
+    qdbus org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText "$icon" "$message" 2>/dev/null
 elif command -v kwriteconfig5 &> /dev/null && command -v dbus-send &> /dev/null; then
-    # Alternative method using dbus-send
-    dbus-send --type=method_call --dest=org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText string:"$icon" string:"$message" 2>/dev/null &
+    dbus-send --type=method_call --dest=org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText string:"$icon" string:"$message" 2>/dev/null
 elif command -v notify-send &> /dev/null; then
-    # Fallback to regular notification
     notify-send -i "$icon" -t 2000 "ASUS Profile" "$message"
 else
-    # Terminal fallback
     echo "$message"
 fi
 
