@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# Standard lock file location (FHS compliant)
-LOCKFILE="/run/lock/asus-profile-notify.lock"
-
-# Try to acquire exclusive lock (non-blocking)
-# If another instance holds the lock, exit immediately
-# This prevents duplicate executions when udev triggers multiple events
-exec 200>"$LOCKFILE"
-flock -n 200 || exit 0
-
 # Wait for hardware to stabilize after profile change
 sleep 0.3
 
