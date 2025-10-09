@@ -132,6 +132,7 @@ dnf = [
     "zed",
     "steam",
     "speech-dispatcher-utils",
+    "thunderbird",
 ]
 
 [platforms.fedora.gui_apps]
@@ -144,7 +145,6 @@ flatpak = [
     "com.bitwarden.desktop",
     "org.onlyoffice.desktopeditors",
     "com.obsproject.Studio",
-    "org.mozilla.Thunderbird",
 ]
 
 [platforms.fedora.bloatware_removal]
