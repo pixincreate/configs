@@ -253,13 +253,15 @@ main() {
 
     # Detect platform
     platform=$(detect_platform)
+    target_dir="$HOME/Dev/.configs"
+        
     log_info "Detected platform: $platform"
 
     # Check and install dependencies
     check_dependencies "$platform"
 
     # Check if we need to clone the repository first
-    if [[ ! -d "unix" ]]; then
+    if [[ ! -d "$target_dir" ]]; then
         log_info "Repository not found, cloning..."
         if ! command_exists git; then
             log_error "Git is required but not installed"
@@ -267,10 +269,22 @@ main() {
         fi
 
         # Clone to expected location
-        target_dir="$HOME/Dev/.configs"
         log_info "Cloning repository to $target_dir"
         mkdir -p "$(dirname "$target_dir")"
         git clone --recurse-submodules https://github.com/pixincreate/configs.git "$target_dir"
+    elif [[ -d "$target_dir" ]]; then
+        log_info "Repository found, updating..."
+        if ! command_exists git; then
+            log_error "Git is required but not installed"
+            exit 1
+        fi
+
+        # Clone to expected location
+        log_info "Pull latest from main..."
+        git -C "$target_dir" pull origin main
+    fi
+    
+    if [[ "$(pwd)" != $target_dir ]]; then
         cd "$target_dir"
     fi
 

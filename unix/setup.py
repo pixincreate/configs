@@ -239,7 +239,6 @@ def create_directories():
         get_path("zgenom_dir"),
         get_path("wallpapers_dir"),
         get_path("screenshots_dir"),
-        get_path("local_fonts_dir"),
         get_path("local_bin_dir"),
     ]
 
@@ -480,7 +479,6 @@ def install_terminal_tools(platform_name: str, tools_config: Dict):
 def setup_rust():
     """Install Rust with Rustup"""
 
-    # ToDo: Fix this
     if shutil.which("rustup"):
         log_info("Rust is already installed, updating...")
         run_command("rustup update")
@@ -489,12 +487,18 @@ def setup_rust():
             log_info("Installing Rust with rustup-init...")
 
             run_command("rustup-init -y --default-toolchain stable")
+
+            # Add cargo to PATH for the current process
+            cargo_bin = str(Path.home() / ".cargo" / "bin")
+            if cargo_bin not in os.environ["PATH"]:
+                os.environ["PATH"] = f"{cargo_bin}:{os.environ['PATH']}"
+
+            # Now rustup should be available
             run_command("rustup toolchain install nightly")
-            run_command("source ~/.cargo/env")
 
             install_rust_tools()
-        except subprocess.CalledProcessError:
-            log_warning("Failed to install RustLang")
+        except subprocess.CalledProcessError as e:
+            log_warning(f"Failed to install RustLang: {e}")
 
 
 def install_rust_tools():
@@ -749,8 +753,25 @@ def setup_git_config():
     # Show final Git identity
     log_success("Final Git identity:")
     if not setup_config.dry_run:
-        run_command("git config --global --get user.name")
-        run_command("git config --global --get user.email")
+        try:
+            result = run_command(
+                "git config --global --get user.name", capture_output=True, check=False
+            )
+            if result.returncode == 0:
+                log_info(f"Name: {result.stdout.strip()}")
+            else:
+                log_info(f"Name: {git_name}")
+
+            result = run_command(
+                "git config --global --get user.email", capture_output=True, check=False
+            )
+            if result.returncode == 0:
+                log_info(f"Email: {result.stdout.strip()}")
+            else:
+                log_info(f"Email: {git_email}")
+        except Exception:
+            log_info(f"Name: {git_name}")
+            log_info(f"Email: {git_email}")
     else:
         log_info(f"Name: {git_name}")
         log_info(f"Email: {git_email}")
@@ -1030,13 +1051,20 @@ def change_default_shell():
     log_info(f"Changing default shell to: {zsh_path}")
     if not setup_config.dry_run:
         try:
-            run_command(f"chsh -s {zsh_path}")
+            username = os.environ.get("USER", os.getlogin())
+            subprocess.run(
+                ["sudo", "chsh", "-s", zsh_path, username],
+                check=True,
+                stdin=sys.stdin,
+                stdout=sys.stdout,
+                stderr=sys.stderr,
+            )
             log_success("Default shell changed to zsh")
             log_info("Please log out and back in for the shell change to take effect")
         except subprocess.CalledProcessError as e:
             log_warning(f"Failed to change shell: {e}")
             log_info(
-                f"You can manually change your shell by running: chsh -s {zsh_path}"
+                f"You can manually change your shell by running: sudo chsh -s {zsh_path} {username}"
             )
     else:
         log_warning(f"DRY RUN: Would change default shell to: {zsh_path}")
@@ -1554,10 +1582,19 @@ def update_firmware():
         dnf_flags = "-y"
         if setup_config.auto_confirm:
             dnf_flags += " --assumeyes"
-        run_command(f"sudo dnf install {dnf_flags} fwupd")
+        try:
+            run_command(f"sudo dnf install {dnf_flags} fwupd")
+        except subprocess.CalledProcessError as e:
+            log_warning(f"Failed to install fwupd: {e}")
+            return
 
     # Refresh firmware metadata
-    run_command("sudo fwupdmgr refresh --force")
+    try:
+        run_command("sudo fwupdmgr refresh --force", check=False)
+    except subprocess.CalledProcessError as e:
+        log_warning(f"Failed to refresh firmware metadata: {e}")
+        log_info("Continuing without firmware updates...")
+        return
 
     # Get list of devices
     try:
@@ -1568,6 +1605,8 @@ def update_firmware():
             log_info("Available devices for firmware update:")
             if not setup_config.dry_run:
                 console.print(result.stdout)
+        else:
+            log_warning("Could not retrieve firmware devices list")
 
         # Check for available updates
         result = run_command(
@@ -1580,8 +1619,11 @@ def update_firmware():
 
             # Apply updates
             if confirm_action("🔄 Apply firmware updates?"):
-                run_command("sudo fwupdmgr update")
-                log_success("Firmware updates applied")
+                try:
+                    run_command("sudo fwupdmgr update")
+                    log_success("Firmware updates applied")
+                except subprocess.CalledProcessError as e:
+                    log_warning(f"Failed to apply firmware updates: {e}")
             else:
                 log_info("Skipped firmware updates")
         else:
@@ -1760,7 +1802,7 @@ def setup_zram():
         try:
             run_command(
                 r"""
-sudo tee /etc/systemd/zram-generator.conf << 'EOF'
+sudo tee /etc/systemd/zram-generator.conf <<EOF > /dev/null
 [zram0]
 zram-size = 24576
 compression-algorithm = zstd
@@ -1814,30 +1856,30 @@ def setup_asus_system():
     log_info("Setting up toast message for Asus profile changes...")
     run_command(
         r"""
-    sudo tee /etc/udev/rules.d/99-asus-profile-toast.rules << 'EOF'
-    KERNEL=="platform-profile-*", \
-        SUBSYSTEM=="platform-profile", \
-        ACTION=="change", \
-        RUN+="/bin/bash -c ' \
-            DISPLAY=:0 \
-            XDG_RUNTIME_DIR=/run/user/1000 \
-            /usr/bin/sudo -u $(who | awk \"{print \$1}\" | head -1) \
-            /home/$(who | awk \"{print \$1}\" | head -1)/.local/bin/asus-profile-notify.sh \
-        '"
-    EOF
+sudo tee /etc/udev/rules.d/99-asus-profile-toast.rules <<EOF > /dev/null
+KERNEL=="platform-profile-*", \
+    SUBSYSTEM=="platform-profile", \
+    ACTION=="change", \
+    RUN+="/bin/bash -c ' \
+        DISPLAY=:0 \
+        XDG_RUNTIME_DIR=/run/user/1000 \
+        /usr/bin/sudo -u $(who | awk '{print $1}' | head -1) \
+        /home/$(who | awk '{print $1}' | head -1)/.local/bin/asus-profile-notify.sh \
+    '"
+EOF
     """
     )
     run_command(
         r"""
-    sudo tee /etc/polkit-1/rules.d/49-asus-profile.rules << 'EOF'
-    // Allow switching TuneD profiles from udev/inactive sessions
-    // This enables ASUS profile synchronization script to work
-    polkit.addRule(function(action, subject) {
-        if (action.id == "com.redhat.tuned.switch_profile") {
-            return polkit.Result.YES;
-        }
-    });
-    EOF
+sudo tee /etc/polkit-1/rules.d/49-asus-profile.rules <<EOF > /dev/null
+// Allow switching TuneD profiles from udev/inactive sessions
+// This enables ASUS profile synchronization script to work
+polkit.addRule(function(action, subject) {
+    if (action.id == "com.redhat.tuned.switch_profile") {
+        return polkit.Result.YES;
+    }
+});
+EOF
     """
     )
 
@@ -1883,45 +1925,40 @@ def setup_secure_boot():
 
     # Import the public key into MOK (Machine Owner Key)
     log_info("Importing public key into MOK (Machine Owner Key)...")
+
+    # Check if key is already enrolled
     try:
-        run_command("sudo mokutil --import /etc/pki/akmods/certs/public_key.der")
-        log_success("Public key imported into MOK")
-
-        console.print(
-            "\n[bold yellow]⚠️  IMPORTANT SECURE BOOT SETUP INFORMATION[/bold yellow]"
+        result = run_command(
+            "sudo mokutil --list-enrolled", capture_output=True, check=False
         )
-        console.print("─" * 60)
-        console.print(
-            "🔐 The public key has been imported into MOK (Machine Owner Key)"
-        )
-        console.print("🔄 You will need to enroll the key on next boot:")
-        console.print("   1. The system will present a MOK management screen")
-        console.print("   2. Select 'Enroll MOK'")
-        console.print("   3. Select 'Continue'")
-        console.print("   4. Enter the password you'll be prompted for")
-        console.print("   5. Select 'Reboot'")
-        console.print("─" * 60)
-        console.print(
-            "[bold red]Without enrolling the MOK, NVIDIA drivers will NOT work with Secure Boot![/bold red]"
-        )
-        console.print()
+        if "public_key.der" in result.stdout or result.returncode == 0:
+            log_info("MOK key may already be enrolled, checking...")
+    except Exception:
+        pass
 
-    except subprocess.CalledProcessError as e:
-        log_error(f"Failed to import public key: {e}")
-        return
+    console.print("\n[bold yellow]⚠️  MOK PASSWORD REQUIRED[/bold yellow]")
+    console.print("─" * 60)
+    console.print("You must enroll the kernel module signing key for Secure Boot.")
+    console.print("This requires a password prompt in a real terminal.")
+    console.print("Run the following command manually:")
+    console.print(
+        "[bold yellow]sudo mokutil --import /etc/pki/akmods/certs/public_key.der[/bold yellow]"
+    )
+    console.print("You will be prompted to enter a password for MOK enrollment.")
+    console.print("This password is temporary and only used once during next boot.")
+    console.print("Requirements: 1-256 characters (8+ recommended for security)")
+    console.print("─" * 60)
+    console.print(
+        "[yellow]After running the command, reboot and enroll the key in the MOK manager screen.[/yellow]"
+    )
+    console.print()
 
-    # Ask user if they want to reboot now
-    if confirm_action(
-        "🔄 Secure Boot setup completed. Do you want to reboot now to enroll the MOK?"
-    ):
-        log_info("Rebooting system to enroll MOK...")
-        if not setup_config.dry_run:
-            run_command("sudo systemctl reboot")
-        else:
-            log_warning("DRY RUN: Would reboot system")
-    else:
-        log_warning("Please reboot manually to complete Secure Boot setup")
-        log_info("Run 'sudo systemctl reboot' when ready")
+    log_warning(
+        "Automatic import is not possible. Please run the above command in your terminal."
+    )
+
+    log_warning("Please reboot manually to complete Secure Boot setup")
+    log_info("Run 'sudo systemctl reboot' when ready")
 
     log_success("Secure Boot setup completed")
 
@@ -1946,7 +1983,15 @@ def setup_nextdns():
         pass
 
     # Get NextDNS config ID from user
-    config_id = Prompt.ask("🌐 Enter your NextDNS config ID")
+    try:
+        config_id = Prompt.ask("🌐 Enter your NextDNS config ID")
+    except EOFError:
+        log_warning("No input available for NextDNS config ID, skipping NextDNS setup")
+        return
+    except KeyboardInterrupt:
+        log_warning("NextDNS setup cancelled by user")
+        return
+
     if not config_id:
         log_warning("No NextDNS config ID provided, skipping NextDNS setup")
         return
