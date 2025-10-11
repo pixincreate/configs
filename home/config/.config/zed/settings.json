@@ -244,6 +244,7 @@
     "lua": true,
     "make": true,
     "nix": true,
+    "rescript": true,
     "ruff": true,
     "sql": true,
     "toml": true,
