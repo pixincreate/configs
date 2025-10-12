@@ -1,0 +1,44 @@
+{
+  "system": {
+    "hostname": "pixmac"
+  },
+  "homebrew": {
+    "analytics": false,
+    "auto_update": true
+  },
+  "git": {
+    "user_name": "PiX",
+    "user_email": "69745008+pixincreate@users.noreply.github.com"
+  },
+  "nextdns": {
+    "config_id": ""
+  },
+  "directories": {
+    "ssh": "~/.ssh",
+    "zsh": "~/.zsh"
+  },
+  "dotfiles": {
+    "stow_source": "~/Dev/.configs/home",
+    "stow_packages": [
+      "cargo",
+      "config",
+      "git",
+      "ssh",
+      "zsh",
+      "Pictures",
+      "local"
+    ]
+  },
+  "rust": {
+    "tools": [
+      "bat",
+      "eza",
+      "ripgrep",
+      "fd-find",
+      "zoxide",
+      "starship",
+      "cargo-update",
+      "cargo-cache"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+# Homebrew packages for macOS
+# Terminal tools and CLI utilities
+
+# Core utilities
+git
+wget
+curl
+zsh
+stow
+
+# Modern CLI tools
+bat
+eza
+fzf
+ripgrep
+fd
+zoxide
+starship
+atuin
+tealdeer
+direnv
+
+# Development tools
+neovim
+tmux
+gh
+jq
+tree
+
+# System tools
+htop
+btop
+fastfetch
+
+# Build essentials
+gcc
+node
+python
+rustup
+cmake
+pkg-config
+
+# Additional tools
+topgrade
+croc
+nextdns
+ollama
+ffmpeg
+protobuf
+grpc
+
+# GNU tools (macOS replacements)
+gnu-sed
+coreutils
+binutils
+
+# Java
+openjdk

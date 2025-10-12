@@ -1,0 +1,52 @@
+#!/bin/bash
+# macOS Declarative Setup System
+# Main entry point
+
+set -eEo pipefail
+
+# Error handler
+error_handler() {
+    local line_no=$1
+    echo ""
+    echo "[ERROR] Setup failed at line $line_no"
+    echo "[ERROR] Check the output above for details"
+    exit 1
+}
+
+trap 'error_handler $LINENO' ERR
+
+# Define paths
+export MACOS_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export MACOS_INSTALL="$MACOS_PATH/install"
+export MACOS_CONFIG="$MACOS_PATH/config.json"
+
+# Ensure jq is available for JSON parsing
+if ! command -v jq &>/dev/null; then
+    echo "[INFO] jq is required for configuration parsing"
+    echo "[INFO] Installing jq via Homebrew..."
+
+    # Install Homebrew if needed
+    if ! command -v brew &>/dev/null; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+        # Add to PATH
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -f /usr/local/bin/brew ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+    fi
+
+    brew install jq
+    echo "[SUCCESS] jq installed"
+fi
+
+# Source all helper functions
+source "$MACOS_INSTALL/helpers/all.sh"
+
+# Execute installation phases
+source "$MACOS_INSTALL/preflight/all.sh"
+source "$MACOS_INSTALL/packaging/all.sh"
+source "$MACOS_INSTALL/config/all.sh"
+source "$MACOS_INSTALL/dotfiles/all.sh"
+source "$MACOS_INSTALL/post-install/all.sh"

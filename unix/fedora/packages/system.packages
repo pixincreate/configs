@@ -1,0 +1,10 @@
+# System packages and libraries
+
+kernel-devel
+dnf-plugins-core
+btrfs-assistant
+lm_sensors
+pkg-config
+dpkg
+qt
+fuse

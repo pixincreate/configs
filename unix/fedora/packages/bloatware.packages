@@ -1,0 +1,21 @@
+# Packages to remove (pre-installed bloatware)
+
+firefox
+kmahjongg
+kmines
+kpatience
+kmail
+kontact
+korganizer
+akregator
+neochat
+sieve-editor
+pim-data-exporter
+okular
+libreoffice-draw
+libreoffice-math
+libreoffice-calc
+libreoffice-writer
+libreoffice-core
+libreoffice-base
+libreoffice-impress

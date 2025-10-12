@@ -1,0 +1,43 @@
+#!/bin/bash
+# Fedora Declarative Setup System
+# Main entry point following Omarchy architecture
+
+set -eEo pipefail
+
+# Error handler
+error_handler() {
+    local line_no=$1
+    echo ""
+    echo "[ERROR] Setup failed at line $line_no"
+    echo "[ERROR] Check the output above for details"
+    exit 1
+}
+
+trap 'error_handler $LINENO' ERR
+
+# Define paths
+export FEDORA_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export FEDORA_INSTALL="$FEDORA_PATH/install"
+export FEDORA_CONFIG="$FEDORA_PATH/config.json"
+
+# Ensure jq is available for JSON parsing
+if ! command -v jq &>/dev/null; then
+    echo "[INFO] jq is required for configuration parsing"
+    echo "[INFO] Installing jq..."
+    sudo dnf install -y jq
+    echo "[SUCCESS] jq installed"
+fi
+
+# Source all helper functions
+source "$FEDORA_INSTALL/helpers/all.sh"
+
+# Show welcome message
+show_welcome
+
+# Execute installation phases
+source "$FEDORA_INSTALL/preflight/all.sh"
+source "$FEDORA_INSTALL/repositories/all.sh"
+source "$FEDORA_INSTALL/packaging/all.sh"
+source "$FEDORA_INSTALL/config/all.sh"
+source "$FEDORA_INSTALL/dotfiles/all.sh"
+source "$FEDORA_INSTALL/post-install/all.sh"

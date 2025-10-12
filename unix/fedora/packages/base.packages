@@ -1,0 +1,27 @@
+# Base system packages
+# Core utilities and shell tools
+
+git
+wget
+curl
+zsh
+vim
+neovim
+htop
+btop
+bat
+eza
+ripgrep
+fd-find
+fzf
+zoxide
+starship
+atuin
+tealdeer
+direnv
+tmux
+tree
+fastfetch
+stow
+jq
+ncurses

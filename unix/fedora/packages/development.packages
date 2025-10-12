@@ -1,0 +1,25 @@
+# Development tools and programming languages
+
+gcc
+clang
+llvm
+make
+cmake
+git-delta
+gh
+nodejs
+python3
+python3-pip
+pipx
+rustup
+cargo
+postgresql-server
+postgresql-devel
+redis
+sqlite
+docker
+docker-compose
+kubectl
+java-latest-openjdk
+protobuf-compiler
+grpc

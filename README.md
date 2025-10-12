@@ -1,327 +1,287 @@
-# 🎯 Personal Development Environment Configurations
+# Personal Development Environment
 
-A comprehensive dotfiles and system setup repository for multi-platform development environments. This repository contains configuration files, setup scripts, and automation tools to quickly bootstrap a development environment on any supported platform.
+DotfilesCross-platformCross-platformDotfiles and automated automated system setup automationfor macOSFedoraLinuxFedoraLinuxmacOSFedoraLinuxmacOS.
 
-## 🚀 Quick Start
+## SupportedPlatformsPlatforms
 
-**One-liner setup (Unix/Linux/macOS/Android):**
+### Fedora Linux
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/pixincreate/configs/main/unix/setup.sh | bash -s -- --full-setup
-```
+### Fedora Linux
 
-> [!NOTE]
-> This script automatically:
->
-> - Detects your platform (macOS, Fedora, Debian, Android)
-> - Installs essential dependencies (Python, Git, etc.)
-> - Clones the repository with submodules
-> - Runs the complete setup process
->
-> No manual installation required!
+````bash
+# Clone repository
+git clone --recurse-submodules https://github.com/yourusername/.configs.git ~/Dev/.configs
+cd ~/Dev/.configs/unix/fedora
 
-## 🖥️ Supported Platforms
+# Run setup
+./fedora-setup
 
-- **macOS** - Complete setup with Homebrew and Cask applications
-- **Fedora Linux** - System configuration with DNF and Flatpak packages
-- **Debian/Ubuntu** - APT packages with optional Homebrew tools
-- **Android (Termux)** - Termux-specific package and tool setup
-- **Windows** - PowerShell scripts and registry configurations
+# Non-interactive (for CI/CD)
+NON_INTERACTIVE=true ./fedora-setup
+gitclone--recurse-submodules https://github.compixincreate/configs.~/Dev/.configscd~/Dev/.configs/unix/fedora./fedorasetupgitclone--recurse-submodules https://github.compixincreate/configs.~/Dev/.configscd~/Dev/.configs/unix/fedora./fedorasetupgitclone--recurse-submodules https://github.compixincreate/configs.~/Dev/.configscd~/Dev/.configs/unix/fedora./fedorasetup```
 
----
-
-## 🐧 Unix/Linux/macOS Setup
-
-### Prerequisites
-
-- **Python 3.6+** (usually pre-installed)
-- **Git** (for cloning repository)
-- **Internet connection** (for downloading packages)
-
-The setup script automatically installs required Python dependencies (`toml`, `rich`) if not present.
-
-To install the prerequisites, run:
+See### macOS
 
 ```bash
-# On Debian/Ubuntu
-sudo apt-get update && sudo apt-get install -y python3 git zsh curl wget
-# On Fedora
-sudo dnf update && sudo dnf install -y python3 git zsh curl wget
-# On macOS (Homebrew required)
-brew install python git zsh curl wget
-# On Android (Termux)
-pkg install python git zsh curl wget
+# One-liner setup (downloads and runs setup.sh)
+curl -fsSL https://raw.githubusercontent.com/yourusername/.configs/main/git clonegit clonegit clone --recurse-submodules https://github.com/pixincreate/configs.git ~/Dev/.configs
+cd ~/Dev/.configs/unix/macos
+./macosrecurse-submodules https://github.com/pixincreate/configs.git ~/Dev/.configs
+cd ~/Dev/.configs/unix/macos
+./macosrecurse-submodules https://github.com/pixincreate/configs.git ~/Dev/.configs
+cd ~/Dev/.configs/unix/macos
+./macos-setup
+````
+
+#### What's Included
+
+### Common (Both Platforms)
+
+- Git and SSH setup with ed25519 keys
+- NextDNS configuration
+- Rust toolchain and cargo tools
+- Dotfiles deployment via GNU Stow
+- Font installation
+- ZSH configuration with platform-specific tweaks
+
+### Fedora-Specific
+
+- DNF optimization and repository management
+- Flatpak applications
+- Hardware support (ASUS, NVIDIA)
+- Performance tuning
+- System services (PostgreSQL, Redis, Docker)
+- Firmware updates and Secure Boot
+
+### macOS-Specific
+
+- Homebrew installation and management
+- Homebrew packages and Cask applications
+- Xcode Command Line Tools
+
+## Structure
+
+```
+.
+├── home/                 # Dotfiles (GNU Stow)
+├── fonts/                # Font files
+└── unix/
+    ├── common/          # Cross-platform scripts
+    ├── fedora/          # Fedora setup
+    └── macos/           # macOS setup
 ```
 
-### Setup Script (`unix/setup.py`)
+## Configuration
 
-A modern Python-based setup script that replaces traditional shell scripts with:
+Both platforms use `config.json`:
 
-#### ✨ Key Features
-
-- **🎨 Beautiful Interface** - Rich terminal output with colors, progress bars, and emoji
-- **🔍 Dry Run Mode** - Preview changes before applying them
-- **🎯 Platform Detection** - Automatically detects and configures for your OS
-- **📦 Multi Package Manager** - Supports brew, dnf, apt, flatpak, pkg (Termux)
-- **🔧 Modular Design** - Run full setup or individual components
-- **⚙️ Conflict Resolution** - Interactive handling of file conflicts
-
-#### 🎛️ Usage
-
-**Full environment setup:**
-
-```bash
-unix/setup.py --full-setup
+```json
+{
+  "system": { "hostname": "your-hostname" },
+  "git": {
+    "user_name": "Your Name",
+    "user_email": "your@email.com"
+  },
+  "rust": {
+    "tools": ["bat", "eza", "ripgrep", "zoxide", "starship"]
+  }
+}
 ```
 
-**Preview what will be installed:**
+Package lists are plain text files (one per line, `#` for comments).
 
-```bash
-unix/setup.py --dry-run --full-setup
-unix/setup.py --dry-run install --category terminal
+## Usage
+
+### Adding Packages
+
+### Dotfiles (home/)
+
+Managed with GNU Stow:
+
+- **config/** - Application configs (`~/.config/`)
+- **git/** - Git configuration
+- **ssh/** - SSH configuration
+- **zsh/** - ZSH shell with zgenom plugin manager
+- **local/** - Local binaries and scripts
+- **Pictures/** - Wallpapers
+
+### Setup Scripts
+
+**Fedora (unix/fedora/)** - Bash-based declarative setup:
+
+- DNF optimization and repositories (RPM Fusion, COPR, external)
+- Package installation from categorized plain text lists
+- Flatpak applications from Flathub
+- Hardware support (ASUS laptops, NVIDIA drivers)
+- Performance optimization (zram, fstrim, systemd-oomd)
+- Security (Secure Boot, firmware updates)
+- Development environment (Git, SSH, Docker, PostgreSQL)
+- Dotfiles deployment and ZSH configuration
+
+**Python-based (unix/setup.py)** - Cross-platform setup for macOS/Debian/Android:
+
+- Platform detection and package installation
+- Homebrew setup (macOS)
+- Git configuration and SSH key generation
+- Font installation
+- ZSH configuration with platform-specific aliases
+- Dotfiles deployment with GNU Stow
+- Dry run mode and rich terminal output
+
+### Common Scripts (unix/common/)
+
+Platform-agnostic bash scripts used by both setup systems:
+
+- **config/git.sh** - Git and SSH key setup
+- **config/nextdns.sh** - NextDNS configuration
+- **dotfiles/stow.sh** - GNU Stow deployment
+- **dotfiles/fonts.sh** - Font installation
+- **dotfiles/zsh.sh** - ZSH configuration
+- **dotfiles/directories.sh** - Directory structure creation
+- **helpers/platform.sh** - Platform detection
+
+These scripts support both interactive and non-interactive mode via `NON_INTERACTIVE` environment variable.
+
+## Configuration
+
+### Fedora (config.json)
+
+````json
+{
+  "system": { "hostname": "fedora-laptop" },
+  "git": { "user_name": "Your Name", "user_email": "your@email.com" },
+  "hardware": {
+    "asus": { "auto_detect": true },
+    "nvidia": { "auto_detect": true, "prefer_open_driver": true }
+  }
+}
+#Fedoraecho "neofetch" >> fedora/packages/basepackages
+
+#macOS
+echo"neofetch">>unix/macos/packages/brew.packagesNON_INTERACTIVE=true /fedoraNON_INTERACTIVE=true /macossetupNON_INTERACTIVE=true /fedoraNON_INTERACTIVE=true /macossetup```
+
+PackageThen## Features
+
+### Common (Both Platforms)
+
+- **Git and SSH** - ed25519 keys, signing key, GitHub integration
+- **NextDNS** - DNS configuration and management
+- **Rust** - Rustup toolchain and cargo tools
+- **Dotfiles** - GNU Stow deployment, fonts, ZSH with zgenom
+- **Non-Interactive Mode** - Full automation support for CI/CD
+
+### Fedora-Specific
+
+- DNF optimization and repository management (RPM Fusion, COPR, Terra)
+- Flatpak applications from Flathub
+- Hardware support (ASUS laptops, NVIDIA drivers)
+- Performance tuning (zram, fstrim, systemd-oomd)
+- System services (PostgreSQL, Redis, Docker)
+- Firmware updates and Secure Boot support
+- Multimedia codecs and hardware acceleration
+- Bloatware removal
+
+### macOS-Specific
+
+- Homebrew installation and management
+- Homebrew packages (CLI tools)
+- Homebrew Cask (GUI applications)
+- Xcode Command Line Tools validation
+- System hostname configuration
+
+## Structure
+
+```
+.
+├── ARCHITECTURE.yml      # Complete architecture documentation
+├── README.md             # This file
+├── home/                 # Dotfiles (GNU Stow packages)
+│   ├── config/          # Application configs
+│   ├── git/             # Git configuration
+│   ├── ssh/             # SSH configuration
+│   ├── zsh/             # ZSH configuration
+│   └── local/           # Local binaries
+├── fonts/                # Font files
+└── unix/
+    ├── common/          # Cross-platform scripts
+    │   ├── config/      # git.sh, nextdns.sh, rust.sh
+    │   ├── dotfiles/    # directories.sh, stow.sh, fonts.sh, zsh.sh
+    │   └── helpers/     # platform.sh
+    ├── fedora/          # Fedora setup
+    │   ├── fedora-setup
+    │   ├── config.json
+    │   ├── packages/
+    │   └── install/
+    └── macos/           # macOS setup
+        ├── macos-setup
+        ├── config.json
+        ├── packages/
+        └── install/
 ```
 
-**Install specific package categories:**
+## Configuration
 
-```bash
-unix/setup.py install --category terminal     # Terminal tools only
-unix/setup.py install --category gui          # GUI applications only
-unix/setup.py install                         # All packages
+Both platforms use `config.json` for configuration:
+
+### Fedora
+
+```json
+{
+  "system": { "hostname": "fedora-laptop" },
+  "git": {
+    "user_name": "Your Name",
+    "user_email": "your@email.com"
+  },
+  "nextdns": { "config_id": "" },
+  "rust": {
+    "tools": ["bat", "eza", "ripgrep", "fd-find", "zoxide", "starship"]
+  },
+  "hardware": {
+    "asus": { "auto_detect": true },
+    "nvidia": { "auto_detect": true, "prefer_open_driver": true }
+  }
+}
 ```
 
-**Individual setup components:**
+### macOS
 
-```bash
-unix/setup.py git-config                      # Git identity & SSH keys
-unix/setup.py fonts                           # Install fonts
-unix/setup.py zsh                             # ZSH configuration
-unix/setup.py stow                            # Link all dotfiles
-unix/setup.py stow --package zsh              # Link specific dotfiles
-unix/setup.py services                        # System services (Fedora only)
+```json
+{
+  "system": { "hostname": "pixmac" },
+  "git": {
+    "user_name": "Your Name",
+    "user_email": "your@email.com"
+  },
+  "nextdns": { "config_id": "" },
+  "rust": {
+    "tools": ["bat", "eza", "ripgrep", "fd-find", "zoxide", "starship"]
+  }
+}
 ```
 
-**Advanced options:**
-
-```bash
-unix/setup.py --verbose install               # Detailed output
-unix/setup.py --help                          # Show all options
-```
-
-### 🔧 What It Does
-
-1. **Repository Management** - Clones repo with submodules if not present
-2. **Platform Detection** - Identifies macOS, Fedora, Debian, or Android
-3. **Package Installation** - Installs development tools and applications
-4. **Git Configuration** - Sets up Git identity and SSH keys with GitHub integration
-5. **Font Installation** - Copies fonts to system font directory
-6. **Shell Setup** - Configures ZSH with platform-specific settings
-7. **Dotfiles Management** - Uses GNU Stow to symlink configuration files
-8. **Service Configuration** - Enables system services (PostgreSQL, Redis, Docker)
-
-### 📋 Package Categories
-
-The script installs packages based on your platform from `unix/packages.toml`:
-
-**Terminal Tools:**
-
-- Development: `git`, `neovim`, `tmux`, `zsh`
-- File Management: `bat`, `eza`, `fzf`, `tree`, `zoxide`
-- System: `htop`, `fastfetch`, `croc`, `stow`
-- Languages: `python`, `node`, `rustup`, `gcc`
-
-**GUI Applications:**
-
-- **macOS**: VS Code, Brave Browser, Zen Browser, Obsidian, Rectangle
-- **Fedora**: Flatpak apps from Flathub (Brave, Zed, Signal, OBS Studio)
-
-### 🛠️ Platform-Specific Features
-
-#### macOS
-
-- **Homebrew** installation and management
-- **Cask applications** for GUI software
-- **GNU tools** to replace BSD versions
-- **Development environment** optimization
-
-#### Fedora Linux
-
-- **System repositories** (COPR, RPM Fusion, external repos)
-- **Hardware drivers** (NVIDIA, ASUS utilities)
-- **Multimedia support** (ffmpeg, codecs)
-- **Flatpak applications** from Flathub
-- **System services** (PostgreSQL, Redis, Docker)
-
-#### Debian/Ubuntu
-
-- **APT packages** for system tools
-- **Homebrew** for additional development tools
-- **WSL integration** (Windows Subsystem for Linux)
-
-#### Android (Termux)
-
-- **Termux packages** via pkg manager
-- **Development tools** adapted for mobile
-- **Backup/restore** aliases for Termux data
-
----
-
-## 🪟 Windows Setup
-
-### PowerShell Scripts
-
-Located in `windows/powershell/` - Collection of PowerShell scripts for Windows environment setup.
-
-### Registry Modifications
-
-Located in `windows/registry_edits/` - Registry files for system customization and optimization.
-
-### Theme Configuration
-
-Located in `windows/theme/` - Windows theming and appearance customization files.
-
-### Tools and Utilities
-
-Located in `windows/tools/` - Portable tools and utilities for Windows development.
-
----
-
-## 📝 Configuration Management
-
-## Dotfiles (GNU Stow)
-
-Dotfiles are organized in `home/` directory and managed using [GNU Stow](https://www.gnu.org/software/stow/):
-
-```bash
-home/
-├── config/    # Application configs (~/.config/)
-├── git/       # Git configuration (~/.gitconfig)
-├── ssh/       # SSH configuration (~/.ssh/)
-├── vscode/    # VS Code settings
-├── zsh/       # ZSH shell configuration (~/.zsh/)
-└── wallpaper/ # Desktop wallpapers
-```
-
-**Manual stow management:**
-
-```bash
-# From repository root
-cd home
-stow config     # Link ~/.config/ files
-stow zsh        # Link ZSH configuration
-stow --delete zsh  # Remove ZSH links
-```
-
-### Package Configuration
-
-All package lists are centralized in `unix/packages.toml` using TOML format for easy maintenance:
-
-```toml
-[platforms.macos.terminal_tools]
-common = ["git", "zsh", "neovim", "fzf"]
-specific = ["gnu-sed", "openjdk"]
-
-[platforms.fedora.gui_apps]
-flatpak = ["com.brave.Browser", "dev.zed.Zed"]
-```
-
-### Git Configuration
-
-The setup script configures Git with:
-
-- **User identity** (name and email)
-- **SSH key generation** (ed25519)
-- **GitHub integration** (optional key upload via API)
-- **Repository URL conversion** (HTTPS → SSH)
-
----
-
-## 🔧 Customization
-
-### Adding New Packages
-
-Edit `unix/packages.toml` to add packages for your platform:
-
-```toml
-[platforms.your_platform.terminal_tools]
-your_package_manager = ["new-package-name"]
-```
-
-### Platform-Specific Settings
-
-The setup script creates `~/.zsh/.additionals.zsh` with platform-specific configurations:
-
-- **macOS**: Homebrew paths, development tools
-- **Fedora**: System aliases, health check tools
-- **Debian**: WSL integration, build tools
-- **Android**: Termux-specific aliases and paths
-
-### Custom Configuration
-
-Add your personal settings to dotfiles in `home/` directory. The setup script preserves user customizations during updates.
-
----
-
-## 🐛 Troubleshooting
-
-## Common Issues
-
-**Permission errors:**
-
-```bash
-chmod +x unix/setup.py  # Make script executable
-```
-
-**Missing Python dependencies:**
-
-```bash
-pip install --user toml rich  # Install manually
-```
-
-**Stow conflicts:**
-The script will prompt you to resolve conflicts automatically or skip conflicting files.
-
-**Platform detection issues:**
-Check that your system has the expected platform files (e.g., `/etc/fedora-release` for Fedora).
-
-## Getting Help
-
-```bash
-unix/setup.py --help           # Show all options
-unix/setup.py install --help   # Show install options
-```
-
-### Dry Run Testing
-
-Always test with dry run mode first:
-
-```bash
-unix/setup.py --dry-run --full-setup
-```
-
----
-
-## 🎉 Post-Setup
-
-After running the setup:
-
-1. **Reboot** your system (especially on Fedora after driver installation)
-2. **Verify Git**: `git config --global --list`
-3. **Test SSH**: `ssh -T git@github.com`
-4. **Check fonts**: `fc-list | grep -i your-font`
-5. **Reload shell**: `exec zsh` or open new terminal
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🤝 Contributing
-
-This is a personal configuration repository, but feel free to:
-
-- Fork and adapt for your own use
-- Submit issues for bugs or improvements
-- Share your own configuration ideas
+## Package Lists
+
+Plain text files (one per line, `#` for comments):
+
+**Fedora** (`unix/fedora/packages/`):
+- `base.packages` - Core utilities
+- `development.packages` - Dev tools
+- `tools.packages` - User apps
+- `system.packages` - System libraries
+- `flatpak.packages` - Flatpak apps
+
+**macOS** (`unix/macos/packages/`):
+- `brew.packages` - CLI tools
+- `cask.packages` - GUI apps
+
+## Usage
+
+### Full Setup
+re-runsetup(idempotent - safe to re-run).
+### Python Setup (config.toml)
+###Post-Installation1.Logout/loginfor group changes
+2. Add SSH key to GitHub `cat ~/.ssh/id_ed25519.pub`
+3. Reload shell: `exec zsh`##Documentation-[ARCHITECTURE.yml](ARCHITECTURE.yml)** - Complete system documentation
+- **[unix/fedora/README.md](unix/fedora/README.md)** - Fedora details
+- **[unix/macos/README.md](unix/macos/README.md)** - macOS details##LicenseMIT License
+````
