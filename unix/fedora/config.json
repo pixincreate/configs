@@ -41,24 +41,27 @@
       }
     ]
   },
-  "packages": {
-    "rust": {
-      "tools": [
-        "cargo-audit",
-        "cargo-deny",
-        "cargo-fuzz",
-        "cargo-wipe",
-        "cargo-update",
-        "cargo-cache",
-        "just",
-        "rustlings",
-        "wasm-pack"
-      ]
-    }
+  "rust": {
+    "tools": [
+      "cargo-audit",
+      "cargo-deny",
+      "cargo-fuzz",
+      "cargo-wipe",
+      "cargo-update",
+      "cargo-cache",
+      "just",
+      "rustlings",
+      "wasm-pack"
+    ]
   },
   "services": {
-    "enable": ["docker", "postgresql", "redis", "tailscaled"],
-    "disable": ["NetworkManager-wait-online"]
+    "enable": [
+      "docker.service",
+      "postgresql.service",
+      "redis.service",
+      "tailscaled.service"
+    ],
+    "disable": ["NetworkManager-wait-online.service"]
   },
   "hardware": {
     "asus": {
@@ -95,6 +98,7 @@
     "zsh": "~/.zsh"
   },
   "dotfiles": {
+    "stow_source": "~/Dev/.configs/home",
     "stow_packages": [
       "cargo",
       "config",

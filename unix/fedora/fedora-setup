@@ -19,6 +19,7 @@ trap 'error_handler $LINENO' ERR
 export FEDORA_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export FEDORA_INSTALL="$FEDORA_PATH/install"
 export FEDORA_CONFIG="$FEDORA_PATH/config.json"
+export PATH="$FEDORA_PATH/bin:$PATH"
 
 # Ensure jq is available for JSON parsing
 if ! command -v jq &>/dev/null; then

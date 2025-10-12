@@ -2,8 +2,6 @@
 # Git and SSH configuration for Fedora
 # Uses common Unix git setup script
 
-echo "Configuring Git and SSH"
-
 # Get configuration from Fedora config.json
 git_name=$(get_config '.git.user_name')
 git_email=$(get_config '.git.user_email')

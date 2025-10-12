@@ -51,6 +51,9 @@ setup_zsh() {
             cat > "$additionals_file" <<'EOF'
 # macOS specific ZSH configuration
 
+# omaforge bin
+export PATH="$HOME/Dev/.configs/unix/macos/bin:$PATH"
+
 # Homebrew
 if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -78,6 +81,9 @@ EOF
         fedora)
             cat > "$additionals_file" <<'EOF'
 # Fedora specific ZSH configuration
+
+# omaforge bin
+export PATH="$HOME/Dev/.configs/unix/fedora/bin:$PATH"
 
 # System health check
 alias health-check='echo "=== System Info ===" && fastfetch && echo -e "\n=== Disk Usage ===" && df -h / /home && echo -e "\n=== Memory ===" && free -h && echo -e "\n=== Top Processes ===" && ps aux --sort=-%mem | head -n 6'
@@ -156,13 +162,8 @@ EOF
         echo "[INFO] Current shell: $SHELL"
         echo "[INFO] ZSH path: $zsh_path"
 
-        if [[ "${NON_INTERACTIVE:-false}" == "true" ]]; then
-            echo "[INFO] NON_INTERACTIVE mode: Auto-changing default shell to ZSH"
-            REPLY="y"
-        else
-            read -p "Change default shell to ZSH? [Y/n] " -n 1 -r
-            echo
-        fi
+        read -p "Change default shell to ZSH? [Y/n] " -n 1 -r
+        echo
 
         if [[ ! $REPLY =~ ^[Nn]$ ]]; then
             if [[ "$platform" == "android" ]]; then

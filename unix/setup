@@ -2,10 +2,29 @@
 
 set -euo pipefail
 
+ansi_art='
+ ▄██████▄    ▄▄▄▄███▄▄▄▄      ▄████████    ▄████████  ▄██████▄     ▄████████    ▄██████▄     ▄████████
+███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███   ███    ███ ███    ███   ███    ███   ███    ███   ███    ███
+███    ███ ███   ███   ███   ███    ███   ███    █▀  ███    ███   ███    ███   ███    █▀    ███    █▀
+███    ███ ███   ███   ███   ███    ███  ▄███▄▄▄     ███    ███  ▄███▄▄▄▄██▀  ▄███         ▄███▄▄▄
+███    ███ ███   ███   ███ ▀███████████ ▀▀███▀▀▀     ███    ███ ▀▀███▀▀▀▀▀   ▀▀███ ████▄  ▀▀███▀▀▀
+███    ███ ███   ███   ███   ███    ███   ███        ███    ███ ▀███████████   ███    ███   ███    █▄
+███    ███ ███   ███   ███   ███    ███   ███        ███    ███   ███    ███   ███    ███   ███    ███
+ ▀██████▀   ▀█   ███   █▀    ███    █▀    ███         ▀██████▀    ███    ███   ████████▀    ██████████
+                                                                  ███    ███
+'
+
+clear
+echo -e "$ansi_art\n"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
+
+OMAFORGE_REPO="${OMAFORGE_REPO:-pixincreate/configs}"
+OMAFORGE_REF="${OMAFORGE_REF:-main}"
+OMAFORGE_PATH="${OMAFORGE_PATH:-$HOME/Dev/.configs}"
 
 log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $*"; }
@@ -60,24 +79,26 @@ install_essentials() {
 main() {
     local platform
     platform=$(detect_platform)
-    local target_dir="$HOME/Dev/.configs"
 
     log_info "Detected platform: $platform"
 
     # Install essential dependencies first
     install_essentials "$platform"
 
-    if [[ ! -d "$target_dir" ]]; then
+    if [[ ! -d "$OMAFORGE_PATH" ]]; then
         log_info "Cloning omaforge repository..."
-        mkdir -p "$(dirname "$target_dir")"
-        git clone --recurse-submodules https://github.com/pixincreate/configs.git "$target_dir"
-        log_success "Repository cloned to $target_dir"
+        mkdir -p "$(dirname "$OMAFORGE_PATH")"
+        git clone --recurse-submodules "https://github.com/${OMAFORGE_REPO}.git" "$OMAFORGE_PATH"
+        log_success "Repository cloned to $OMAFORGE_PATH"
+    else
+        log_info "Repository already exists, updating..."
+        cd "$OMAFORGE_PATH"
+        git pull --rebase origin $OMAFORGE_REF
+        git submodule update --init --recursive
+        log_success "Repository updated"
     fi
 
-    cd "$target_dir/unix/$platform"
-
-    # Run setup in non-interactive mode when called from one-liner
-    export NON_INTERACTIVE=true
+    cd "$OMAFORGE_PATH/unix/$platform"
 
     if [[ "$platform" == "fedora" ]]; then
         log_info "Running Fedora setup..."

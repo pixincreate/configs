@@ -1,8 +1,7 @@
 #!/bin/bash
-# GNU Stow dotfiles deployment for Fedora
-# Uses common Unix stow script
 
-# Get stow configuration
+log_info "Managing dotfiles with Stow"
+
 stow_dir=$(expand_path "$(get_config '.dotfiles.stow_source')")
 target_dir="$HOME"
 mapfile -t packages < <(get_config_array '.dotfiles.stow_packages')

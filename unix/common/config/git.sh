@@ -10,11 +10,15 @@ setup_git() {
 
     echo "Configuring Git and SSH"
 
-    # Validate inputs
-    if [[ -z "$git_name" ]] || [[ -z "$git_email" ]]; then
-        echo "[ERROR] Git name and email are required"
-        echo "Usage: setup_git 'Your Name' 'your@email.com' [ssh_dir] [gitconfig_local]"
-        return 1
+    # Use env vars if available
+    if [[ -z "$git_name" ]] && [[ -n "${OMAFORGE_GIT_NAME:-}" ]]; then
+        git_name="$OMAFORGE_GIT_NAME"
+        echo "[INFO] Using Git name from OMAFORGE_GIT_NAME"
+    fi
+
+    if [[ -z "$git_email" ]] && [[ -n "${OMAFORGE_GIT_EMAIL:-}" ]]; then
+        git_email="$OMAFORGE_GIT_EMAIL"
+        echo "[INFO] Using Git email from OMAFORGE_GIT_EMAIL"
     fi
 
     # Check if .gitconfig.local already exists
@@ -28,11 +32,8 @@ setup_git() {
         if [[ -n "$current_name" ]] && [[ -n "$current_email" ]]; then
             echo "[INFO] Current Git user: $current_name <$current_email>"
 
-            if [[ "${NON_INTERACTIVE:-false}" == "true" ]]; then
-                echo "[INFO] NON_INTERACTIVE mode: Keeping existing Git user config"
-                git_name="$current_name"
-                git_email="$current_email"
-            else
+            # If we don't have values from env vars or params, keep existing
+            if [[ -z "$git_name" ]] && [[ -z "$git_email" ]]; then
                 read -p "Update Git user config? [y/N] " -n 1 -r
                 echo
                 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -42,6 +43,21 @@ setup_git() {
                 fi
             fi
         fi
+    fi
+
+    # Prompt for missing values
+    if [[ -z "$git_name" ]]; then
+        read -p "Enter your Git name: " git_name
+    fi
+
+    if [[ -z "$git_email" ]]; then
+        read -p "Enter your Git email: " git_email
+    fi
+
+    # Validate we have required values
+    if [[ -z "$git_name" ]] || [[ -z "$git_email" ]]; then
+        echo "[ERROR] Git name and email are required"
+        return 1
     fi
 
     # Backup existing .gitconfig.local if it exists and we're updating

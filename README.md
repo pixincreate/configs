@@ -19,14 +19,32 @@ Dotfiles and automated system setup for Fedora Linux and macOS.
 ### One-line Installer
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pixincreate/configs/main/unix/setup | bash
+eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/configs/main/unix/setup)"
 ```
 
 The installer automatically:
 
-- Detects your platform (Fedora or macOS)
-- Clones the repository to `~/Dev/.configs`
-- Runs the appropriate setup script
+- Detect your platform (Fedora or macOS)
+- Clone the repository to `~/Dev/.configs`
+- Prompt you for Git name/email, NextDNS config, etc.
+- Run the complete setup
+
+**Optional**: Skip prompts by exporting environment variables:
+
+```bash
+export OMAFORGE_GIT_NAME='Your Name'
+export OMAFORGE_GIT_EMAIL='your@email.com'
+export OMAFORGE_NEXTDNS_ID='abc123'
+export OMAFORGE_SECUREBOOT='true'  # Fedora only
+eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/configs/main/unix/setup)"
+```
+
+Supported environment variables:
+
+- `OMAFORGE_GIT_NAME` - Your Git name
+- `OMAFORGE_GIT_EMAIL` - Your Git email
+- `OMAFORGE_NEXTDNS_ID` - NextDNS configuration ID
+- `OMAFORGE_SECUREBOOT` - Set to `true` to enable Secure Boot setup (Fedora)
 
 ### Manual Installation
 

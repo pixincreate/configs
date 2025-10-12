@@ -160,29 +160,20 @@ reset_rust() {
     echo -e "${GREEN}✓ Rust tools reinstalled${NC}"
 }
 
-main() {
-    while true; do
-        show_menu
-        read -r choice
+show_menu
+read -r choice
 
-        case $choice in
-            1) reset_zsh ;;
-            2) reset_stow ;;
-            3) reset_fonts ;;
-            4) reset_directories ;;
-            5) reset_git ;;
-            6) reset_nextdns ;;
-            7) reset_services ;;
-            8) reset_hardware ;;
-            9) reset_webapps ;;
-            10) reset_rust ;;
-            0) echo -e "\n${GREEN}Goodbye!${NC}"; exit 0 ;;
-            *) echo -e "${RED}Invalid option${NC}"; sleep 1 ;;
-        esac
-
-        echo ""
-        read -p "Press Enter to continue..."
-    done
-}
-
-main
+case $choice in
+    1) reset_zsh ;;
+    2) reset_stow ;;
+    3) reset_fonts ;;
+    4) reset_directories ;;
+    5) reset_git ;;
+    6) reset_nextdns ;;
+    7) reset_services ;;
+    8) reset_hardware ;;
+    9) reset_webapps ;;
+    10) reset_rust ;;
+    0) echo -e "\n${GREEN}Goodbye!${NC}"; exit 0 ;;
+    *) echo -e "${RED}Invalid option${NC}"; exit 1 ;;
+esac

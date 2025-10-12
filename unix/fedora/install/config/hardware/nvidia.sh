@@ -24,6 +24,9 @@ sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
 log_info "Installing NVIDIA utilities"
 sudo dnf install -y nvidia-settings
 
+log_info "Installing NVIDIA Power"
+sudo dnf install -y xorg-x11-drv-nvidia-power
+
 log_info "Installing NVIDIA libraries (x86_64 only)"
 sudo dnf install -y xorg-x11-drv-nvidia-libs.x86_64
 
@@ -41,15 +44,7 @@ log_info "Building NVIDIA kernel modules"
 sudo akmods --force
 
 log_info "Enabling NVIDIA services"
-# Only enable services that exist - some may not be present in all NVIDIA driver versions
-for service in nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service; do
-    if systemctl list-unit-files "$service" &>/dev/null; then
-        sudo systemctl enable "$service"
-        log_success "Enabled: $service"
-    else
-        log_warning "Service not found, skipping: $service"
-    fi
-done
+sudo systemctl enable nvidia-{suspend,resume,hibernate}
 
 log_info "Regenerating initramfs"
 sudo dracut --force

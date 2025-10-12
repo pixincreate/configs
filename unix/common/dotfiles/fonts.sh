@@ -43,19 +43,22 @@ install_fonts() {
     local installed=0
     local skipped=0
 
-    find "$fonts_source" -type f \( -name "*.ttf" -o -name "*.otf" -o -name "*.TTF" -o -name "*.OTF" \) 2>/dev/null | while read -r font; do
+    while IFS= read -r font; do
         local font_name=$(basename "$font")
         local target_path="$fonts_target/$font_name"
 
         if [[ -f "$target_path" ]]; then
             echo "[INFO] Already installed: $font_name"
-            ((skipped++))
+            skipped=$((skipped + 1))
         else
-            cp "$font" "$target_path"
-            echo "[SUCCESS] Installed: $font_name"
-            ((installed++))
+            if cp "$font" "$target_path" 2>/dev/null; then
+                echo "[SUCCESS] Installed: $font_name"
+                installed=$((installed + 1))
+            else
+                echo "[WARNING] Failed to install: $font_name"
+            fi
         fi
-    done
+    done < <(find "$fonts_source" -type f \( -name "*.ttf" -o -name "*.otf" -o -name "*.TTF" -o -name "*.OTF" \) 2>/dev/null)
 
     echo "[INFO] Rebuilding font cache"
 

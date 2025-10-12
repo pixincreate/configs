@@ -8,7 +8,7 @@ mapfile -t enable_services < <(get_config_array '.services.enable')
 
 for service in "${enable_services[@]}"; do
     # Check if service exists
-    if ! systemctl list-unit-files 2>/dev/null | grep -q "^${service}"; then
+    if ! systemctl list-unit-files "$service" &>/dev/null; then
         log_info "Service not available in this environment: $service"
         continue
     fi
@@ -36,7 +36,7 @@ mapfile -t disable_services < <(get_config_array '.services.disable')
 
 for service in "${disable_services[@]}"; do
     # Check if service exists
-    if ! systemctl list-unit-files 2>/dev/null | grep -q "^${service}"; then
+    if ! systemctl list-unit-files "$service" &>/dev/null; then
         log_info "Service not available: $service"
         continue
     fi
@@ -50,7 +50,7 @@ for service in "${disable_services[@]}"; do
 done
 
 # Configure Docker
-if systemctl list-unit-files 2>/dev/null | grep -q "^docker.service"; then
+if systemctl list-unit-files docker.service &>/dev/null; then
     log_info "Configuring Docker"
 
     # Add user to docker group (skip if root)
@@ -86,7 +86,7 @@ EOF
 fi
 
 # Configure PostgreSQL
-if systemctl list-unit-files 2>/dev/null | grep -q "postgresql"; then
+if systemctl list-unit-files postgresql.service &>/dev/null; then
     if [[ ! -f /var/lib/pgsql/data/PG_VERSION ]]; then
         log_info "Initializing PostgreSQL database"
         if sudo postgresql-setup --initdb 2>/dev/null; then

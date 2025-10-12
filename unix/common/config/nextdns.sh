@@ -17,12 +17,13 @@ setup_nextdns() {
         return 1
     fi
 
-    if [[ -z "$config_id" ]]; then
-        if [[ "${NON_INTERACTIVE:-false}" == "true" ]]; then
-            echo "[INFO] NON_INTERACTIVE mode: No NextDNS config ID provided, skipping"
-            return 0
-        fi
+    # Use env var if available
+    if [[ -z "$config_id" ]] && [[ -n "${OMAFORGE_NEXTDNS_ID:-}" ]]; then
+        config_id="$OMAFORGE_NEXTDNS_ID"
+        echo "[INFO] Using NextDNS config ID from OMAFORGE_NEXTDNS_ID"
+    fi
 
+    if [[ -z "$config_id" ]]; then
         echo "[INFO] Get your NextDNS configuration ID from: https://my.nextdns.io"
         read -p "Enter your NextDNS config ID (or press Enter to skip): " config_id
 
