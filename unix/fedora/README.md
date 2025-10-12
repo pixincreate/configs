@@ -88,6 +88,26 @@ Installed by default:
 - Git/SSH, NextDNS, dotfiles, ZSH
 - Services (PostgreSQL, Redis, Docker)
 
+## Reset/Re-run Components
+
+If you need to reset or re-run specific parts:
+
+```bash
+./bin/omaforge-reset
+```
+
+Interactive menu to reset:
+
+- ZSH configuration
+- Dotfiles (stow)
+- Fonts
+- Git & SSH
+- NextDNS
+- Services
+- Hardware
+- Web apps
+- Rust tools
+
 ## Post-Install
 
 1. Logout/login for group changes (docker, etc.)

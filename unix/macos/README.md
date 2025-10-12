@@ -55,6 +55,23 @@ echo "fastfetch" >> packages/brew.packages
 - System configuration (hostname)
 - Git/SSH, NextDNS, dotfiles, ZSH
 
+## Reset/Re-run Components
+
+If you need to reset or re-run specific parts:
+
+```bash
+./bin/omaforge-reset
+```
+
+Interactive menu to reset:
+
+- ZSH configuration
+- Dotfiles (stow)
+- Fonts
+- Git & SSH
+- NextDNS
+- Rust tools
+
 ## Post-Install
 
 1. Add SSH key to GitHub:

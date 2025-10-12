@@ -1,5 +1,4 @@
 #!/bin/bash
-# Install base packages via DNF
 
 echo "Installing base packages"
 
@@ -31,7 +30,10 @@ fi
 
 log_info "Installing ${#all_packages[@]} DNF packages"
 
-# Install packages
-sudo dnf install -y "${all_packages[@]}"
+# Install packages with conflict resolution
+sudo dnf install -y --best --allowerasing "${all_packages[@]}" || {
+    log_warning "Some packages failed to install, retrying with --skip-broken only"
+    sudo dnf install -y --skip-broken "${all_packages[@]}"
+}
 
 log_success "Base packages installed"

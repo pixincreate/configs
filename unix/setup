@@ -1,0 +1,93 @@
+#!/bin/bash
+
+set -euo pipefail
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $*"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
+
+detect_platform() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "macos"
+    elif [[ -f /etc/fedora-release ]]; then
+        echo "fedora"
+    else
+        log_error "Unsupported platform: $OSTYPE"
+        exit 1
+    fi
+}
+
+install_essentials() {
+    local platform="$1"
+
+    log_info "Checking essential dependencies..."
+
+    local missing_deps=()
+    for dep in git curl; do
+        if ! command -v "$dep" &>/dev/null; then
+            missing_deps+=("$dep")
+        fi
+    done
+
+    if [ ${#missing_deps[@]} -eq 0 ]; then
+        log_info "All essential dependencies present"
+        return 0
+    fi
+
+    log_info "Installing missing dependencies: ${missing_deps[*]}"
+
+    if [[ "$platform" == "macos" ]]; then
+        if [[ " ${missing_deps[*]} " =~ " git " ]]; then
+            log_info "Installing Xcode Command Line Tools (includes git)..."
+            xcode-select --install 2>/dev/null || true
+            log_info "Waiting for Command Line Tools installation..."
+            until xcode-select -p &>/dev/null; do
+                sleep 5
+            done
+            log_success "Command Line Tools installed"
+        fi
+    else
+        sudo dnf install -y "${missing_deps[@]}"
+        log_success "Dependencies installed"
+    fi
+}
+
+main() {
+    local platform
+    platform=$(detect_platform)
+    local target_dir="$HOME/Dev/.configs"
+
+    log_info "Detected platform: $platform"
+
+    # Install essential dependencies first
+    install_essentials "$platform"
+
+    if [[ ! -d "$target_dir" ]]; then
+        log_info "Cloning omaforge repository..."
+        mkdir -p "$(dirname "$target_dir")"
+        git clone --recurse-submodules https://github.com/pixincreate/configs.git "$target_dir"
+        log_success "Repository cloned to $target_dir"
+    fi
+
+    cd "$target_dir/unix/$platform"
+
+    # Run setup in non-interactive mode when called from one-liner
+    export NON_INTERACTIVE=true
+
+    if [[ "$platform" == "fedora" ]]; then
+        log_info "Running Fedora setup..."
+        ./fedora-setup
+    else
+        log_info "Running macOS setup..."
+        ./macos-setup
+    fi
+}
+
+trap 'log_error "Setup interrupted"; exit 1' INT
+
+main "$@"

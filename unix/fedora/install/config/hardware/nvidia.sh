@@ -1,5 +1,4 @@
 #!/bin/bash
-# NVIDIA driver installation and configuration
 
 auto_detect=$(get_config '.hardware.nvidia.auto_detect')
 
@@ -8,7 +7,6 @@ if [[ "$auto_detect" != "true" ]]; then
     return 0
 fi
 
-# Detect NVIDIA GPU
 if ! lspci | grep -i nvidia &>/dev/null; then
     log_info "No NVIDIA GPU detected, skipping NVIDIA setup"
     return 0
@@ -17,51 +15,42 @@ fi
 echo "Configuring NVIDIA drivers"
 log_info "NVIDIA GPU detected"
 
-prefer_open=$(get_config '.hardware.nvidia.prefer_open_driver')
-
-# Install kernel headers
 log_info "Installing kernel development headers"
 sudo dnf install -y kernel-devel
 
-# Determine driver to install
-if [[ "$prefer_open" == "true" ]]; then
-    driver="akmod-nvidia-open"
-    log_info "Using open-source NVIDIA driver (for RTX 20xx and newer)"
-else
-    driver="akmod-nvidia"
-    log_info "Using proprietary NVIDIA driver"
-fi
-
-# Install NVIDIA drivers
 log_info "Installing NVIDIA drivers"
-sudo dnf install -y "$driver" xorg-x11-drv-nvidia-cuda
+sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda
 
-# Install additional NVIDIA packages
-sudo dnf install -y \
-    nvidia-settings \
-    xorg-x11-drv-nvidia-libs.x86_64 \
-    libva-nvidia-driver.x86_64 \
-    vdpauinfo
+log_info "Installing NVIDIA utilities"
+sudo dnf install -y nvidia-settings
 
-# Blacklist nouveau
+log_info "Installing NVIDIA libraries (x86_64 only)"
+sudo dnf install -y xorg-x11-drv-nvidia-libs.x86_64
+
+log_info "Installing VAAPI and VDPAU support"
+sudo dnf remove -y libva-nvidia-driver 2>/dev/null || true
+sudo dnf install -y libva-nvidia-driver.x86_64 vdpauinfo
+
 log_info "Blacklisting nouveau driver"
-sudo tee /etc/modprobe.d/blacklist-nouveau.conf > /dev/null <<'EOF'
+sudo tee /etc/modprobe.d/blacklist.conf >/dev/null <<'EOF'
 blacklist nouveau
 options nouveau modeset=0
 EOF
 
-# Enable NVIDIA services
-log_info "Enabling NVIDIA services"
-sudo systemctl enable nvidia-hibernate.service
-sudo systemctl enable nvidia-suspend.service
-sudo systemctl enable nvidia-resume.service
-sudo systemctl enable nvidia-powerd.service
-
-# Build NVIDIA modules
 log_info "Building NVIDIA kernel modules"
 sudo akmods --force
 
-# Regenerate initramfs
+log_info "Enabling NVIDIA services"
+# Only enable services that exist - some may not be present in all NVIDIA driver versions
+for service in nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service; do
+    if systemctl list-unit-files "$service" &>/dev/null; then
+        sudo systemctl enable "$service"
+        log_success "Enabled: $service"
+    else
+        log_warning "Service not found, skipping: $service"
+    fi
+done
+
 log_info "Regenerating initramfs"
 sudo dracut --force
 

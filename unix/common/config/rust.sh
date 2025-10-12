@@ -10,22 +10,21 @@ setup_rust() {
 
     # Check if rustup is installed
     if command -v rustup &>/dev/null; then
-        echo "[INFO] Rustup already installed"
-        echo "[INFO] Updating Rust toolchain"
-        rustup update stable
-        rustup update nightly
+        echo "[INFO] Rust is already installed, updating..."
+        rustup update
     else
-        echo "[INFO] Installing Rust via rustup"
+        echo "[INFO] Installing Rust with rustup-init..."
 
-        # Download and run rustup installer
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+        # Run rustup-init (assumes rustup was installed via package manager)
+        rustup-init -y --default-toolchain stable
 
-        # Source cargo env
-        if [[ -f "$HOME/.cargo/env" ]]; then
-            source "$HOME/.cargo/env"
+        # Add cargo to PATH for the current process
+        local cargo_bin="$HOME/.cargo/bin"
+        if [[ ! "$PATH" =~ $cargo_bin ]]; then
+            export PATH="$cargo_bin:$PATH"
         fi
 
-        # Install nightly toolchain
+        # Now rustup should be available
         rustup toolchain install nightly
 
         echo "[SUCCESS] Rust toolchain installed"

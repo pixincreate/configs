@@ -30,8 +30,8 @@ log_info "Installing ASUS utilities"
 sudo dnf install -y "${packages[@]}"
 
 # Enable services
-sudo systemctl enable --now supergfxd.service || log_warning "Failed to enable supergfxd"
-sudo systemctl enable --now asusd.service || log_warning "Failed to enable asusd"
+sudo systemctl enable supergfxd.service || log_warning "Failed to enable supergfxd"
+sudo systemctl start asusd || log_warning "Failed to start asusd"
 
 # Configure udev rules for profile notifications
 log_info "Setting up ASUS profile change notifications"

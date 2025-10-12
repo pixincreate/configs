@@ -42,10 +42,10 @@ setup_nextdns() {
 
     if [[ $EUID -eq 0 ]]; then
         # Running as root
-        nextdns install -config "$config_id" -report-client-info -auto-activate
+        nextdns install -config "$config_id" -setup-router=false -report-client-info=true -log-queries=false -auto-activate
     else
         if command -v sudo &>/dev/null; then
-            sudo nextdns install -config "$config_id" -report-client-info -auto-activate
+            sudo nextdns install -config "$config_id" -setup-router=false -report-client-info=true -log-queries=false -auto-activate
         else
             echo "[ERROR] This command requires root privileges"
             echo "[ERROR] Run as root or install sudo"

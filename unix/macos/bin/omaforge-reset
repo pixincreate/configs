@@ -1,0 +1,139 @@
+#!/bin/bash
+
+set -euo pipefail
+
+MACOS_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MACOS_INSTALL="$MACOS_PATH/install"
+export MACOS_CONFIG="$MACOS_PATH/config.json"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+source "$MACOS_INSTALL/helpers/all.sh"
+
+show_menu() {
+    clear
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}   omaforge Reset Tool${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo "Dotfiles:"
+    echo "  1. ZSH configuration"
+    echo "  2. Stow dotfiles"
+    echo "  3. Fonts"
+    echo "  4. Directories"
+    echo ""
+    echo "Configuration:"
+    echo "  5. Git & SSH"
+    echo "  6. NextDNS"
+    echo ""
+    echo "Packages:"
+    echo "  7. Rust tools"
+    echo ""
+    echo " 0. Exit"
+    echo ""
+    echo -ne "${YELLOW}Choose option: ${NC}"
+}
+
+reset_zsh() {
+    echo -e "${BLUE}Resetting ZSH configuration...${NC}"
+
+    read -p "This will reset your ZSH config. Continue? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Cancelled."
+        return
+    fi
+
+    rm -rf ~/.zsh/.zgenom ~/.zsh/.additionals.zsh
+    source "$MACOS_INSTALL/dotfiles/zsh.sh"
+    echo -e "${GREEN}✓ ZSH reset complete${NC}"
+    echo -e "${YELLOW}Run 'exec zsh' to reload${NC}"
+}
+
+reset_stow() {
+    echo -e "${BLUE}Resetting dotfiles...${NC}"
+
+    read -p "This will re-stow all dotfiles. Continue? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Cancelled."
+        return
+    fi
+
+    source "$MACOS_INSTALL/dotfiles/stow.sh"
+    echo -e "${GREEN}✓ Dotfiles reset complete${NC}"
+}
+
+reset_fonts() {
+    echo -e "${BLUE}Reinstalling fonts...${NC}"
+    source "$MACOS_INSTALL/dotfiles/fonts.sh"
+    echo -e "${GREEN}✓ Fonts reinstalled${NC}"
+}
+
+reset_directories() {
+    echo -e "${BLUE}Recreating directories...${NC}"
+    source "$MACOS_INSTALL/dotfiles/directories.sh"
+    echo -e "${GREEN}✓ Directories created${NC}"
+}
+
+reset_git() {
+    echo -e "${BLUE}Resetting Git & SSH configuration...${NC}"
+
+    read -p "This will reconfigure Git and SSH. Continue? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Cancelled."
+        return
+    fi
+
+    source "$MACOS_INSTALL/config/git.sh"
+    echo -e "${GREEN}✓ Git & SSH reset complete${NC}"
+}
+
+reset_nextdns() {
+    echo -e "${BLUE}Resetting NextDNS...${NC}"
+    source "$MACOS_INSTALL/config/nextdns.sh"
+    echo -e "${GREEN}✓ NextDNS reset complete${NC}"
+}
+
+reset_rust() {
+    echo -e "${BLUE}Reinstalling Rust tools...${NC}"
+
+    read -p "This will reinstall Rust tools. Continue? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Cancelled."
+        return
+    fi
+
+    source "$MACOS_INSTALL/packaging/rust.sh"
+    echo -e "${GREEN}✓ Rust tools reinstalled${NC}"
+}
+
+main() {
+    while true; do
+        show_menu
+        read -r choice
+
+        case $choice in
+            1) reset_zsh ;;
+            2) reset_stow ;;
+            3) reset_fonts ;;
+            4) reset_directories ;;
+            5) reset_git ;;
+            6) reset_nextdns ;;
+            7) reset_rust ;;
+            0) echo -e "\n${GREEN}Goodbye!${NC}"; exit 0 ;;
+            *) echo -e "${RED}Invalid option${NC}"; sleep 1 ;;
+        esac
+
+        echo ""
+        read -p "Press Enter to continue..."
+    done
+}
+
+main

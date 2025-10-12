@@ -44,6 +44,13 @@ setup_git() {
         fi
     fi
 
+    # Backup existing .gitconfig.local if it exists and we're updating
+    if [[ -f "$gitconfig_local" ]] && [[ "$git_name" != "$current_name" || "$git_email" != "$current_email" ]]; then
+        local backup_file="${gitconfig_local}.bak"
+        cp "$gitconfig_local" "$backup_file"
+        echo "[INFO] Backed up existing Git config to: $backup_file"
+    fi
+
     # Create .gitconfig.local directory
     mkdir -p "$(dirname "$gitconfig_local")"
 

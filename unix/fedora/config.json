@@ -66,8 +66,7 @@
       "packages": ["asusctl", "supergfxctl"]
     },
     "nvidia": {
-      "auto_detect": true,
-      "prefer_open_driver": true
+      "auto_detect": true
     }
   },
   "multimedia": {

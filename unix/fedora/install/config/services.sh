@@ -91,6 +91,13 @@ if systemctl list-unit-files 2>/dev/null | grep -q "postgresql"; then
         log_info "Initializing PostgreSQL database"
         if sudo postgresql-setup --initdb 2>/dev/null; then
             log_success "PostgreSQL initialized"
+
+            # Configure authentication to use md5 instead of ident
+            local pg_config_path="/var/lib/pgsql/data/pg_hba.conf"
+            log_info "Configuring PostgreSQL authentication"
+            sudo sed -i -r 's/(host.*all.*all.*127\.0\.0\.1\/32.*)ident/\1md5/' "$pg_config_path"
+            sudo sed -i -r 's/(host.*all.*all.*::1\/128.*)ident/\1md5/' "$pg_config_path"
+            log_success "PostgreSQL authentication configured"
         else
             log_info "PostgreSQL init skipped"
         fi

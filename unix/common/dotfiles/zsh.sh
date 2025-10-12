@@ -37,6 +37,13 @@ setup_zsh() {
     local platform=$(detect_platform)
 
     echo "[INFO] Detected platform: $platform"
+
+    if [[ -f "$additionals_file" ]]; then
+        local backup_file="${additionals_file}.bak"
+        cp "$additionals_file" "$backup_file"
+        echo "[INFO] Backed up existing config to: $backup_file"
+    fi
+
     echo "[INFO] Creating platform-specific ZSH config: $additionals_file"
 
     case "$platform" in
