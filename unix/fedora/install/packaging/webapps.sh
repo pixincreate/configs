@@ -1,9 +1,8 @@
 #!/bin/bash
-# Install web applications as desktop apps
 
 source "$FEDORA_INSTALL/helpers/logging.sh"
 
-log_phase "Installing Web Applications"
+log_section "Web Applications"
 
 # Ensure bin directory is in PATH for the session
 export PATH="$FEDORA_PATH/bin:$PATH"
