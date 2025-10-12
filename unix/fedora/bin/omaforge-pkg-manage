@@ -1,0 +1,215 @@
+#!/bin/bash
+# Interactive package management for Fedora
+# Add, remove, and search packages across DNF and Flatpak
+
+set -euo pipefail
+
+FEDORA_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PACKAGES_DIR="$FEDORA_PATH/packages"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+show_menu() {
+    clear
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}   Fedora Package Manager${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo "1. Add package"
+    echo "2. Remove package"
+    echo "3. Search package"
+    echo "4. List packages"
+    echo "5. Exit"
+    echo ""
+    echo -ne "${YELLOW}Choose option: ${NC}"
+}
+
+list_package_files() {
+    echo -e "\n${BLUE}Available package lists:${NC}"
+    local i=1
+    local files=()
+
+    for file in "$PACKAGES_DIR"/*.packages; do
+        local basename=$(basename "$file")
+        echo "$i. $basename"
+        files+=("$file")
+        ((i + 1))
+    done
+
+    echo "$i. Cancel"
+    echo -ne "\n${YELLOW}Select package list: ${NC}"
+
+    read -r choice
+    if [[ "$choice" -eq "$i" ]]; then
+        return 1
+    fi
+
+    if [[ "$choice" -ge 1 && "$choice" -lt "$i" ]]; then
+        echo "${files[$((choice-1))]}"
+        return 0
+    else
+        echo -e "${RED}Invalid choice${NC}"
+        return 1
+    fi
+}
+
+add_package() {
+    local package_file
+    package_file=$(list_package_files) || return
+
+    echo -ne "\n${YELLOW}Enter package name: ${NC}"
+    read -r package
+
+    if [[ -z "$package" ]]; then
+        echo -e "${RED}Package name cannot be empty${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+
+    # Check if package already exists
+    if grep -qx "$package" "$package_file" 2>/dev/null; then
+        echo -e "${YELLOW}Package '$package' already exists in $(basename "$package_file")${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+
+    # Check package availability based on type
+    local basename=$(basename "$package_file")
+    if [[ "$basename" == "flatpak.packages" ]]; then
+        echo -e "${BLUE}Searching Flathub...${NC}"
+        if flatpak search "$package" &>/dev/null; then
+            echo "$package" >> "$package_file"
+            echo -e "${GREEN}Added '$package' to $basename${NC}"
+        else
+            echo -e "${RED}Package not found on Flathub${NC}"
+        fi
+    else
+        echo -e "${BLUE}Searching DNF repositories...${NC}"
+        if dnf search "$package" &>/dev/null; then
+            echo "$package" >> "$package_file"
+            echo -e "${GREEN}Added '$package' to $basename${NC}"
+        else
+            echo -e "${YELLOW}Package not found in DNF, adding anyway...${NC}"
+            echo "$package" >> "$package_file"
+        fi
+    fi
+
+    echo -ne "\n${YELLOW}Install now? (y/N): ${NC}"
+    read -r install
+    if [[ "$install" =~ ^[Yy]$ ]]; then
+        if [[ "$basename" == "flatpak.packages" ]]; then
+            flatpak install -y flathub "$package"
+        else
+            sudo dnf install -y "$package"
+        fi
+    fi
+
+    read -p "Press Enter to continue..."
+}
+
+remove_package() {
+    local package_file
+    package_file=$(list_package_files) || return
+
+    echo -ne "\n${YELLOW}Enter package name to remove: ${NC}"
+    read -r package
+
+    if [[ -z "$package" ]]; then
+        echo -e "${RED}Package name cannot be empty${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+
+    if grep -qx "$package" "$package_file" 2>/dev/null; then
+        sed -i "/^$package$/d" "$package_file"
+        echo -e "${GREEN}Removed '$package' from $(basename "$package_file")${NC}"
+
+        echo -ne "\n${YELLOW}Uninstall package? (y/N): ${NC}"
+        read -r uninstall
+        if [[ "$uninstall" =~ ^[Yy]$ ]]; then
+            local basename=$(basename "$package_file")
+            if [[ "$basename" == "flatpak.packages" ]]; then
+                flatpak uninstall -y "$package"
+            else
+                sudo dnf remove -y "$package"
+            fi
+        fi
+    else
+        echo -e "${RED}Package '$package' not found in $(basename "$package_file")${NC}"
+    fi
+
+    read -p "Press Enter to continue..."
+}
+
+search_package() {
+    echo -e "\n${BLUE}Package types:${NC}"
+    echo "1. DNF packages"
+    echo "2. Flatpak packages"
+    echo "3. Both"
+    echo -ne "\n${YELLOW}Choose type: ${NC}"
+    read -r type
+
+    echo -ne "${YELLOW}Enter search term: ${NC}"
+    read -r search_term
+
+    if [[ -z "$search_term" ]]; then
+        echo -e "${RED}Search term cannot be empty${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+
+    case $type in
+        1)
+            echo -e "\n${BLUE}Searching DNF repositories...${NC}"
+            dnf search "$search_term"
+            ;;
+        2)
+            echo -e "\n${BLUE}Searching Flathub...${NC}"
+            flatpak search "$search_term"
+            ;;
+        3)
+            echo -e "\n${BLUE}Searching DNF repositories...${NC}"
+            dnf search "$search_term"
+            echo -e "\n${BLUE}Searching Flathub...${NC}"
+            flatpak search "$search_term"
+            ;;
+        *)
+            echo -e "${RED}Invalid choice${NC}"
+            ;;
+    esac
+
+    read -p "Press Enter to continue..."
+}
+
+list_packages() {
+    local package_file
+    package_file=$(list_package_files) || return
+
+    echo -e "\n${BLUE}Packages in $(basename "$package_file"):${NC}"
+    grep -v '^#\|^$' "$package_file" | sort || echo -e "${YELLOW}No packages found${NC}"
+
+    read -p "Press Enter to continue..."
+}
+
+main() {
+    while true; do
+        show_menu
+        read -r choice
+
+        case $choice in
+            1) add_package ;;
+            2) remove_package ;;
+            3) search_package ;;
+            4) list_packages ;;
+            5) echo -e "\n${GREEN}Goodbye!${NC}"; exit 0 ;;
+            *) echo -e "${RED}Invalid option${NC}"; sleep 1 ;;
+        esac
+    done
+}
+
+main

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+if [ "$#" -lt 3 ]; then
+  echo "Usage: omaforge-webapp-install <name> <url> <icon> [custom_exec] [mime_types]"
+  exit 1
+fi
+
+APP_NAME="$1"
+APP_URL="$2"
+ICON_REF="$3"
+CUSTOM_EXEC="${4:-}"
+MIME_TYPES="${5:-}"
+
+if [[ -z "$APP_NAME" || -z "$APP_URL" || -z "$ICON_REF" ]]; then
+  echo "Error: You must set app name, app URL, and icon!"
+  exit 1
+fi
+
+ICON_DIR="$HOME/.local/share/applications/icons"
+mkdir -p "$ICON_DIR"
+if [[ $ICON_REF =~ ^https?:// ]]; then
+  ICON_PATH="$ICON_DIR/$APP_NAME.png"
+  if ! curl -sL -o "$ICON_PATH" "$ICON_REF"; then
+    echo "Error: Failed to download icon from $ICON_REF"
+    exit 1
+  fi
+else
+  # Assume icon is in the current directory or a path relative to script
+  ICON_PATH="$ICON_DIR/$ICON_REF"
+  if [[ ! -f "$ICON_PATH" ]]; then
+    if [[ -f "$ICON_REF" ]]; then
+      cp "$ICON_REF" "$ICON_PATH"
+    else
+      echo "Error: Icon file not found: $ICON_REF"
+      exit 1
+    fi
+  fi
+fi
+
+if [[ -n $CUSTOM_EXEC ]]; then
+  EXEC_COMMAND="$CUSTOM_EXEC"
+else
+  EXEC_COMMAND="omaforge-launch-webapp $APP_URL"
+fi
+
+DESKTOP_DIR="$HOME/.local/share/applications"
+mkdir -p "$DESKTOP_DIR"
+DESKTOP_FILE="$DESKTOP_DIR/$APP_NAME.desktop"
+
+cat >"$DESKTOP_FILE" <<EOF
+[Desktop Entry]
+Version=1.0
+Name=$APP_NAME
+Comment=$APP_NAME Web Application
+Exec=$EXEC_COMMAND
+Terminal=false
+Type=Application
+Icon=$ICON_PATH
+StartupNotify=true
+Categories=Network;WebBrowser;
+EOF
+
+if [[ -n $MIME_TYPES ]]; then
+  echo "MimeType=$MIME_TYPES" >>"$DESKTOP_FILE"
+fi
+
+chmod +x "$DESKTOP_FILE"
+
+echo "✓ Installed $APP_NAME"

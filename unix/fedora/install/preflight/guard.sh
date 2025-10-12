@@ -21,7 +21,7 @@ if [[ $EUID -eq 0 ]]; then
         log_error "DO NOT run this script as root on systems"
         log_error "The script uses sudo for privileged operations"
         log_error "Run as a regular user: ./fedora-setup"
-        # exit 1
+        exit 1
     fi
 else
     log_success "Running as non-root user: $USER"
@@ -51,12 +51,12 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Check internet connectivity
-# if ! ping -c 1 1.1.1.1 &>/dev/null; then
-#     log_error "No internet connectivity detected"
-#     log_error "Setup requires internet connection to download packages"
-#     exit 1
-# else
-#     log_success "Internet connectivity verified"
-# fi
+if ! ping -c 1 1.1.1.1 &>/dev/null; then
+    log_error "No internet connectivity detected"
+    log_error "Setup requires internet connection to download packages"
+    exit 1
+else
+    log_success "Internet connectivity verified"
+fi
 
 log_success "All preflight checks passed"

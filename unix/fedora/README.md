@@ -1,4 +1,4 @@
-# Fedora Setup
+# omaforge - Fedora
 
 Automated Fedora system setup.
 
@@ -26,48 +26,77 @@ Edit `config.json`:
 }
 ```
 
-## Package Lists
+## Package Management
 
-Plain text files in `packages/` (one per line, `#` for comments):
-
-- `base.packages` - Core utilities
-- `development.packages` - Dev tools
-- `tools.packages` - User apps
-- `system.packages` - System libraries
-- `flatpak.packages` - Flatpak apps
-
-## Adding Packages
+### Interactive
 
 ```bash
-# Add DNF package
-echo "neofetch" >> packages/base.packages
+./bin/omaforge-pkg-manage
+```
 
-# Add Flatpak app
-echo "org.mozilla.firefox" >> packages/flatpak.packages
+Add, remove, search packages with availability checking.
 
-# Run setup (idempotent - safe to re-run)
+### Manual
+
+```bash
+echo "fastfetch" >> packages/base.packages
 ./fedora-setup
 ```
 
-## What It Does
+### Package Lists
+
+- `base.packages` - Core utilities
+- `development.packages` - Dev tools
+- `tools.packages` - User applications
+- `system.packages` - System libraries
+- `flatpak.packages` - Flatpak apps
+
+## Web Applications
+
+Installed by default:
+
+- **Twitter (X)** - Standard
+- **ChatGPT** - Incognito mode
+- **Grok** - Incognito mode
+
+### Install Custom
+
+```bash
+./bin/omaforge-webapp-install "App Name" "https://example.com" "https://example.com/icon.png"
+
+# Incognito mode
+./bin/omaforge-webapp-install "App" "https://example.com" "icon.png" \
+  "omaforge-launch-browser --private https://example.com/"
+```
+
+### Remove
+
+```bash
+./bin/omaforge-webapp-remove           # Interactive
+./bin/omaforgeomaforge-webapp-remove ChatGPT   # Specific
+./bin/omaforgeomaforge-webapp-remove all       # All
+```
+
+## What's Installed
 
 - DNF optimization and system updates
-- Repository setup (RPM Fusion, COPR, external)
-- Package installation (DNF, Flatpak, Rust)
+- Repositories (RPM Fusion, COPR, Terra)
+- Packages (DNF, Flatpak, Rust)
+- Web apps (Twitter, ChatGPT, Grok)
 - Hardware support (ASUS, NVIDIA)
 - Performance tuning (zram, fstrim)
 - Git/SSH, NextDNS, dotfiles, ZSH
-- System services (PostgreSQL, Redis, Docker)
+- Services (PostgreSQL, Redis, Docker)
 
-## Post-Installation
+## Post-Install
 
-1. **Logout/login** - Group changes take effect (docker, etc.)
-2. **Reboot** - If NVIDIA drivers were installed
-3. **Add SSH key to GitHub:**
+1. Logout/login for group changes (docker, etc.)
+2. Reboot if NVIDIA drivers were installed
+3. Add SSH key to GitHub:
    ```bash
    cat ~/.ssh/id_ed25519.pub
    ```
-4. **Reload shell:**
+4. Reload shell:
    ```bash
    exec zsh
    ```
@@ -77,34 +106,26 @@ echo "org.mozilla.firefox" >> packages/flatpak.packages
 ### Package install fails
 
 ```bash
-# Verify repositories
 dnf repolist
-
-# Refresh cache
 dnf makecache
 ```
 
 ### Git config issues
 
 ```bash
-# Check Git config
 git config --list
-
-# Check SSH keys
 ls -la ~/.ssh/
 ```
 
 ### Services don't start
 
 ```bash
-# Check service status
 systemctl status service-name
-
-# View logs
 journalctl -u service-name
 ```
 
 ## Notes
 
 - All scripts are idempotent (safe to re-run)
-- Uses common scripts from `unix/common/`
+- Uses shared scripts from `unix/common/`
+- See [main README](../../README.md) for overview

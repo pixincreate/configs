@@ -1,6 +1,6 @@
-# macOS Setup
+# omaforge - macOS
 
-Automated macOS system configuration.
+Automated macOS system setup.
 
 ## Quick Start
 
@@ -26,40 +26,42 @@ Edit `config.json`:
 }
 ```
 
-## Package Lists
+## Package Management
 
-Plain text files in `packages/` (one per line, `#` for comments):
-
-- `brew.packages` - CLI tools
-- `cask.packages` - GUI apps
-
-## Adding Packages
+### Interactive
 
 ```bash
-# Add CLI tool
-echo "neofetch" >> packages/brew.packages
+./bin/omaforge-pkg-manage
+```
 
-# Add GUI app
-echo "firefox" >> packages/cask.packages
+Add, remove, search packages with availability checking.
 
-# Run setup (idempotent - safe to re-run)
+### Manual
+
+```bash
+echo "fastfetch" >> packages/brew.packages
 ./macos-setup
 ```
 
-## What It Does
+### Package Lists
 
-- Homebrew installation and setup
-- Package installation (brew, cask, Rust)
+- `brew.packages` - CLI tools
+- `cask.packages` - GUI applications
+
+## What's Installed
+
+- Homebrew setup
+- Packages (Homebrew, Cask, Rust)
 - System configuration (hostname)
 - Git/SSH, NextDNS, dotfiles, ZSH
 
-## Post-Installation
+## Post-Install
 
-1. **Add SSH key to GitHub:**
+1. Add SSH key to GitHub:
    ```bash
    cat ~/.ssh/id_ed25519.pub
    ```
-2. **Reload shell:**
+2. Reload shell:
    ```bash
    exec zsh
    ```
@@ -73,7 +75,7 @@ brew update
 brew doctor
 ```
 
-### Package fails to install
+### Package install fails
 
 ```bash
 brew search package-name
@@ -83,4 +85,5 @@ brew install package-name
 ## Notes
 
 - All scripts are idempotent (safe to re-run)
-- Uses common scripts from `unix/common/`
+- Uses shared scripts from `unix/common/`
+- See [main README](../../README.md) for overview

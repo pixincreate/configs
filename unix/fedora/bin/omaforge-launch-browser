@@ -1,0 +1,14 @@
+#!/bin/bash
+
+default_browser=$(xdg-settings get default-web-browser 2>/dev/null || echo "zen-browser.desktop")
+browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,/usr}/share/applications/$default_browser 2>/dev/null | head -1)
+
+if [[ $browser_exec =~ (firefox|zen) ]]; then
+  private_flag="--private-window"
+elif [[ $browser_exec =~ (brave|helium) ]]; then
+  private_flag="--incognito"
+else
+  private_flag="--incognito"
+fi
+
+exec "$browser_exec" "${@/--private/$private_flag}"

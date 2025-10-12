@@ -9,17 +9,19 @@
 ├── .gitignore
 ├── .gitmodules
 ├── docs
-│   ├── FEDORA_SETUP_GUIDE.md
 │   ├── TREE.md
 │   └── vanguard.md
 ├── home
-│   ├── Code
-│   │   └── .config
-│   │       └── Code
-│   │           └── User
+│   ├── cargo
+│   │   └── .cargo
+│   │       └── config.toml
 │   ├── config
 │   │   └── .config
 │   │       ├── alacritty
+│   │       │   ├── alacritty.toml
+│   │       ├── Code
+│   │       │   └── User
+│   │       │       └── settings.json
 │   │       ├── ghostty
 │   │       ├── gitconfig
 │   │       │   └── .gitconfig
@@ -29,7 +31,13 @@
 │   │       │   │   └── history
 │   │       │   └── settings.json
 │   │       ├── nvim
-│   │       ├── starship.toml
+│   │       ├── starship
+│   │       │   └── presets
+│   │       │       ├── catppuccin-powerline.toml
+│   │       │       ├── catppuccin.toml
+│   │       │       ├── current_preset
+│   │       │       ├── p10k.toml
+│   │       │       └── starship.toml
 │   │       ├── tmux
 │   │       │   ├── plugins
 │   │       │   │   └── tpm
@@ -46,32 +54,139 @@
 │   │           └── tasks.json
 │   ├── git
 │   │   └── .gitconfig
+│   ├── local
+│   │   └── .local
+│   │       └── bin
+│   │           └── asus-profile-notify.sh
+│   ├── Pictures
+│   │   └── Pictures
+│   │       └── Wallpapers
 │   ├── ssh
 │   │   └── .ssh
 │   │       └── config
-│   ├── vscode
-│   │   └── .config
-│   │       └── Code
-│   │           └── User
-│   │               └── settings.json
-│   ├── Wallpaper
-│   │   ├── PiXWallpaper
-│   │   │   ├── pix-wallpaper-desktop.png
-│   │   │   └── pix-wallpaper-mobile.png
-│   │   └── Wallpaper
 │   └── zsh
 │       ├── .zsh
 │       │   ├── .p10k.zsh
-│       │   ├── .starship.zsh
+│       │   ├── .starship.sh
 │       │   ├── .zshenv
 │       │   └── .zshrc
 │       └── .zshenv
 ├── LICENSE
 ├── README.md
 ├── unix
+│   ├── common
+│   │   ├── config
+│   │   │   ├── git.sh
+│   │   │   ├── nextdns.sh
+│   │   │   └── rust.sh
+│   │   ├── dotfiles
+│   │   │   ├── directories.sh
+│   │   │   ├── fonts.sh
+│   │   │   ├── stow.sh
+│   │   │   └── zsh.sh
+│   │   └── helpers
+│   │       └── platform.sh
 │   ├── fedora
-│   │   └── health-check.sh
-│   ├── packages.toml
+│   │   ├── bin
+│   │   │   ├── omaforge-launch-browser
+│   │   │   ├── omaforge-launch-webapp
+│   │   │   ├── omaforge-pkg-manage
+│   │   │   ├── omaforge-webapp-install
+│   │   │   └── omaforge-webapp-remove
+│   │   ├── config.json
+│   │   ├── fedora-setup
+│   │   ├── health-check.sh
+│   │   ├── install
+│   │   │   ├── config
+│   │   │   │   ├── all.sh
+│   │   │   │   ├── appimage.sh
+│   │   │   │   ├── firmware.sh
+│   │   │   │   ├── git.sh
+│   │   │   │   ├── hardware
+│   │   │   │   │   ├── all.sh
+│   │   │   │   │   ├── asus.sh
+│   │   │   │   │   └── nvidia.sh
+│   │   │   │   ├── multimedia.sh
+│   │   │   │   ├── nextdns.sh
+│   │   │   │   ├── performance.sh
+│   │   │   │   ├── secureboot.sh
+│   │   │   │   ├── services.sh
+│   │   │   │   └── system.sh
+│   │   │   ├── dotfiles
+│   │   │   │   ├── all.sh
+│   │   │   │   ├── directories.sh
+│   │   │   │   ├── fonts.sh
+│   │   │   │   ├── stow.sh
+│   │   │   │   └── zsh.sh
+│   │   │   ├── helpers
+│   │   │   │   ├── all.sh
+│   │   │   │   ├── common.sh
+│   │   │   │   ├── logging.sh
+│   │   │   │   └── presentation.sh
+│   │   │   ├── packaging
+│   │   │   │   ├── all.sh
+│   │   │   │   ├── base.sh
+│   │   │   │   ├── bloatware.sh
+│   │   │   │   ├── flatpak.sh
+│   │   │   │   ├── rust.sh
+│   │   │   │   └── webapps.sh
+│   │   │   ├── post-install
+│   │   │   │   ├── all.sh
+│   │   │   │   └── finished.sh
+│   │   │   ├── preflight
+│   │   │   │   ├── all.sh
+│   │   │   │   └── guard.sh
+│   │   │   └── repositories
+│   │   │       ├── all.sh
+│   │   │       ├── copr.sh
+│   │   │       ├── external.sh
+│   │   │       ├── rpmfusion.sh
+│   │   │       └── terra.sh
+│   │   ├── packages
+│   │   │   ├── base.packages
+│   │   │   ├── bloatware.packages
+│   │   │   ├── development.packages
+│   │   │   ├── flatpak.packages
+│   │   │   ├── system.packages
+│   │   │   └── tools.packages
+│   │   └── README.md
+│   ├── macos
+│   │   ├── bin
+│   │   │   └── omaforge-pkg-manage
+│   │   ├── config.json
+│   │   ├── install
+│   │   │   ├── config
+│   │   │   │   ├── all.sh
+│   │   │   │   ├── git.sh
+│   │   │   │   ├── nextdns.sh
+│   │   │   │   └── system.sh
+│   │   │   ├── dotfiles
+│   │   │   │   ├── all.sh
+│   │   │   │   ├── directories.sh
+│   │   │   │   ├── fonts.sh
+│   │   │   │   ├── stow.sh
+│   │   │   │   └── zsh.sh
+│   │   │   ├── helpers
+│   │   │   │   ├── all.sh
+│   │   │   │   ├── common.sh
+│   │   │   │   └── logging.sh
+│   │   │   ├── packaging
+│   │   │   │   ├── all.sh
+│   │   │   │   ├── brew.sh
+│   │   │   │   ├── cask.sh
+│   │   │   │   ├── homebrew.sh
+│   │   │   │   └── rust.sh
+│   │   │   ├── post-install
+│   │   │   │   ├── all.sh
+│   │   │   │   └── finished.sh
+│   │   │   └── preflight
+│   │   │       ├── all.sh
+│   │   │       └── guard.sh
+│   │   ├── macos-setup
+│   │   ├── packages
+│   │   │   ├── brew.packages
+│   │   │   └── cask.packages
+│   │   └── README.md
 │   └── setup.py
 └── windows
     ├── powershell
@@ -107,4 +222,4 @@
 
 ```
 
-tree generated with `tree -a -I ".git|fonts|themes|lua" . | pbcopy`
+tree generated with `tree -a -I ".git|fonts|themes|lua|*.jpg|*.png|*.webp|*.jpeg|*.gif|.DS_Store" . | pbcopy`
