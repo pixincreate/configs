@@ -1,10 +1,30 @@
 #!/bin/bash
 
+# Lock file to prevent concurrent executions and feedback loops
+LOCKFILE="/run/lock/asus-profile-notify.lock"
+STATEFILE="/tmp/asus-profile-last-state"
+
+# Try to acquire exclusive lock (non-blocking)
+exec 200>"$LOCKFILE"
+flock -n 200 || exit 0
+
 # Wait for hardware to stabilize after profile change
 sleep 0.3
 
 # Get current profile
 current_profile=$(asusctl profile --profile-get | grep "Active profile" | awk '{print $4}')
+
+# Check if this is the same profile as last run (prevent feedback loop)
+if [[ -f "$STATEFILE" ]]; then
+    last_profile=$(cat "$STATEFILE")
+    if [[ "$last_profile" == "$current_profile" ]]; then
+        # Same profile, this is likely a feedback loop from tuned-adm
+        exit 0
+    fi
+fi
+
+# Save current profile to state file
+echo "$current_profile" > "$STATEFILE"
 
 # Map ASUS profiles to TuneD profiles
 case "$current_profile" in
