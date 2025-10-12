@@ -4,25 +4,27 @@ Automated Fedora system setup.
 
 ## Quick Start
 
-## Quick Start
-
-````bash
+```bash
 cd ~/Dev/.configs/unix/fedora
 ./fedora-setup
+```
 
-### Adding Packages
+## Configuration
 
-EditMain```bash
-# configurationAdd DNF package
-echo "neofetch" >> packages/basepackages
+Edit `config.json`:
 
-# Add Flatpak app
-echo "org.mozilla.firefox" >> packages/flatpak.packages
-
-# Run setup (idempotent - won't reinstall existing)
-./fedora-setup
-fedoralaptop    "user_email": "your@email.com"
+```json
+{
+  "system": { "hostname": "fedora-laptop" },
+  "git": {
+    "user_name": "Your Name",
+    "user_email": "your@email.com"
   },
+  "rust": {
+    "tools": ["bat", "eza", "ripgrep", "zoxide", "starship"]
+  }
+}
+```
 
 ## Package Lists
 
@@ -31,14 +33,21 @@ Plain text files in `packages/` (one per line, `#` for comments):
 - `base.packages` - Core utilities
 - `development.packages` - Dev tools
 - `tools.packages` - User apps
+- `system.packages` - System libraries
 - `flatpak.packages` - Flatpak apps
 
 ## Adding Packages
 
 ```bash
+# Add DNF package
 echo "neofetch" >> packages/base.packages
+
+# Add Flatpak app
+echo "org.mozilla.firefox" >> packages/flatpak.packages
+
+# Run setup (idempotent - safe to re-run)
 ./fedora-setup
-````
+```
 
 ## What It Does
 
@@ -57,143 +66,45 @@ echo "neofetch" >> packages/base.packages
 3. **Add SSH key to GitHub:**
    ```bash
    cat ~/.ssh/id_ed25519.pub
-   # Add to https://github.com/settings/keys
    ```
-4. **Enroll MOK for Secure Boot** (if prompted):
+4. **Reload shell:**
    ```bash
-   mokutil --import /path/to/MOK.der
-   # Reboot and follow on-screen enrollment
+   exec zsh
    ```
-   /changesReload shell:execzsh
 
 ## Troubleshooting
 
-### failinstall
+### Package install fails
 
 ```bash
-# Check logs        # Check repositories
-journalctl -xe
-
-# Verify configuration
-cat config.json | jq       # Refresh cache
-```
-
-### Git Config Not Applied
-
-### Git config issues
-
-PackagesInstall#Verifyrepositories
+# Verify repositories
 dnf repolist
 
 # Refresh cache
-
 dnf makecache
+```
 
-# Try installing manually
+### Git config issues
 
-dnf install package```bash
-
-# Verify local config
-
-cat ~/.config/gitconfig/.gitconfig.local
-
+```bash
 # Check Git config
-
 git config --list
 
 # Check SSH keys
-
 ls -la ~/.ssh/
+```
 
-````
-
-### Services Don't Start
-
-Expected in containers. On real hardware:
+### Services don't start
 
 ```bash
 # Check service status
 systemctl status service-name
 
 # View logs
-journalctl -u service-name -n 50
-
-# Check if enabled
-systemctl is-enabled service-name
-````
-
-### Stow Conflicts
-
-```bash
-# Manually adopt conflicting files
-cd ~/Dev/.configs/home
-stow --adopt config
-
-# Or delete conflicting files first
-rm ~/.config/conflicting-file
-stow config
-```
-
-## Advanced Usage
-
-### Environment Variables
-
-```bash
-# Non-interactive mode
-NON_INTERACTIVE=true ./fedora-setup
-
-# Custom config file
-FEDORA_CONFIG=/path/to/custom-config.json ./fedora-setup
-
-# Custom paths
-FEDORA_PATH=/custom/path ./fedora-setup
-```
-
-### Dry Run Testing
-
-No built-in dry run, but you can:
-
-1. Test in container (OrbStack/Podman)
-2. Review package lists before running
-3. Run phases one-by-one
-4. Check config.json syntax: `cat config.json | jq`
-
-### Custom Scripts
-
-Add your own scripts to `install/` directories:
-
-```bash
-# Create custom script
-cat > install/config/custom.sh <<'EOF'
-#!/bin/bash
-echo "Running custom configuration"
-# Your code here
-EOF
-
-# Source it in install/config/all.sh
-echo 'source "$FEDORA_INSTALL/config/custom.sh"' >> install/config/all.sh
-```
-
-### Services Don't Start
-
-Expected in containers. On real hardware:
-
-```bash
-systemctl status service-name
-journalctl -xe
+journalctl -u service-name
 ```
 
 ## Notes
 
 - All scripts are idempotent (safe to re-run)
-- Color-coded logging for clarity
-- Hardware auto-detection where possible
-- Uses common scripts from `unix/common/` for cross-platform compatibility
-- All scripts are idempotent (safe to re-run)
 - Uses common scripts from `unix/common/`
-- See [ARCHITECTURE.yml](../../ARCHITECTURE.yml) for details
-- All scripts are idempotent (safe to re-run)
-- Uses common scripts from `unix/common/` for cross-platform compatibility
-- Color-coded logging for clarity
-- Hardware auto-detection where possible
-- Container-friendly (skips hardware/firmware when in container)

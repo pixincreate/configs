@@ -19,6 +19,9 @@ Edit `config.json`:
   "git": {
     "user_name": "Your Name",
     "user_email": "your@email.com"
+  },
+  "rust": {
+    "tools": ["bat", "eza", "ripgrep", "zoxide", "starship"]
   }
 }
 ```
@@ -33,7 +36,13 @@ Plain text files in `packages/` (one per line, `#` for comments):
 ## Adding Packages
 
 ```bash
+# Add CLI tool
 echo "neofetch" >> packages/brew.packages
+
+# Add GUI app
+echo "firefox" >> packages/cask.packages
+
+# Run setup (idempotent - safe to re-run)
 ./macos-setup
 ```
 
@@ -46,8 +55,14 @@ echo "neofetch" >> packages/brew.packages
 
 ## Post-Installation
 
-1. Add SSH key to GitHub
-2. Reload shell: `exec zsh`
+1. **Add SSH key to GitHub:**
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
+2. **Reload shell:**
+   ```bash
+   exec zsh
+   ```
 
 ## Troubleshooting
 
@@ -69,4 +84,3 @@ brew install package-name
 
 - All scripts are idempotent (safe to re-run)
 - Uses common scripts from `unix/common/`
-- See [ARCHITECTURE.yml](../../ARCHITECTURE.yml) for details
