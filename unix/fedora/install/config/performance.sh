@@ -52,19 +52,6 @@ if [[ "$enable_fstrim" == "true" ]]; then
     fi
 fi
 
-# Disable NetworkManager-wait-online for faster boot
-if systemctl list-unit-files | grep -q "NetworkManager-wait-online.service"; then
-    log_info "Disabling NetworkManager-wait-online.service for faster boot"
-
-    if sudo systemctl disable NetworkManager-wait-online.service 2>/dev/null; then
-        log_success "NetworkManager-wait-online.service disabled (saves ~15-20s boot time)"
-    else
-        log_info "NetworkManager-wait-online.service already disabled"
-    fi
-else
-    log_info "NetworkManager-wait-online.service not found"
-fi
-
 # CPU mitigations
 disable_mitigations=$(get_config '.performance.disable_cpu_mitigations')
 

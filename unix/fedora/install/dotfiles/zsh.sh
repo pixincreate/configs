@@ -1,8 +1,5 @@
 #!/bin/bash
-# ZSH configuration for Fedora
-# Uses common Unix ZSH script
 
-# Get ZSH configuration
 zsh_dir=$(expand_path "$(get_config '.directories.zsh')")
 
 # Source and run common ZSH setup

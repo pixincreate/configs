@@ -11,28 +11,6 @@ setup_zsh() {
 
     echo "Configuring ZSH"
 
-    if ! command -v zsh &>/dev/null; then
-        echo "[ERROR] ZSH is not installed"
-        echo "[INFO] Install ZSH:"
-        echo "  - macOS: brew install zsh"
-        echo "  - Fedora: sudo dnf install zsh"
-        echo "  - Debian: sudo apt install zsh"
-        echo "  - Android: pkg install zsh"
-        return 1
-    fi
-
-    mkdir -p "$zsh_dir"
-
-    local zgenom_dir="$zsh_dir/.zgenom"
-
-    if [[ ! -d "$zgenom_dir" ]]; then
-        echo "[INFO] zgenom not found, cloning from GitHub"
-        git clone https://github.com/jandamm/zgenom.git "$zgenom_dir"
-        echo "[SUCCESS] zgenom installed"
-    else
-        echo "[INFO] zgenom already installed"
-    fi
-
     local additionals_file="$zsh_dir/.additionals.zsh"
     local platform=$(detect_platform)
 
