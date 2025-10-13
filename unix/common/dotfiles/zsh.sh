@@ -27,98 +27,83 @@ setup_zsh() {
     case "$platform" in
         macos)
             cat > "$additionals_file" <<'EOF'
-# macOS specific ZSH configuration
+# macOS specific configurations
+typeset -U PATH path
+path=(
+    $path
+    $HOME/.yarn/bin
+    $HOME/.config/yarn/global/node_modules/.bin
+    $(brew --prefix)/opt/coreutils/libexec/gnubin
+    $(brew --prefix)/opt/findutils/libexec/gnubin
+    $(brew --prefix)/opt/gnu-getopt/bin
+    $(brew --prefix)/opt/gnu-indent/libexec/gnubin
+    $(brew --prefix)/opt/gnu-tar/libexec/gnubin
+    $(brew --prefix)/opt/binutils/bin
+    $(brew --prefix)/opt/homebrew/opt/openjdk@21/bin
+    $(brew --prefix)/opt/homebrew/opt/openjdk@17/bin
+    $(brew --prefix)/opt/llvm/bin
+)
+
+# Disable NPM ads
+export DISABLE_OPENCOLLECTIVE=1
+export ADBLOCK=1
+
+PQ_LIB_DIR="$(brew --prefix libpq)/lib"
+
+export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+export CC="$(brew --prefix)/opt/llvm/bin/clang"
 
 # omaforge bin
 export PATH="$HOME/Dev/.configs/unix/macos/bin:$PATH"
-
-# Homebrew
-if [[ -f /opt/homebrew/bin/brew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [[ -f /usr/local/bin/brew ]]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-fi
-
-# Development tools
-export JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null)
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools"
 
 # macOS aliases
 alias flush-dns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
 alias show-hidden='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder'
 alias hide-hidden='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder'
 
-# Homebrew completions
-if type brew &>/dev/null; then
-    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-fi
+alias zed=zed-preview
 EOF
             ;;
 
         fedora)
             cat > "$additionals_file" <<'EOF'
-# Fedora specific ZSH configuration
-
 # omaforge bin
 export PATH="$HOME/Dev/.configs/unix/fedora/bin:$PATH"
-
-# System health check
-alias health-check='echo "=== System Info ===" && fastfetch && echo -e "\n=== Disk Usage ===" && df -h / /home && echo -e "\n=== Memory ===" && free -h && echo -e "\n=== Top Processes ===" && ps aux --sort=-%mem | head -n 6'
-
-# Package management
-alias dnf-update='sudo dnf upgrade --refresh'
+# Fedora specific configurations
+export SYS_HEALTH="${HOME}/Dev/.configs/unix/fedora/health-check.sh"
+alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
 alias dnf-clean='sudo dnf autoremove && sudo dnf clean all'
-alias flatpak-update='flatpak update -y'
-
-# Services
-alias sys-failed='systemctl --failed'
-alias sys-status='systemctl status'
-
-# Development
-export JAVA_HOME=/usr/lib/jvm/java-latest-openjdk
+alias secure_boot_retrigger='sudo kmodgenca -a && sudo mokutil --import /etc/pki/akmods/certs/public_key.der'
 EOF
             ;;
 
         debian)
             cat > "$additionals_file" <<'EOF'
-# Debian/Ubuntu specific ZSH configuration
+# Debian specific configurations
+export LDFLAGS="-L/$(brew --prefix)/opt/binutils/lib"
+export CPPFLAGS="-I/$(brew --prefix)/opt/binutils/include"
 
-# WSL detection
-if grep -qi microsoft /proc/version 2>/dev/null; then
-    export WSL=1
-    # WSL specific aliases
-    alias open='explorer.exe'
+# WSL configurations (if applicable)
+if [[ -n "$WSL_DISTRO_NAME" ]]; then
+    export WINHOME=$(wslpath "$(cd /mnt/c && cmd.exe /C 'echo %USERPROFILE%' | tr -d '\\r')")
+    alias studio='/mnt/d/Program\\ Files/IDE/Android\\ Studio/bin/studio64.exe'
 fi
-
-# Package management
-alias apt-update='sudo apt update && sudo apt upgrade -y'
-alias apt-clean='sudo apt autoremove -y && sudo apt autoclean'
-
-# Development
-export JAVA_HOME=$(update-alternatives --query java | grep Value | cut -d' ' -f2 | sed 's|/bin/java||')
 EOF
             ;;
 
         android)
             cat > "$additionals_file" <<'EOF'
-# Android (Termux) specific ZSH configuration
-
 # Termux storage
 [[ ! -d ~/storage ]] && termux-setup-storage
-
-# Termux aliases
-alias backup='termux-backup'
-alias restore='termux-restore'
-
 # pkg aliases
 alias pkg-update='pkg upgrade -y'
 alias pkg-clean='pkg autoclean && pkg clean'
 
-# Termux API shortcuts
-alias battery='termux-battery-status'
-alias location='termux-location'
-alias sms='termux-sms-send'
+# Android/Termux specific configurations
+alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'
+alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'
+alias CONFIGS="${HOME}/Dev/.configs"
 EOF
             ;;
 
