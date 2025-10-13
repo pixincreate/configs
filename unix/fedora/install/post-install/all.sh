@@ -3,4 +3,4 @@
 
 log_section "Post-Installation"
 
-source "$FEDORA_INSTALL/post-install/finished.sh"
+source "$OMAFORGE_INSTALL/post-install/finished.sh"

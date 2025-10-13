@@ -46,10 +46,9 @@ jobs:
       - name: Test Fedora preflight checks
         run: |
           cd unix/fedora
-          export FEDORA_PATH="$(pwd)"
-          export FEDORA_INSTALL="$FEDORA_PATH/install"
-          export FEDORA_CONFIG="$FEDORA_PATH/config.json"
-          export NON_INTERACTIVE=true
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="$OMAFORGE_PATH/config.json"
           source install/helpers/all.sh
           # Only test that scripts can be sourced without errors
           echo "Fedora helper scripts loaded successfully"
@@ -177,10 +176,9 @@ jobs:
       - name: Test NON_INTERACTIVE mode
         run: |
           cd unix/fedora
-          export NON_INTERACTIVE=true
-          export FEDORA_PATH="$(pwd)"
-          export FEDORA_INSTALL="$FEDORA_PATH/install"
-          export FEDORA_CONFIG="$FEDORA_PATH/config.json"
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="$OMAFORGE_PATH/config.json"
 
           # Source helpers
           source install/helpers/all.sh

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-source "$FEDORA_INSTALL/helpers/logging.sh"
+source "$OMAFORGE_INSTALL/helpers/logging.sh"
 
 log_section "Web Applications"
 
 # Ensure bin directory is in PATH for the session
-export PATH="$FEDORA_PATH/bin:$PATH"
+export PATH="$OMAFORGE_PATH/bin:$PATH"
 
 # ChatGPT (Incognito mode)
 log_info "Installing ChatGPT web app (incognito)..."

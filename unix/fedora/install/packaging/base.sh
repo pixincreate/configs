@@ -6,7 +6,7 @@ echo "Installing base packages"
 declare -a all_packages=()
 
 # Read package files
-for pkg_file in "$FEDORA_PATH/packages"/{base,development,tools,system}.packages; do
+for pkg_file in "$OMAFORGE_PATH/packages"/{base,development,tools,system}.packages; do
     if [[ ! -f "$pkg_file" ]]; then
         log_warning "Package file not found: $pkg_file"
         continue

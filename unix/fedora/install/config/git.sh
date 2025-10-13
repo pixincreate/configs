@@ -9,7 +9,7 @@ ssh_dir=$(expand_path "$(get_config '.directories.ssh')")
 gitconfig_local="$HOME/.config/gitconfig/.gitconfig.local"
 
 # Source and run common git setup
-COMMON_SCRIPT="$FEDORA_PATH/../common/config/git.sh"
+COMMON_SCRIPT="$OMAFORGE_PATH/../common/config/git.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common git setup script not found: $COMMON_SCRIPT"

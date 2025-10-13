@@ -21,7 +21,7 @@ if ! flatpak remote-list 2>/dev/null | grep -q flathub; then
 fi
 
 # Read Flatpak apps from package file
-pkg_file="$FEDORA_PATH/packages/flatpak.packages"
+pkg_file="$OMAFORGE_PATH/packages/flatpak.packages"
 
 if [[ ! -f "$pkg_file" ]]; then
     log_info "No Flatpak applications configured"

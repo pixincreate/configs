@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-FEDORA_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-FEDORA_INSTALL="$FEDORA_PATH/install"
-export FEDORA_CONFIG="$FEDORA_PATH/config.json"
+OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+export OMAFORGE_CONFIG="$OMAFORGE_PATH/config.json"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-source "$FEDORA_INSTALL/helpers/all.sh"
+source "$OMAFORGE_INSTALL/helpers/all.sh"
 
 show_menu() {
     clear
@@ -52,7 +52,7 @@ reset_zsh() {
     fi
 
     rm -rf ~/.zsh/.zgenom ~/.zsh/.additionals.zsh
-    source "$FEDORA_INSTALL/dotfiles/zsh.sh"
+    source "$OMAFORGE_INSTALL/dotfiles/zsh.sh"
     echo -e "${GREEN}✓ ZSH reset complete${NC}"
     echo -e "${YELLOW}Run 'exec zsh' to reload${NC}"
 }
@@ -67,19 +67,19 @@ reset_stow() {
         return
     fi
 
-    source "$FEDORA_INSTALL/dotfiles/stow.sh"
+    source "$OMAFORGE_INSTALL/dotfiles/stow.sh"
     echo -e "${GREEN}✓ Dotfiles reset complete${NC}"
 }
 
 reset_fonts() {
     echo -e "${BLUE}Reinstalling fonts...${NC}"
-    source "$FEDORA_INSTALL/dotfiles/fonts.sh"
+    source "$OMAFORGE_INSTALL/dotfiles/fonts.sh"
     echo -e "${GREEN}✓ Fonts reinstalled${NC}"
 }
 
 reset_directories() {
     echo -e "${BLUE}Recreating directories...${NC}"
-    source "$FEDORA_INSTALL/dotfiles/directories.sh"
+    source "$OMAFORGE_INSTALL/dotfiles/directories.sh"
     echo -e "${GREEN}✓ Directories created${NC}"
 }
 
@@ -93,13 +93,13 @@ reset_git() {
         return
     fi
 
-    source "$FEDORA_INSTALL/config/git.sh"
+    source "$OMAFORGE_INSTALL/config/git.sh"
     echo -e "${GREEN}✓ Git & SSH reset complete${NC}"
 }
 
 reset_nextdns() {
     echo -e "${BLUE}Resetting NextDNS...${NC}"
-    source "$FEDORA_INSTALL/config/nextdns.sh"
+    source "$OMAFORGE_INSTALL/config/nextdns.sh"
     echo -e "${GREEN}✓ NextDNS reset complete${NC}"
 }
 
@@ -113,7 +113,7 @@ reset_services() {
         return
     fi
 
-    source "$FEDORA_INSTALL/config/services.sh"
+    source "$OMAFORGE_INSTALL/config/services.sh"
     echo -e "${GREEN}✓ Services reset complete${NC}"
 }
 
@@ -127,7 +127,7 @@ reset_hardware() {
         return
     fi
 
-    source "$FEDORA_INSTALL/config/hardware/all.sh"
+    source "$OMAFORGE_INSTALL/config/hardware/all.sh"
     echo -e "${GREEN}✓ Hardware reset complete${NC}"
 }
 
@@ -141,8 +141,8 @@ reset_webapps() {
         return
     fi
 
-    export PATH="$FEDORA_PATH/bin:$PATH"
-    source "$FEDORA_INSTALL/packaging/webapps.sh"
+    export PATH="$OMAFORGE_PATH/bin:$PATH"
+    source "$OMAFORGE_INSTALL/packaging/webapps.sh"
     echo -e "${GREEN}✓ Web apps reinstalled${NC}"
 }
 
@@ -156,7 +156,7 @@ reset_rust() {
         return
     fi
 
-    source "$FEDORA_INSTALL/packaging/rust.sh"
+    source "$OMAFORGE_INSTALL/packaging/rust.sh"
     echo -e "${GREEN}✓ Rust tools reinstalled${NC}"
 }
 

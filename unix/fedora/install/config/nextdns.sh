@@ -10,7 +10,7 @@ if ! cmd_exists nextdns; then
 fi
 
 # Source and run common nextdns setup
-COMMON_SCRIPT="$FEDORA_PATH/../common/config/nextdns.sh"
+COMMON_SCRIPT="$OMAFORGE_PATH/../common/config/nextdns.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common nextdns setup script not found: $COMMON_SCRIPT"

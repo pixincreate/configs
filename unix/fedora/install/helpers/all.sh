@@ -1,6 +1,6 @@
 #!/bin/bash
 # Source all helper functions
 
-source "$FEDORA_INSTALL/helpers/logging.sh"
-source "$FEDORA_INSTALL/helpers/common.sh"
-source "$FEDORA_INSTALL/helpers/presentation.sh"
+source "$OMAFORGE_INSTALL/helpers/logging.sh"
+source "$OMAFORGE_INSTALL/helpers/common.sh"
+source "$OMAFORGE_INSTALL/helpers/presentation.sh"

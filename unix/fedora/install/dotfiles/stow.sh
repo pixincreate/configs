@@ -7,7 +7,7 @@ target_dir="$HOME"
 mapfile -t packages < <(get_config_array '.dotfiles.stow_packages')
 
 # Source and run common stow setup
-COMMON_SCRIPT="$FEDORA_PATH/../common/dotfiles/stow.sh"
+COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/stow.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common stow script not found: $COMMON_SCRIPT"

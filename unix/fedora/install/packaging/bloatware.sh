@@ -4,7 +4,7 @@
 echo "Removing bloatware packages"
 
 # Read bloatware packages from package file
-pkg_file="$FEDORA_PATH/packages/bloatware.packages"
+pkg_file="$OMAFORGE_PATH/packages/bloatware.packages"
 
 if [[ ! -f "$pkg_file" ]]; then
     log_info "No bloatware packages configured for removal"

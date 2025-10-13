@@ -4,7 +4,7 @@
 echo "Setting up Rust"
 
 # Source common Rust setup
-COMMON_SCRIPT="$FEDORA_PATH/../common/config/rust.sh"
+COMMON_SCRIPT="$OMAFORGE_PATH/../common/config/rust.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common Rust script not found: $COMMON_SCRIPT"

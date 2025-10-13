@@ -4,8 +4,8 @@
 
 set -euo pipefail
 
-FEDORA_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES_DIR="$FEDORA_PATH/packages"
+OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PACKAGES_DIR="$OMAFORGE_PATH/packages"
 
 # Colors
 RED='\033[0;31m'

@@ -9,7 +9,7 @@ fonts_source=$(expand_path "$(get_config '.dotfiles.fonts_source')")
 fonts_target="$HOME/.local/share/fonts"
 
 # Source and run common fonts setup
-COMMON_SCRIPT="$FEDORA_PATH/../common/dotfiles/fonts.sh"
+COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/fonts.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common fonts script not found: $COMMON_SCRIPT"
