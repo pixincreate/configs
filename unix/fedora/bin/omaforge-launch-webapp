@@ -1,16 +1,33 @@
 #!/bin/bash
 
-# Force Brave for webapps (--app flag only works with Chromium-based browsers)
-# Try Flatpak first, then DNF package
-if [[ -f "$HOME/.local/share/applications/com.brave.Browser.desktop" ]] || [[ -f "/var/lib/flatpak/exports/share/applications/com.brave.Browser.desktop" ]]; then
-    browser="com.brave.Browser.desktop"
-elif [[ -f "$HOME/.local/share/applications/brave-browser.desktop" ]] || [[ -f "/usr/share/applications/brave-browser.desktop" ]]; then
-    browser="brave-browser.desktop"
-else
-    echo "[ERROR] Brave browser not found. Webapps require Brave browser."
-    echo "[ERROR] Install with: sudo dnf install brave-browser"
-    echo "[ERROR] Or: flatpak install flathub com.brave.Browser"
-    exit 1
-fi
+browser=$(xdg-settings get default-web-browser 2>/dev/null)
 
-exec setsid $(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,/usr,/var/lib/flatpak/exports}/share/applications/$browser 2>/dev/null | head -1) --app="$1" "${@:2}"
+# Check if browser is installed via Flatpak
+is_flatpak() {
+    grep -q "^Exec=.*flatpak run" {~/.local,/usr,/var/lib/flatpak/exports}/share/applications/"$browser" 2>/dev/null
+}
+
+# Determine browser type
+case $browser in
+    google-chrome*|brave*|microsoft-edge*|opera*|vivaldi*|chromium*|helium*)
+        browser_type="chromium"
+        flags="--incognito --app="
+        ;;
+    firefox*|zen*|floorp*|librewolf*)
+        browser_type="firefox"
+        flags="-kiosk -private-window "
+        ;;
+    *)
+        exec setsid flatpak run com.brave.Browser --incognito --app="$1" "${@:2}"
+        ;;
+esac
+
+# Launch browser
+if is_flatpak; then
+    # Extract app ID - look for pattern with dots (like app.zen_browser.zen or com.brave.Browser)
+    app_id=$(grep "^Exec=" {~/.local,/usr,/var/lib/flatpak/exports}/share/applications/"$browser" 2>/dev/null | head -1 | grep -oE '[a-z]+\.[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+' | head -1)
+    exec setsid flatpak run "$app_id" $flags"$1" "${@:2}"
+else
+    browser_bin=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,/usr}/share/applications/"$browser" 2>/dev/null | head -1)
+    exec setsid "$browser_bin" $flags"$1" "${@:2}"
+fi
