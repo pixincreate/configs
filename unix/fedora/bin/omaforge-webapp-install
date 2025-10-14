@@ -37,10 +37,12 @@ else
   fi
 fi
 
+OMAFORGE_BIN="$HOME/Dev/.configs/unix/fedora/bin"
+
 if [[ -n $CUSTOM_EXEC ]]; then
   EXEC_COMMAND="$CUSTOM_EXEC"
 else
-  EXEC_COMMAND="omaforge-launch-webapp $APP_URL"
+  EXEC_COMMAND="$OMAFORGE_BIN/omaforge-launch-webapp $APP_URL"
 fi
 
 DESKTOP_DIR="$HOME/.local/share/applications"

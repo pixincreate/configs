@@ -1,0 +1,30 @@
+#!/bin/bash
+# Remove packages interactively with fzf
+
+set -euo pipefail
+
+# Check if fzf is installed
+if ! command -v fzf &>/dev/null; then
+    echo "Error: fzf is required but not installed"
+    echo "Install it with: sudo dnf install fzf"
+    exit 1
+fi
+
+fzf_args=(
+    --multi
+    --preview 'dnf info {1} 2>/dev/null || echo "Package info not available"'
+    --preview-label='tab: multi-select, enter: confirm'
+    --preview-label-pos='bottom'
+    --preview-window 'down:65%:wrap'
+    --bind 'alt-k:preview-up,alt-j:preview-down'
+    --color 'pointer:red,marker:red'
+)
+
+# List installed packages and let user select
+pkg_names=$(dnf list --installed | tail -n +2 | awk '{print $1}' | sed 's/\..*$//' | sort -u | fzf "${fzf_args[@]}")
+
+if [[ -n "$pkg_names" ]]; then
+    # Convert newline-separated selections to space-separated
+    echo "$pkg_names" | tr '\n' ' ' | xargs sudo dnf remove -y
+    echo "Packages removed successfully"
+fi

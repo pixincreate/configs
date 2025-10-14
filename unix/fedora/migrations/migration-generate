@@ -1,0 +1,16 @@
+#!/bin/bash
+
+migrate_file_name="$(date +%s)"
+touch "unix/fedora/migrations/${migrate_file_name}.sh"
+chmod +x "unix/fedora/migrations/${migrate_file_name}.sh"
+
+echo '#!/bin/bash
+# Description of what this migration does
+
+echo "Running migration: <description>"
+
+# Your migration code here
+# Example: update configs, move files, install packages, etc.
+
+echo "Migration completed"
+' > "unix/fedora/migrations/${migrate_file_name}.sh"

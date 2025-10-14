@@ -15,8 +15,7 @@ setup_rust() {
     else
         echo "[INFO] Installing Rust with rustup-init..."
 
-        # Run rustup-init (assumes rustup was installed via package manager)
-        rustup-init -y --default-toolchain stable
+        rustup-init -y --default-toolchain stable --no-modify-path
 
         # Add cargo to PATH for the current process
         local cargo_bin="$HOME/.cargo/bin"

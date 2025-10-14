@@ -149,6 +149,48 @@ Remove web apps:
 ./bin/omaforge-webapp-remove ChatGPT   # Specific app
 ```
 
+## Updating Omaforge
+
+To update to the latest version:
+
+```bash
+cd ~/Dev/.configs
+git pull
+```
+
+### Migrations
+
+After pulling updates, migrations run automatically via `.envrc` (if using `direnv`):
+
+```bash
+# Migrations run automatically when entering the directory
+cd ~/Dev/.configs
+```
+
+Or run migrations manually:
+
+```bash
+omaforge-migrate
+# or
+~/Dev/.configs/unix/fedora/bin/omaforge-migrate
+```
+
+**Recommended setup with direnv:**
+
+```bash
+# Install direnv (Fedora)
+sudo dnf install direnv
+
+# Add to your shell config (~/.zshrc)
+eval "$(direnv hook zsh)"
+
+# Allow direnv in the configs directory
+cd ~/Dev/.configs
+direnv allow
+```
+
+Now migrations run automatically whenever you `cd` into the directory after pulling updates.
+
 ## Reset Components
 
 If you need to reset or re-run specific components:

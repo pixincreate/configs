@@ -1,12 +1,16 @@
 #!/bin/bash
 
-# Force Brave for webapps for webapps (--app flag only works with Chromium-based browsers)
-browser="brave-browser.desktop"
-
-# Verify Brave is installed
-if [[ ! -f "$HOME/.local/share/applications/$browser" ]] && [[ ! -f "/usr/share/applications/$browser" ]]; then
+# Force Brave for webapps (--app flag only works with Chromium-based browsers)
+# Try Flatpak first, then DNF package
+if [[ -f "$HOME/.local/share/applications/com.brave.Browser.desktop" ]] || [[ -f "/var/lib/flatpak/exports/share/applications/com.brave.Browser.desktop" ]]; then
+    browser="com.brave.Browser.desktop"
+elif [[ -f "$HOME/.local/share/applications/brave-browser.desktop" ]] || [[ -f "/usr/share/applications/brave-browser.desktop" ]]; then
+    browser="brave-browser.desktop"
+else
     echo "[ERROR] Brave browser not found. Webapps require Brave browser."
     echo "[ERROR] Install with: sudo dnf install brave-browser"
+    echo "[ERROR] Or: flatpak install flathub com.brave.Browser"
     exit 1
 fi
-exec setsid $(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,/usr}/share/applications/$browser 2>/dev/null | head -1) --app="$1" "${@:2}"
+
+exec setsid $(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,/usr,/var/lib/flatpak/exports}/share/applications/$browser 2>/dev/null | head -1) --app="$1" "${@:2}"

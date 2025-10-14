@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Where we store an empty file for each migration that has already been performed
+STATE_DIR="$HOME/.local/state/omaforge/migrations"
+mkdir -p "$STATE_DIR"
+
+# Skipped migrations are tracked separately
+mkdir -p "$STATE_DIR/skipped"
+
+# Get the omaforge path (parent of bin directory)
+OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Run any pending migrations
+for file in "$OMAFORGE_PATH/migrations"/*.sh; do
+  filename=$(basename "$file")
+
+  if [[ ! -f "$STATE_DIR/$filename" && ! -f "$STATE_DIR/skipped/$filename" ]]; then
+    echo -e "\e[32m\nRunning migration (${filename%.sh})\e[0m"
+
+    if bash $file; then
+      touch "$STATE_DIR/$filename"
+    else
+      read -p "Migration ${filename%.sh} failed. Skip and continue? [y/N] " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        touch "$STATE_DIR/skipped/$filename"
+      else
+        exit 1
+      fi
+    fi
+  fi
+done
