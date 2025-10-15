@@ -20,6 +20,7 @@ atuin
 tealdeer
 direnv
 tmux
+trash-cli
 tree
 fastfetch
 stow
