@@ -65,57 +65,21 @@ source "$OMAFORGE_INSTALL/helpers/all.sh"
 # Function to run a single module
 run_single_module() {
     local module="$1"
-    local module_path=""
 
-    # Try to find the module file
-    # First, check if it's a direct path
-    if [[ -f "$OMAFORGE_INSTALL/$module.sh" ]]; then
-        module_path="$OMAFORGE_INSTALL/$module.sh"
-    # Try with .sh extension if not already present
-    elif [[ -f "$OMAFORGE_INSTALL/${module%.sh}.sh" ]]; then
-        module_path="$OMAFORGE_INSTALL/${module%.sh}.sh"
-    # Search for common short names
-    else
-        # Common module locations
-        local search_paths=(
-            "config/hardware/$module.sh"
-            "config/$module.sh"
-            "packaging/$module.sh"
-            "repositories/$module.sh"
-            "dotfiles/$module.sh"
-            "preflight/$module.sh"
-            "post-install/$module.sh"
-        )
+    # Add .sh if not present
+    [[ "$module" != *.sh ]] && module="$module.sh"
 
-        for path in "${search_paths[@]}"; do
-            if [[ -f "$OMAFORGE_INSTALL/$path" ]]; then
-                module_path="$OMAFORGE_INSTALL/$path"
-                break
-            fi
-        done
-    fi
+    # Find the module file
+    local module_path=$(find "$OMAFORGE_INSTALL" -name "$module" -type f | head -1)
 
     if [[ -z "$module_path" ]]; then
         echo "[ERROR] Module not found: $module"
-        echo "[ERROR] Searched in common locations but couldn't find the module file"
-        echo ""
-        echo "Available modules:"
-        echo "  Hardware: asus, nvidia"
-        echo "  Config: system, git, firmware, multimedia, performance, services, nextdns, secureboot"
-        echo "  Packaging: base, flatpak, rust, bloatware, webapps"
-        echo "  Repositories: rpmfusion, copr, terra, external"
-        echo "  Dotfiles: zsh, fonts, directories, stow"
         exit 1
     fi
 
-    echo "[INFO] Running single module: $(basename "$module_path")"
-    echo "[INFO] Path: $module_path"
-    echo ""
-
+    echo "[INFO] Running: $module_path"
     source "$module_path"
-
-    echo ""
-    echo "[SUCCESS] Module completed: $(basename "$module_path")"
+    echo "[SUCCESS] Completed"
 }
 
 # Check if running single module or full setup

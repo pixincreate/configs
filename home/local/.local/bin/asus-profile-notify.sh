@@ -1,15 +1,35 @@
 #!/bin/bash
 
 # Lock file to prevent concurrent executions and feedback loops
-LOCKFILE="/run/lock/asus-profile-notify.lock"
-STATEFILE="/tmp/asus-profile-last-state"
+# Use XDG_RUNTIME_DIR (user-writable) instead of /run/lock (root-only)
+LOCKFILE="${XDG_RUNTIME_DIR:-/tmp}/asus-profile-notify.lock"
+STATEFILE="${XDG_RUNTIME_DIR:-/tmp}/asus-profile-last-state"
+DEBOUNCEFILE="${XDG_RUNTIME_DIR:-/tmp}/asus-profile-debounce"
+
+# Debounce: if script was run within last 0.5s, wait for things to settle
+if [[ -f "$DEBOUNCEFILE" ]]; then
+    last_run=$(cat "$DEBOUNCEFILE")
+    current_time=$(date +%s%3N)  # milliseconds
+    time_diff=$((current_time - last_run))
+
+    if [[ $time_diff -lt 500 ]]; then
+        # Too soon, let the dust settle
+        sleep 0.5
+    fi
+fi
+
+# Save current timestamp for debouncing
+date +%s%3N > "$DEBOUNCEFILE"
 
 # Try to acquire exclusive lock (non-blocking)
 exec 200>"$LOCKFILE"
-flock -n 200 || exit 0
+if ! flock -n 200; then
+    # Another instance is running, exit silently
+    exit 0
+fi
 
 # Wait for hardware to stabilize after profile change
-sleep 0.3
+sleep 0.2
 
 # Get current profile
 current_profile=$(asusctl profile --profile-get | grep "Active profile" | awk '{print $4}')
