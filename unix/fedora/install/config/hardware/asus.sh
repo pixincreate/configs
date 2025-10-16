@@ -33,7 +33,42 @@ sudo dnf install -y "${packages[@]}"
 sudo systemctl enable supergfxd.service || log_warning "Failed to enable supergfxd"
 sudo systemctl start asusd || log_warning "Failed to start asusd"
 
-# Configure udev rules for profile notifications
+# Fix tuned-ppd platform_profile mapping for ASUS laptops
+if [[ -f /sys/firmware/acpi/platform_profile_choices ]]; then
+    if grep -q "quiet" /sys/firmware/acpi/platform_profile_choices 2>/dev/null; then
+        log_info "Applying tuned-ppd patch for ASUS 'quiet' platform profile"
+
+        # Find the correct Python version
+        TUNED_CONTROLLER=$(find /usr/lib/python3.*/site-packages/tuned/ppd/controller.py 2>/dev/null | head -1)
+
+        if [[ -n "$TUNED_CONTROLLER" ]] && [[ -f "$TUNED_CONTROLLER" ]]; then
+            # Check if patch is already applied
+            if ! grep -q '"quiet": PPD_POWER_SAVER' "$TUNED_CONTROLLER"; then
+                # Backup original
+                sudo cp "$TUNED_CONTROLLER" "${TUNED_CONTROLLER}.backup"
+
+                # Apply patch: add "quiet": PPD_POWER_SAVER to PLATFORM_PROFILE_MAPPING
+                sudo sed -i '/PLATFORM_PROFILE_MAPPING = {/,/}/s/"low-power": PPD_POWER_SAVER,/"low-power": PPD_POWER_SAVER,\n    "quiet": PPD_POWER_SAVER,/' "$TUNED_CONTROLLER"
+
+                log_info "tuned-ppd patched successfully"
+
+                # Restart tuned-ppd
+                sudo systemctl restart tuned-ppd
+                log_info "tuned-ppd restarted"
+            else
+                log_info "tuned-ppd patch already applied"
+            fi
+        else
+            log_warning "tuned-ppd controller.py not found, skipping patch"
+        fi
+
+        # Fix SELinux context
+        if [[ -f /etc/tuned/ppd_base_profile ]]; then
+            sudo restorecon -v /etc/tuned/ppd_base_profile 2>/dev/null || true
+        fi
+    fi
+fi
+
 log_info "Setting up ASUS profile change notifications"
 
 # Get the actual user (not root)
@@ -42,6 +77,7 @@ REAL_UID=$(id -u "$REAL_USER")
 REAL_HOME=$(eval echo "~$REAL_USER")
 
 sudo tee /etc/udev/rules.d/99-asus-profile-toast.rules > /dev/null <<EOF
+# Trigger notification when ASUS platform profile changes (Fn+F5)
 KERNEL=="platform-profile-*", \\
     SUBSYSTEM=="platform-profile", \\
     ACTION=="change", \\
@@ -53,21 +89,9 @@ KERNEL=="platform-profile-*", \\
     '"
 EOF
 
-# Configure polkit for profile switching
-sudo tee /etc/polkit-1/rules.d/49-asus-profile.rules > /dev/null <<'EOF'
-// Allow switching TuneD profiles from udev/inactive sessions
-polkit.addRule(function(action, subject) {
-    if (action.id == "com.redhat.tuned.switch_profile") {
-        return polkit.Result.YES;
-    }
-});
-EOF
-
-sudo chmod 644 /etc/polkit-1/rules.d/49-asus-profile.rules
 sudo chmod 644 /etc/udev/rules.d/99-asus-profile-toast.rules
 
-# Restart services
-sudo systemctl restart polkit
+# Reload udev rules
 sudo udevadm control --reload-rules
 
 log_success "ASUS system optimizations applied"
