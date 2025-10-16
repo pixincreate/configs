@@ -33,29 +33,19 @@ sudo dnf install -y "${packages[@]}"
 sudo systemctl enable supergfxd.service || log_warning "Failed to enable supergfxd"
 sudo systemctl start asusd || log_warning "Failed to start asusd"
 
-# Configure udev rules for profile notifications
-log_info "Setting up ASUS profile change notifications"
+# Set up D-Bus monitoring for profile changes
+log_info "Setting up ASUS profile synchronization"
 
 # Get the actual user (not root)
 REAL_USER="${SUDO_USER:-$USER}"
-REAL_UID=$(id -u "$REAL_USER")
-REAL_HOME=$(eval echo "~$REAL_USER")
 
-sudo tee /etc/udev/rules.d/99-asus-profile-toast.rules > /dev/null <<EOF
-KERNEL=="platform-profile-*", \\
-    SUBSYSTEM=="platform-profile", \\
-    ACTION=="change", \\
-    RUN+="/bin/bash -c ' \\
-        DISPLAY=:0 \\
-        XDG_RUNTIME_DIR=/run/user/$REAL_UID \\
-        /usr/bin/sudo -u $REAL_USER \\
-        $REAL_HOME/.local/bin/asus-profile-notify.sh \\
-    '"
-EOF
+# Enable and start the user service
+sudo -u "$REAL_USER" systemctl --user enable asus-profile-sync.service
+sudo -u "$REAL_USER" systemctl --user start asus-profile-sync.service
 
 # Configure polkit for profile switching
 sudo tee /etc/polkit-1/rules.d/49-asus-profile.rules > /dev/null <<'EOF'
-// Allow switching TuneD profiles from udev/inactive sessions
+// Allow switching TuneD profiles from user sessions
 polkit.addRule(function(action, subject) {
     if (action.id == "com.redhat.tuned.switch_profile") {
         return polkit.Result.YES;
@@ -64,10 +54,6 @@ polkit.addRule(function(action, subject) {
 EOF
 
 sudo chmod 644 /etc/polkit-1/rules.d/49-asus-profile.rules
-sudo chmod 644 /etc/udev/rules.d/99-asus-profile-toast.rules
-
-# Restart services
 sudo systemctl restart polkit
-sudo udevadm control --reload-rules
 
 log_success "ASUS system optimizations applied"

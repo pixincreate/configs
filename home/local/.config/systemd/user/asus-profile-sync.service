@@ -1,0 +1,12 @@
+[Unit]
+Description=ASUS Profile Synchronization Service
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/asus-profile-sync.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
