@@ -15,6 +15,36 @@ error_handler() {
 
 trap 'error_handler $LINENO' ERR
 
+# Parse command-line arguments
+ONLY_MODULE=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --only)
+            ONLY_MODULE="$2"
+            shift 2
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --only <module>    Run only a specific module"
+            echo "                     Examples: asus, config/hardware/asus, packaging/flatpak"
+            echo "  --help, -h        Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  $0                          # Run full setup"
+            echo "  $0 --only asus              # Run only ASUS hardware config"
+            echo "  $0 --only config/git        # Run only git configuration"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
 # Define paths with OMAFORGE prefix for consistency
 export OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
@@ -32,13 +62,74 @@ fi
 # Source all helper functions
 source "$OMAFORGE_INSTALL/helpers/all.sh"
 
-# Show welcome message
-show_welcome
+# Function to run a single module
+run_single_module() {
+    local module="$1"
+    local module_path=""
 
-# Execute installation phases
-source "$OMAFORGE_INSTALL/preflight/all.sh"
-source "$OMAFORGE_INSTALL/repositories/all.sh"
-source "$OMAFORGE_INSTALL/packaging/all.sh"
-source "$OMAFORGE_INSTALL/config/all.sh"
-source "$OMAFORGE_INSTALL/dotfiles/all.sh"
-source "$OMAFORGE_INSTALL/post-install/all.sh"
+    # Try to find the module file
+    # First, check if it's a direct path
+    if [[ -f "$OMAFORGE_INSTALL/$module.sh" ]]; then
+        module_path="$OMAFORGE_INSTALL/$module.sh"
+    # Try with .sh extension if not already present
+    elif [[ -f "$OMAFORGE_INSTALL/${module%.sh}.sh" ]]; then
+        module_path="$OMAFORGE_INSTALL/${module%.sh}.sh"
+    # Search for common short names
+    else
+        # Common module locations
+        local search_paths=(
+            "config/hardware/$module.sh"
+            "config/$module.sh"
+            "packaging/$module.sh"
+            "repositories/$module.sh"
+            "dotfiles/$module.sh"
+            "preflight/$module.sh"
+            "post-install/$module.sh"
+        )
+
+        for path in "${search_paths[@]}"; do
+            if [[ -f "$OMAFORGE_INSTALL/$path" ]]; then
+                module_path="$OMAFORGE_INSTALL/$path"
+                break
+            fi
+        done
+    fi
+
+    if [[ -z "$module_path" ]]; then
+        echo "[ERROR] Module not found: $module"
+        echo "[ERROR] Searched in common locations but couldn't find the module file"
+        echo ""
+        echo "Available modules:"
+        echo "  Hardware: asus, nvidia"
+        echo "  Config: system, git, firmware, multimedia, performance, services, nextdns, secureboot"
+        echo "  Packaging: base, flatpak, rust, bloatware, webapps"
+        echo "  Repositories: rpmfusion, copr, terra, external"
+        echo "  Dotfiles: zsh, fonts, directories, stow"
+        exit 1
+    fi
+
+    echo "[INFO] Running single module: $(basename "$module_path")"
+    echo "[INFO] Path: $module_path"
+    echo ""
+
+    source "$module_path"
+
+    echo ""
+    echo "[SUCCESS] Module completed: $(basename "$module_path")"
+}
+
+# Check if running single module or full setup
+if [[ -n "$ONLY_MODULE" ]]; then
+    run_single_module "$ONLY_MODULE"
+else
+    # Show welcome message
+    show_welcome
+
+    # Execute installation phases
+    source "$OMAFORGE_INSTALL/preflight/all.sh"
+    source "$OMAFORGE_INSTALL/repositories/all.sh"
+    source "$OMAFORGE_INSTALL/packaging/all.sh"
+    source "$OMAFORGE_INSTALL/config/all.sh"
+    source "$OMAFORGE_INSTALL/dotfiles/all.sh"
+    source "$OMAFORGE_INSTALL/post-install/all.sh"
+fi
