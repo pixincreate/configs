@@ -70,4 +70,51 @@ if [[ "$disable_mitigations" == "true" ]]; then
     fi
 fi
 
+# Reduce grub timeout
+grub_timeout=$(get_config '.performance.grub_timeout')
+
+# If grub_timeout is a valid integer
+if [[ -v grub_timeout && "$grub_timeout" =~ ^[0-9]+$ ]]; then
+    log_warning "Reducing GRUB timeout to 1 second"
+
+    if confirm "This will reduce GRUB timeout. Continue?"; then
+        if [ -f /etc/default/grub ] && sudo sed -i.bak "s/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=$grub_timeout/" /etc/default/grub; then
+            grub_cfg=$( [ -d /boot/grub2 ] && echo "/boot/grub2/grub.cfg" || echo "/boot/grub/grub.cfg" )
+
+            if [ -n "$grub_cfg" ] && sudo grub2-mkconfig -o "$grub_cfg"; then
+                log_success "GRUB timeout reduced to 1 second"
+            else
+                log_warning "Failed to update GRUB configuration"
+            fi
+        else
+            log_warning "Failed to modify /etc/default/grub or file not found"
+        fi
+    else
+        log_warning "Operation cancelled by user"
+    fi
+else
+    log_warning "grub_timeout is not set or not a valid integer"
+fi
+
+# Do not ask user to enter the LUKS password
+auto_luks=$(get_config '.performance.auto_luks')
+
+if [[ "$auto_luks" == "true" ]]; then
+    log_warning "Setting up TPM2 auto-unlock for LUKS"
+    
+    if confirm "This will reduce security. Continue?"; then
+        LUKS_DEVICE=$(lsblk -nlo NAME,FSTYPE | grep crypto_LUKS | awk '{print "/dev/"$1}')
+        
+        if [ -n "$LUKS_DEVICE" ]; then
+            log_info "TPM2 device found, enrolling..."
+            
+            sudo systemd-cryptenroll "$LUKS_DEVICE" --tpm2-device=auto --tpm2-pcrs=0+1+7
+            sudo dracut -f
+            
+            log_info "To rollback tpm2 auto-unlock, execute:\nsudo system-cryptenroll $LUKS_DEVICE --wipe-slot=tpm2\nsudo dracut -f"
+        fi
+    
+    fi
+fi
+
 log_success "Performance optimizations applied"

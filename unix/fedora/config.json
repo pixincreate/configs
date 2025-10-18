@@ -61,7 +61,10 @@
       "redis.service",
       "tailscaled.service"
     ],
-    "disable": ["NetworkManager-wait-online.service"]
+    "disable": [
+      "cups.service",
+      "NetworkManager-wait-online.service"
+    ]
   },
   "hardware": {
     "asus": {
@@ -82,7 +85,10 @@
     "zram_size_mb": 24576,
     "disable_cpu_mitigations": false,
     "enable_fstrim": true,
-    "enable_oomd": true
+    "enable_oomd": true,
+    "grub_timeout": 1,
+    "auto_luks": true
+    
   },
   "git": {
     "user_name": "PiX",
