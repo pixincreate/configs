@@ -61,10 +61,7 @@
       "redis.service",
       "tailscaled.service"
     ],
-    "disable": [
-      "cups.service",
-      "NetworkManager-wait-online.service"
-    ]
+    "disable": ["cups.service", "NetworkManager-wait-online.service"]
   },
   "hardware": {
     "asus": {
@@ -87,8 +84,9 @@
     "enable_fstrim": true,
     "enable_oomd": true,
     "grub_timeout": 1,
-    "auto_luks": true
-    
+    "auto_luks": true,
+    "shut_off_time": 5,
+    "swappiness": 10
   },
   "git": {
     "user_name": "PiX",

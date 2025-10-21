@@ -6,6 +6,13 @@ echo "Applying performance optimizations"
 # Configure zram
 enable_zram=$(get_config '.performance.enable_zram')
 zram_size=$(get_config '.performance.zram_size_mb')
+enable_oomd=$(get_config '.performance.enable_oomd')
+enable_fstrim=$(get_config '.performance.enable_fstrim')
+disable_mitigations=$(get_config '.performance.disable_cpu_mitigations')
+grub_timeout=$(get_config '.performance.grub_timeout')
+auto_luks=$(get_config '.performance.auto_luks')
+swappiness=$(get_config '.performance.swappiness')
+shut_off_time=$(get_config '.performance.shut_off_time')
 
 if [[ "$enable_zram" == "true" ]]; then
     log_info "Configuring zram swap"
@@ -26,9 +33,6 @@ EOF
     fi
 fi
 
-# Enable systemd-oomd
-enable_oomd=$(get_config '.performance.enable_oomd')
-
 if [[ "$enable_oomd" == "true" ]]; then
     log_info "Enabling systemd-oomd (Out-of-Memory Daemon)"
 
@@ -39,9 +43,6 @@ if [[ "$enable_oomd" == "true" ]]; then
     fi
 fi
 
-# Enable fstrim for SSDs
-enable_fstrim=$(get_config '.performance.enable_fstrim')
-
 if [[ "$enable_fstrim" == "true" ]]; then
     log_info "Enabling fstrim timer for SSD optimization"
 
@@ -51,9 +52,6 @@ if [[ "$enable_fstrim" == "true" ]]; then
         log_info "fstrim timer not available in this environment"
     fi
 fi
-
-# CPU mitigations
-disable_mitigations=$(get_config '.performance.disable_cpu_mitigations')
 
 if [[ "$disable_mitigations" == "true" ]]; then
     log_warning "Disabling CPU mitigations (less secure but faster)"
@@ -69,9 +67,6 @@ if [[ "$disable_mitigations" == "true" ]]; then
         log_info "Keeping CPU mitigations enabled"
     fi
 fi
-
-# Reduce grub timeout
-grub_timeout=$(get_config '.performance.grub_timeout')
 
 # If grub_timeout is a valid integer
 if [[ -v grub_timeout && "$grub_timeout" =~ ^[0-9]+$ ]]; then
@@ -96,25 +91,40 @@ else
     log_warning "grub_timeout is not set or not a valid integer"
 fi
 
-# Do not ask user to enter the LUKS password
-auto_luks=$(get_config '.performance.auto_luks')
-
 if [[ "$auto_luks" == "true" ]]; then
     log_warning "Setting up TPM2 auto-unlock for LUKS"
-    
+
     if confirm "This will reduce security. Continue?"; then
         LUKS_DEVICE=$(lsblk -nlo NAME,FSTYPE | grep crypto_LUKS | awk '{print "/dev/"$1}')
-        
+
         if [ -n "$LUKS_DEVICE" ]; then
             log_info "TPM2 device found, enrolling..."
-            
+
             sudo systemd-cryptenroll "$LUKS_DEVICE" --tpm2-device=auto --tpm2-pcrs=0+1+7
             sudo dracut -f
-            
+
             log_info "To rollback tpm2 auto-unlock, execute:\nsudo system-cryptenroll $LUKS_DEVICE --wipe-slot=tpm2\nsudo dracut -f"
         fi
-    
     fi
 fi
+
+if [[ -v swappiness && "$swappiness" =~ ^[0-9]+$ ]]; then
+    sudo tee /etc/sysctl.d/99-performance.conf > /dev/null <<EOF
+net.ipv4.tcp_mtu_probing=1
+vm.swappiness=${swappiness}
+EOF
+fi
+
+if [[ -v shut_off_time && "$shut_off_time" =~ ^[0-9]+$ ]]; then
+    sudo mkdir -p /etc/systemd/system.conf.d
+
+    sudo tee /etc/systemd/system.conf.d/10-faster-shutdown.conf > /dev/null <<EOF
+[Manager]
+DefaultTimeoutStopSec=${shut_off_time}s
+EOF
+fi
+
+sudo sysctl --system
+sudo systemctl daemon-reload
 
 log_success "Performance optimizations applied"
