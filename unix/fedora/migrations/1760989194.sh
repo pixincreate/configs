@@ -70,6 +70,4 @@ else
     echo "Pictures source not found: $STOW_SOURCE/Pictures"
 fi
 
-
-
 echo "Migration completed successfully"
