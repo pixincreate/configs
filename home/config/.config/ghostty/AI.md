@@ -1,0 +1,23 @@
+# ghostty documentation reference
+
+- remember to look for configuration by viewing this site:
+  - https://ghostty.org/docs/config
+  - https://ghostty.org/docs/config/reference (configuration options)
+- to help figure out keybinds, use the following links as references:
+  - https://ghostty.org/docs/config/keybind
+  - https://ghostty.org/docs/config/keybind/sequence
+  - https://ghostty.org/docs/config/keybind/reference
+- to learn about configuring on linux
+  - https://ghostty.org/docs/linux
+  - https://ghostty.org/docs/linux/systemd
+- to learn about the features that ghostty supports, use the following links as references:
+  - https://ghostty.org/docs/features
+  - https://ghostty.org/docs/features/theme
+  - https://ghostty.org/docs/features/shell-integration
+- for learning about common issues and solutions, refer to ghostty help links attached below:
+  - https://ghostty.org/docs/help
+  - https://ghostty.org/docs/help/terminfo
+  - https://ghostty.org/docs/help/gtk-single-instance
+  - https://ghostty.org/docs/help/gtk-opengl-context
+  - https://ghostty.org/docs/help/macos-tiling-wms
+  - https://ghostty.org/docs/help/macos-login-shells

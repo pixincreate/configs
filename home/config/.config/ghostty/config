@@ -1,42 +1,31 @@
-# Theme
-theme = light:catppuccin-latte,dark:catppuccin-mocha
+# Ghostty Configuration V2
+# Simple, effective, organized
 
-font-family = "JetBrains Mono"
-# font-family = "Geist Mono"
-font-style = regular
-font-size = 16
+# Load OS-specific settings (auto-detects based on which file exists)
+# Create a symlink: os/current.conf -> macos.conf or linux.conf
+config-file = ?os/current.conf
 
-# Keybinds
-config-file = keybinds
+# Core modules
+config-file = theme.conf
+config-file = appearance.conf
+config-file = keybinds.conf
+config-file = quick-terminal.conf
 
-# Terminal Type
-# term = xterm-ghostty
-term = xterm-256color
-window-decoration = false
-window-padding-x = 10
+# Shell integration
+shell-integration = detect
+shell-integration-features = cursor,title,sudo,ssh-terminfo,path
 
-# MacOS Specific
-macos-auto-secure-input = true
-macos-secure-input-indication = true
-macos-non-native-fullscreen = true
+# Basic settings
+term = xterm-ghostty
+scrollback-limit = 10000000
+window-inherit-working-directory = true
+window-inherit-font-size = true
+confirm-close-surface = true
 
-# Shader
-# custom-shader = shaders/starfield.glsl
+# Cross-platform behavior (different defaults per OS)
+# false on macOS, true on Linux by default
+quit-after-last-window-closed = false
+undo-timeout = 8s
 
-shell-integration = zsh
-shell-integration-features = no-cursor,sudo,no-title
-cursor-style = block
-adjust-cell-height = 35%
-background-opacity = 0.9
-
-mouse-hide-while-typing = true
-mouse-scroll-multiplier = 2
-
-window-padding-balance = true
-window-save-state = always
-macos-titlebar-style=transparent
-window-colorspace = "display-p3"
-window-vsync = true
-# background = 1C2021
-# foreground = d4be98
-
+# Quick terminal (cross-platform base settings)
+quick-terminal-screen = mouse
