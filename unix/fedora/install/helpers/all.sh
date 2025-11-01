@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 # Source all helper functions
 
 source "$OMAFORGE_INSTALL/helpers/logging.sh"

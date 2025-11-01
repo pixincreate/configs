@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 # Common helper functions for Fedora setup
 # Using JSON config with jq for pure shell implementation
 

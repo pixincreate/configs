@@ -1,4 +1,6 @@
 #!/bin/bash
+set -eEuo pipefail
+
 # Migration: Set up LUKS Auto Unlock and reduce GRUB timeout to 1 second
 
 echo "Running migration: Set up LUKS Auto Unlock and reduce GRUB timeout to 1 second"
@@ -73,7 +75,6 @@ else
         echo "Skipped TPM2 enrollment"
     fi
 fi
-
 
 echo ""
 echo "[3/3] Disabling CUPS service..."

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 # Presentation helpers for Fedora setup
 # Terminal UI functions
 

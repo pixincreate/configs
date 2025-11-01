@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 # Logging functions for Fedora setup
 # No emojis, professional output following Omarchy standards
 

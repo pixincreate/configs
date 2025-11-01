@@ -1,5 +1,7 @@
 #!/bin/bash
-# Add configurable shutdown timeout and swappiness settings
+set -eEuo pipefail
+
+# Migration: Add configurable shutdown timeout and swappiness settings
 # Restow browser flags and osaka jade wallpapers
 # Configure Firefox smooth scrolling
 
@@ -70,4 +72,4 @@ else
     echo "Pictures source not found: $STOW_SOURCE/Pictures"
 fi
 
-echo "Migration completed successfully"
+echo "[SUCCESS] Migration completed successfully"

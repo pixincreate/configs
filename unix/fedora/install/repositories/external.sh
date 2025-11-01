@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 # Setup external repositories (VS Code, Tailscale, etc.)
 
 echo "Setting up external repositories"

@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -eEuo pipefail
+
 # Apply all system configurations
 
 log_section "System Configuration"

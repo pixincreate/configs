@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 # Setup all repositories
 
 log_section "Repository Setup"

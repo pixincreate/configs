@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 # Install all packages
 
 log_section "Package Installation"

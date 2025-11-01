@@ -1,4 +1,6 @@
 #!/bin/bash
+set -eEuo pipefail
+
 # System configuration
 
 echo "Configuring system settings"
@@ -9,8 +11,12 @@ current_hostname=$(hostnamectl hostname)
 
 if [[ -n "$hostname" && "$hostname" != "$current_hostname" ]]; then
     log_info "Setting hostname to: $hostname"
-    sudo hostnamectl set-hostname "$hostname"
-    log_success "Hostname configured"
+    if sudo hostnamectl set-hostname "$hostname"; then
+        log_success "Hostname configured"
+    else
+        log_error "Failed to set hostname"
+        return 1
+    fi
 else
     log_info "Hostname already set to: $current_hostname"
 fi
@@ -38,6 +44,10 @@ log_success "DNF configuration optimized"
 
 # Update system
 log_info "Updating system packages"
-sudo dnf update -y --refresh
+if sudo dnf update -y --refresh; then
+    log_success "System updated successfully"
+else
+    log_warning "System update completed with warnings"
+fi
 
 log_success "System configuration completed"

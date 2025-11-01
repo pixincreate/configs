@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 # Manage all dotfiles
 
 log_section "Dotfiles Management"

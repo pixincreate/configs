@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eEuo pipefail
 
 # Where we store an empty file for each migration that has already been performed
 STATE_DIR="$HOME/.local/state/omaforge/migrations"
@@ -10,23 +11,64 @@ mkdir -p "$STATE_DIR/skipped"
 # Get the omaforge path (parent of bin directory)
 OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Track migration results
+declare -i total=0
+declare -i applied=0
+declare -i skipped=0
+declare -i failed=0
+
 # Run any pending migrations
 for file in "$OMAFORGE_PATH/migrations"/*.sh; do
+  # Skip if no migration files found
+  [[ ! -f "$file" ]] && continue
+
   filename=$(basename "$file")
+  total=$((total + 1))
 
-  if [[ ! -f "$STATE_DIR/$filename" && ! -f "$STATE_DIR/skipped/$filename" ]]; then
-    echo -e "\e[32m\nRunning migration (${filename%.sh})\e[0m"
+  if [[ -f "$STATE_DIR/$filename" ]]; then
+    echo "[INFO] Migration already applied: ${filename%.sh}"
+    skipped=$((skipped + 1))
+    continue
+  fi
 
-    if bash $file; then
-      touch "$STATE_DIR/$filename"
+  if [[ -f "$STATE_DIR/skipped/$filename" ]]; then
+    echo "[INFO] Migration previously skipped: ${filename%.sh}"
+    skipped=$((skipped + 1))
+    continue
+  fi
+
+  echo -e "\e[32m\nRunning migration (${filename%.sh})\e[0m"
+
+  if bash "$file"; then
+    touch "$STATE_DIR/$filename"
+    applied=$((applied + 1))
+    echo -e "\e[32m[SUCCESS] Migration completed: ${filename%.sh}\e[0m"
+  else
+    failed=$((failed + 1))
+    echo -e "\e[31m[ERROR] Migration failed: ${filename%.sh}\e[0m"
+
+    read -p "Migration ${filename%.sh} failed. Skip and continue? [y/N] " -n 1 -r
+    echo
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+      touch "$STATE_DIR/skipped/$filename"
+      echo "[WARNING] Migration skipped, system may be in inconsistent state"
     else
-      read -p "Migration ${filename%.sh} failed. Skip and continue? [y/N] " -n 1 -r
-      echo
-      if [[ $REPLY =~ ^[Yy]$ ]]; then
-        touch "$STATE_DIR/skipped/$filename"
-      else
-        exit 1
-      fi
+      echo "[ERROR] Aborting migration process"
+      exit 1
     fi
   fi
 done
+
+# Summary
+if [[ $total -gt 0 ]]; then
+  echo ""
+  echo "================================================================================"
+  echo "Migration Summary:"
+  echo "  Total migrations: $total"
+  echo "  Applied: $applied"
+  echo "  Skipped: $skipped"
+  echo "  Failed: $failed"
+  echo "================================================================================"
+else
+  echo "[INFO] No migrations found"
+fi
