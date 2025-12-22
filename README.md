@@ -264,9 +264,6 @@ Each platform has a `config.json` for declarative configuration:
   "nextdns": {
     "config_id": ""
   },
-  "rust": {
-    "tools": ["bat", "eza", "ripgrep", "fd-find", "zoxide", "starship"]
-  },
   "hardware": {
     "asus": { "auto_detect": true },
     "nvidia": { "auto_detect": true, "prefer_open_driver": true }
