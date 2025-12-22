@@ -13,6 +13,7 @@ create_directories() {
     local directories=(
         "$HOME/.config"
         "$HOME/.local/bin"
+        "$HOME/.npm-global",
         "$HOME/.ssh"
         "$HOME/.zsh"
         "$HOME/Pictures"

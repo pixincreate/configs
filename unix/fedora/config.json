@@ -99,7 +99,8 @@
     "fonts": "~/.local/share/fonts",
     "wallpapers": "~/Pictures/Wallpapers",
     "screenshots": "~/Pictures/Screenshots",
-    "zsh": "~/.zsh"
+    "zsh": "~/.zsh",
+    "npm_global": "~/.npm-global"
   },
   "dotfiles": {
     "stow_source": "~/Dev/.configs/home",
