@@ -16,8 +16,15 @@ source "$COMMON_SCRIPT"
 # Setup Rust toolchain
 setup_rust
 
-# Get Rust tools from config
-mapfile -t tools < <(get_config_array '.rust.tools')
+# Read Rust tools from package file
+pkg_file="$OMAFORGE_PATH/packages/rust.packages"
+
+if [[ ! -f "$pkg_file" ]]; then
+    log_info "No Rust tools configured"
+    return 0
+fi
+
+mapfile -t tools < <(grep -v '^#' "$pkg_file" | grep -v '^$')
 
 if [[ ${#tools[@]} -eq 0 ]]; then
     log_info "No Rust tools configured"

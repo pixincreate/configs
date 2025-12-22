@@ -1,0 +1,11 @@
+# Cargo tools
+
+cargo-audit
+cargo-deny
+cargo-fuzz
+cargo-wipe
+cargo-update
+cargo-cache
+just
+rustlings
+wasm-pack
