@@ -40,7 +40,7 @@ default = simple
 autoSetupRemote = true
 
 [rerere]
-enabled = true
+enabled = false
 
 [status]
 submodulesummary = true
