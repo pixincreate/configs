@@ -1,0 +1,7 @@
+# NPM global packages
+# These packages will be installed globally with npm install -g
+
+eslint
+opencode-ai
+prettier
+typescript

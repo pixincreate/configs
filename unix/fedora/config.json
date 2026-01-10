@@ -41,19 +41,6 @@
       }
     ]
   },
-  "rust": {
-    "tools": [
-      "cargo-audit",
-      "cargo-deny",
-      "cargo-fuzz",
-      "cargo-wipe",
-      "cargo-update",
-      "cargo-cache",
-      "just",
-      "rustlings",
-      "wasm-pack"
-    ]
-  },
   "services": {
     "enable": [
       "docker.service",
@@ -99,7 +86,8 @@
     "fonts": "~/.local/share/fonts",
     "wallpapers": "~/Pictures/Wallpapers",
     "screenshots": "~/Pictures/Screenshots",
-    "zsh": "~/.zsh"
+    "zsh": "~/.zsh",
+    "npm_global": "~/.npm-global"
   },
   "dotfiles": {
     "stow_source": "~/Dev/.configs/home",
