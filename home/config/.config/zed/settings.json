@@ -8,13 +8,13 @@
   "theme": {
     "mode": "system",
     "light": "One Light",
-    "dark": "Kanagawa Dragon"
+    "dark": "Kanagawa Dragon",
   },
   "icon_theme": "Material Icon Theme",
   // Features that can be globally enabled or disabled
   "features": {
     // Which edit prediction provider to use.
-    "edit_prediction_provider": "zed" // "copilot"
+    "edit_prediction_provider": "zed", // "copilot"
   },
   // The name of a font to use for rendering text in the editor
   // ".ZedMono" currently aliases to Lilex
@@ -35,7 +35,7 @@
     "border_size": 1.0,
     // Opacity of the inactive panes. 0 means transparent, 1 means opaque.
     // Values are clamped to the [0.0, 1.0] range.
-    "inactive_opacity": 0.85
+    "inactive_opacity": 0.85,
   },
   // Whether to enable vim modes and key bindings.
   "vim_mode": true,
@@ -51,7 +51,7 @@
     "**/*.key",
     "**/*.cert",
     "**/*.crt",
-    "**/secrets.yml"
+    "**/secrets.yml",
   ],
   // Whether to show tabs and spaces in the editor.
   // This setting can take four values:
@@ -74,7 +74,7 @@
   // Titlebar related settings
   "title_bar": {
     // Whether to show the sign in button in the titlebar.
-    "show_sign_in": false
+    "show_sign_in": false,
   },
   // Minimap related settings
   "minimap": {
@@ -86,53 +86,44 @@
     //    "always"
     // 3. Never show the minimap:
     //    "never" (default)
-    "show": "auto"
+    "show": "auto",
   },
-  "relative_line_numbers": true,
+  "relative_line_numbers": "wrapped",
   // When enabled, automatically adjusts search case sensitivity based on your query.
   // If your search query contains any uppercase letters, the search becomes case-sensitive;
   // if it contains only lowercase letters, the search becomes case-insensitive.
   "use_smartcase_search": true,
   "project_panel": {
     // Spacing between worktree entries in the project panel. Can be 'comfortable' or 'standard'.
-    "entry_spacing": "standard"
+    "entry_spacing": "standard",
   },
   "outline_panel": {
     // Whether to show the outline panel button in the status bar
-    "button": false
+    "button": false,
   },
   "collaboration_panel": {
     // Whether to show the collaboration panel button in the status bar.
-    "button": false
+    "button": false,
   },
   "git_panel": {
     // What branch name to use if `init.defaultBranch` is not set
     //
     // Default: main
-    "fallback_branch_name": "master"
+    "default_width": 360.0,
+    "button": true,
+    "collapse_untracked_diff": true,
+    "sort_by_path": false,
+    "status_style": "label_color",
+    "fallback_branch_name": "master",
   },
   "agent": {
-    // The default model to use when creating new threads.
-    "use_modifier_to_send": true,
+    "always_allow_tool_actions": true,
+    "default_profile": "ask",
     "default_model": {
-      // The provider to use.
       "provider": "copilot_chat",
-      // The model to use.
-      "model": "grok-code-fast-1"
+      "model": "claude-opus-4.5",
     },
-    // When enabled, show voting thumbs for feedback on agent edits.
-    "enable_feedback": false,
-    "default_profile": "minimal",
-    "profiles": {
-      "minimal": {
-        "name": "Minimal",
-        "enable_all_context_servers": false,
-        "tools": {
-          "thinking": true,
-          "web_search": true
-        }
-      }
-    }
+    "model_parameters": [],
   },
   // When to automatically save edited buffers. This setting can
   // take four values.
@@ -151,7 +142,7 @@
     // Show git status colors in the editor tabs.
     "git_status": true,
     // Whether to show the file icon for a tab.
-    "file_icons": true
+    "file_icons": true,
   },
   // Settings related to preview tabs.
   "preview_tabs": {
@@ -163,7 +154,7 @@
     // Whether to open tabs in preview mode when selected from the file finder.
     "enable_preview_from_file_finder": true,
     // Whether a preview tab gets replaced when code navigation is used to navigate away from the tab.
-    "enable_preview_from_code_navigation": true
+    "enable_keep_preview_on_code_navigation": true,
   },
   // How to soft-wrap long lines of text.
   // Possible values:
@@ -183,7 +174,7 @@
     // Send debug info like crash reports.
     "diagnostics": false,
     // Send anonymized usage data like what languages you're using Zed with.
-    "metrics": false
+    "metrics": false,
   },
   // Whether to disable all AI features in Zed.
   //
@@ -200,7 +191,7 @@
     // May take 2 values:
     // 1. hour12
     // 2. hour24
-    "hour_format": "hour24"
+    "hour_format": "hour24",
   },
   // Settings specific to the terminal
   "terminal": {
@@ -214,11 +205,11 @@
     // Sets the maximum number of lines in the terminal's scrollback buffer.
     // Default: 10_000, maximum: 100_000 (all bigger values set will be treated as 100_000), 0 disables the scrolling.
     // Existing terminals will not pick up this change until they are recreated.
-    "max_scroll_history_lines": 1000000
+    "max_scroll_history_lines": 1000000,
   },
   // The code actions to perform with the primary language server when formatting the buffer.
   "code_actions_on_format": {
-    "source.organizeImports": true
+    "source.organizeImports": true,
   },
   // The extensions that Zed should automatically install on startup.
   //
@@ -244,12 +235,13 @@
     "lua": true,
     "make": true,
     "nix": true,
+    "proto": true,
     "rescript": true,
     "ruff": true,
     "sql": true,
     "toml": true,
     "xml": true,
-    "zig": true
+    "zig": true,
   },
   // Different settings for specific languages.
   "languages": {
@@ -257,40 +249,40 @@
       "language_servers": ["astro-language-server", "..."],
       "prettier": {
         "allowed": true,
-        "plugins": ["prettier-plugin-astro"]
-      }
+        "plugins": ["prettier-plugin-astro"],
+      },
     },
     "Blade": {
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "C": {
       "format_on_save": "off",
       "use_on_type_format": false,
       "prettier": {
-        "allowed": false
-      }
+        "allowed": false,
+      },
     },
     "C++": {
       "format_on_save": "off",
       "use_on_type_format": false,
       "prettier": {
-        "allowed": false
-      }
+        "allowed": false,
+      },
     },
     "CSS": {
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "Dart": {
-      "tab_size": 2
+      "tab_size": 2,
     },
     "Diff": {
       "show_edit_predictions": false,
       "remove_trailing_whitespace_on_save": false,
-      "ensure_final_newline_on_save": false
+      "ensure_final_newline_on_save": false,
     },
     "Elixir": {
       "language_servers": [
@@ -298,30 +290,30 @@
         "!expert",
         "!next-ls",
         "!lexical",
-        "..."
-      ]
+        "...",
+      ],
     },
     "Elm": {
-      "tab_size": 4
+      "tab_size": 4,
     },
     "Erlang": {
-      "language_servers": ["erlang-ls", "!elp", "..."]
+      "language_servers": ["erlang-ls", "!elp", "..."],
     },
     "Git Commit": {
       "allow_rewrap": "anywhere",
       "soft_wrap": "editor_width",
-      "preferred_line_length": 72
+      "preferred_line_length": 72,
     },
     "Go": {
       "code_actions_on_format": {
-        "source.organizeImports": true
+        "source.organizeImports": true,
       },
-      "debuggers": ["Delve"]
+      "debuggers": ["Delve"],
     },
     "GraphQL": {
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "HEEX": {
       "language_servers": [
@@ -329,74 +321,81 @@
         "!expert",
         "!next-ls",
         "!lexical",
-        "..."
-      ]
+        "...",
+      ],
     },
     "HTML": {
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "Java": {
       "prettier": {
         "allowed": true,
-        "plugins": ["prettier-plugin-java"]
-      }
+        "plugins": ["prettier-plugin-java"],
+      },
     },
     "JavaScript": {
       "language_servers": ["!typescript-language-server", "vtsls", "..."],
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "Groovy": {
-      "tab_size": 2
+      "tab_size": 2,
     },
     "JSON": {
       "prettier": {
-        "allowed": true
+        "allowed": true,
       },
-      "tab_size": 2
+      "tab_size": 2,
     },
     "JSONC": {
       "prettier": {
-        "allowed": true
+        "allowed": true,
       },
-      "tab_size": 2
+      "tab_size": 2,
     },
     "Kotlin": {
-      "language_servers": ["kotlin-language-server", "!kotlin-lsp", "..."]
+      "language_servers": ["kotlin-language-server", "!kotlin-lsp", "..."],
     },
     "LaTeX": {
       "formatter": "language_server",
       "language_servers": ["texlab", "..."],
       "prettier": {
         "allowed": true,
-        "plugins": ["prettier-plugin-latex"]
-      }
+        "plugins": ["prettier-plugin-latex"],
+      },
     },
     "Markdown": {
+      "inlay_hints": {
+        "show_background": true,
+      },
+      "remove_trailing_whitespace_on_save": true,
+      "indent_guides": {
+        "coloring": "fixed",
+      },
       "format_on_save": "on",
       "use_on_type_format": false,
       "allow_rewrap": "anywhere",
       "soft_wrap": "editor_width",
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "PHP": {
       "language_servers": ["phpactor", "!intelephense", "..."],
       "prettier": {
         "allowed": true,
         "plugins": ["@prettier/plugin-php"],
-        "parser": "php"
-      }
+        "parser": "php",
+      },
     },
     "Plain Text": {
-      "allow_rewrap": "anywhere"
+      "allow_rewrap": "anywhere",
     },
     "Python": {
-      "debuggers": ["Debugpy"]
+      "debuggers": ["Debugpy"],
     },
     "Ruby": {
       "language_servers": [
@@ -405,68 +404,68 @@
         "!rubocop",
         "!sorbet",
         "!steep",
-        "..."
-      ]
+        "...",
+      ],
     },
     "Rust": {
-      "debuggers": ["CodeLLDB"]
+      "debuggers": ["CodeLLDB"],
     },
     "SCSS": {
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "Starlark": {
-      "language_servers": ["starpls", "!buck2-lsp", "..."]
+      "language_servers": ["starpls", "!buck2-lsp", "..."],
     },
     "Svelte": {
       "language_servers": ["svelte-language-server", "..."],
       "prettier": {
         "allowed": true,
-        "plugins": ["prettier-plugin-svelte"]
-      }
+        "plugins": ["prettier-plugin-svelte"],
+      },
     },
     "TSX": {
       "language_servers": ["!typescript-language-server", "vtsls", "..."],
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "Twig": {
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "TypeScript": {
       "language_servers": ["!typescript-language-server", "vtsls", "..."],
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "SystemVerilog": {
       "format_on_save": "off",
-      "use_on_type_format": false
+      "use_on_type_format": false,
     },
     "Vue.js": {
       "language_servers": ["vue-language-server", "..."],
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "XML": {
       "prettier": {
         "allowed": true,
-        "plugins": ["@prettier/plugin-xml"]
-      }
+        "plugins": ["@prettier/plugin-xml"],
+      },
     },
     "YAML": {
       "prettier": {
-        "allowed": true
-      }
+        "allowed": true,
+      },
     },
     "Zig": {
-      "language_servers": ["zls", "..."]
-    }
+      "language_servers": ["zls", "..."],
+    },
   },
   // LSP Specific settings.
   "lsp": {
@@ -478,38 +477,48 @@
       "initialization_options": {
         "checkOnSave": false,
         "cargo": {
-          "features": "all"
+          "features": "all",
         },
         "check": {
           "command": "clippy", // rust-analyzer.check.command (default: "check")
           "features": "all",
-          "allTargets": true
+          "allTargets": true,
         },
         "completition": {
           "addSemicolonToUnit": true,
           "autoimport": {
-            "enable": true
+            "enable": true,
           },
           "privateEditable": {
-            "enable": true
-          }
+            "enable": true,
+          },
         },
         "diagnostics": {
           "experimental": {
-            "enable": true
-          }
+            "enable": true,
+          },
         },
         "imports": {
           "granularity": {
             "enforce": true,
-            "group": "crate"
+            "group": "crate",
           },
-          "prefix": "crate"
+          "prefix": "crate",
+        },
+        "inlayHints": {
+          "maxLength": null,
+          "lifetimeElisionHints": {
+            "enable": "skip_trivial",
+            "useParameterNames": true,
+          },
+          "closureReturnTypeHints": {
+            "enable": "always",
+          },
         },
         "trace": {
-          "server": "verbose"
-        }
-      }
+          "server": "verbose",
+        },
+      },
     },
     // Python Configuration
     "pyright": {
@@ -520,19 +529,19 @@
           "useLibraryCodeForTypes": true,
           "reportMissingImports": true,
           "reportMissingTypeStubs": true,
-          "typeCheckingMode": "standard"
+          "typeCheckingMode": "standard",
         },
         "python": {
           "pythonPath": "./venv/bin/python",
-          "venvPath": "./venv"
-        }
-      }
+          "venvPath": "./venv",
+        },
+      },
     },
     // TypeScript Configuration
     "typescript-language-server": {
       "initialization_options": {
         "format": {
-          "enable": true
+          "enable": true,
         },
         "preferences": {
           "importModuleSpecifier": "relative",
@@ -546,14 +555,14 @@
           "includeInlayVariableTypeHintsWhenTypeMatchesName": true,
           "includeInlayPropertyDeclarationTypeHints": true,
           "includeInlayFunctionLikeReturnTypeHints": true,
-          "includeInlayEnumMemberValueHints": true
+          "includeInlayEnumMemberValueHints": true,
         },
         "suggestions": {
           "completeFunctionCalls": true,
-          "includeAutomaticOptionalChainCompletions": true
-        }
-      }
-    }
+          "includeAutomaticOptionalChainCompletions": true,
+        },
+      },
+    },
   },
   // Vim settings
   "vim": {
@@ -567,6 +576,6 @@
     // Specify the mode as the key and the shape as the value.
     // The mode can be one of the following: "normal", "replace", "insert", "visual".
     // The shape can be one of the following: "block", "bar", "underline", "hollow".
-    "cursor_shape": {}
-  }
+    "cursor_shape": {},
+  },
 }
