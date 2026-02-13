@@ -1,5 +1,14 @@
 # Omaforge
 
+## NOTICE
+
+THIS REPO HAS BEEN SPLIT INTO 2 SEPARATE REPOS:
+
+- [dotfiles](https://github.com/pixincreate/dotfiles)
+- [omaforge](https://github.com/pixincreate/omaforge)
+
+---
+
 Dotfiles and automated system setup for Fedora Linux and macOS.
 
 ```text
